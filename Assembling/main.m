@@ -142,12 +142,55 @@ else
         global_max_pos, global_max_vel, global_max_acc);
 end
 
+% %% Simulation / Visualization
+% % Precompute end-effector path for plotting.
+% n_samples = size(q_traj, 2);
+% ee_path = zeros(3, n_samples);
+% for k = 1:n_samples
+%     T_k = forwardKinematics(q_traj(:, k), robot);
+%     ee_path(:, k) = T_k(1:3, 4);
+% end
+% 
+% figure('Color', 'w', 'Name', '7-DOF Redundant Manipulator Motion');
+% ax = axes('Projection', 'perspective');
+% hold(ax, 'on');
+% grid(ax, 'on');
+% axis(ax, 'equal');
+% view(ax, 36, 22);
+% xlabel(ax, 'X [m]');
+% ylabel(ax, 'Y [m]');
+% zlabel(ax, 'Z [m]');
+% title(ax, 'Resolved-Rate IK + Quintic Joint Trajectory');
+% 
+% plot3(ax, ee_path(1, :), ee_path(2, :), ee_path(3, :), 'k--', 'LineWidth', 1.1);
+% plot3(ax, p_des_start(1), p_des_start(2), p_des_start(3), 'bo', 'MarkerFaceColor', 'b', 'MarkerSize', 7);
+% plot3(ax, p_des_goal(1), p_des_goal(2), p_des_goal(3), 'go', 'MarkerFaceColor', 'g', 'MarkerSize', 7);
+% quiver3(ax, p_des_start(1), p_des_start(2), p_des_start(3), ...
+%     R_des_start(1, 3), R_des_start(2, 3), R_des_start(3, 3), 0.5, ...
+%     'Color', [0 0 0.8], 'LineWidth', 1.4, 'MaxHeadSize', 0.8);
+% quiver3(ax, p_des_goal(1), p_des_goal(2), p_des_goal(3), ...
+%     R_des_goal(1, 3), R_des_goal(2, 3), R_des_goal(3, 3), 0.5, ...
+%     'Color', [0 0.5 0], 'LineWidth', 1.4, 'MaxHeadSize', 0.8);
+% 
+% [~, joints_0] = forwardKinematics(q_traj(:, 1), robot);
+% h_robot = plot3(ax, joints_0(1, :), joints_0(2, :), joints_0(3, :), '-o', ...
+%     'Color', [0.15 0.45 0.85], 'LineWidth', 2.0, 'MarkerSize', 4, 'MarkerFaceColor', [0.15 0.45 0.85]);
+% 
+% xlim(ax, [-3 6]);
+% ylim(ax, [-3 3]);
+% zlim(ax, [-3 4]);
+% 
+% for k = 1:n_samples
+%     [~, joints_k] = forwardKinematics(q_traj(:, k), robot);
+%     set(h_robot, 'XData', joints_k(1, :), 'YData', joints_k(2, :), 'ZData', joints_k(3, :));
+%     drawnow;
+%     pause(0.015);
+% end
+
 %%
 K_tile_force = 2000/0.015;
 C_tile_force = 2*5*sqrt(K_tile_force*2.598*0.2*100);
 
 K_tile_torque = 250/deg2rad(10);
 C_tile_torque = 2*1*sqrt(K_tile_torque*0.541266*100)*0.7;
-
-
 

@@ -1,4 +1,4 @@
-function [t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(varargin)
+function [t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj_no_energy(varargin)
 
 %% 7-DOF Redundant Manipulator: Kinematics, IK, and Smooth Joint Trajectory
 % Purpose:
@@ -94,84 +94,33 @@ ik_options.display = true;
 %   nearest branch and therefore preserves physical continuity.
 q_waypoints = zeros(robot.nJoints, n_waypoints);
 report_waypoints(1, n_waypoints) = struct('converged', false, 'iterations', 0, ...
-    'posErrorNorm', inf, 'oriErrorNorm', inf, 'transitionEnergy', inf);
+    'posErrorNorm', inf, 'oriErrorNorm', inf);
 
-% --- Minimum-energy trajectory selection across multiple IK branches ---
-% Redundant manipulators can realize the same Cartesian waypoints with
-% different joint-space branches. We generate several waypoint-consistent
-% trajectories (always seeded as q_i = IK(T_i, q_{i-1})) and select the one
-% with least joint motion energy proxy.
-%
-% Energy proxy used here:
-%   E = sum_k ||q(:,k+1) - q(:,k)||^2
-% Minimizing E reduces unnecessary joint displacement, which generally
-% correlates with lower actuation effort and smoother physical motion.
-nTrajectoryCandidates = 100;
-best_energy = inf;
-best_total_residual = inf;
-best_all_converged = false;
-best_q_waypoints = q_waypoints;
-best_report_waypoints = report_waypoints;
-
-for traj_idx = 1:nTrajectoryCandidates
-    q_waypoints_candidate = zeros(robot.nJoints, n_waypoints);
-    report_candidate(1, n_waypoints) = struct('converged', false, 'iterations', 0, ...
-        'posErrorNorm', inf, 'oriErrorNorm', inf, 'transitionEnergy', inf);
-
-    % Different initial seeds allow exploration of different valid IK branches.
-    if traj_idx == 1
-        q_seed_0 = zeros(robot.nJoints, 1);
+% --- Simplified continuity strategy for redundant IK ---
+% In a 7-DOF manipulator, many joint vectors can realize the same SE(3) pose.
+% To stay on one configuration branch and avoid unnecessary motion/energy,
+% we always seed waypoint i with the accepted solution of waypoint i-1:
+%   q_i = IK(T_i, q_{i-1})
+% This directly minimizes local joint displacement ||q_i - q_{i-1}|| and
+% yields smooth, physically realistic trajectories without extra outer loops.
+for i_wp = 1:n_waypoints
+    if i_wp == 1
+        q_prev = zeros(robot.nJoints, 1);
     else
-        q_seed_0 = robot.jointLimits(:, 1) + ...
-            (robot.jointLimits(:, 2) - robot.jointLimits(:, 1)) .* rand(robot.nJoints, 1);
+        q_prev = q_waypoints(:, i_wp - 1);
     end
 
     ik_local = ik_options;
     ik_local.display = false;
 
-    for i_wp = 1:n_waypoints
-        if i_wp == 1
-            q_prev = q_seed_0;
-        else
-            q_prev = q_waypoints_candidate(:, i_wp - 1);
-        end
+    % Single seeded IK solve for this waypoint.
+    % Note: inverseKinematics already includes internal damped pseudoinverse
+    % iterations and restart logic; no additional outer candidate loop is needed.
+    [q_i, report_i] = inverseKinematics(T_waypoints(:, :, i_wp), q_prev, robot, ik_local);
 
-        [q_i, report_i] = inverseKinematics(T_waypoints(:, :, i_wp), q_prev, robot, ik_local);
-        q_waypoints_candidate(:, i_wp) = q_i;
-        report_candidate(i_wp) = report_i;
-    end
-
-    delta_q_wp = diff(q_waypoints_candidate, 1, 2);
-    energy_candidate = sum(sum(delta_q_wp.^2, 1));
-    total_residual_candidate = sum([report_candidate.posErrorNorm]) + sum([report_candidate.oriErrorNorm]);
-    all_converged_candidate = all([report_candidate.converged]);
-
-    % Selection criterion:
-    % 1) Prefer fully converged trajectories.
-    % 2) Among equally converged sets, choose minimum energy.
-    % 3) Tie-break by total residual.
-    if all_converged_candidate && ~best_all_converged
-        best_all_converged = true;
-        best_energy = energy_candidate;
-        best_total_residual = total_residual_candidate;
-        best_q_waypoints = q_waypoints_candidate;
-        best_report_waypoints = report_candidate;
-    elseif all_converged_candidate == best_all_converged
-        if energy_candidate < best_energy || ...
-                (abs(energy_candidate - best_energy) < 1e-12 && total_residual_candidate < best_total_residual)
-            best_energy = energy_candidate;
-            best_total_residual = total_residual_candidate;
-            best_q_waypoints = q_waypoints_candidate;
-            best_report_waypoints = report_candidate;
-        end
-    end
-end
-
-q_waypoints = best_q_waypoints;
-report_waypoints = best_report_waypoints;
-
-if ~all([report_waypoints.converged])
-    warning('Selected minimum-energy trajectory has at least one non-converged waypoint IK solution.');
+    q_waypoints(:, i_wp) = q_i;
+    report_waypoints(i_wp) = report_i;
+    
 end
 
 q_start = q_waypoints(:, 1);
@@ -244,74 +193,6 @@ ori_err_goal = rotationErrorAngle(R_des_goal, T_goal_ach(1:3, 1:3));
 fprintf('Start pose error: position=%.3e m, orientation=%.3e rad\n', pos_err_start, ori_err_start);
 fprintf('Goal  pose error: position=%.3e m, orientation=%.3e rad\n', pos_err_goal, ori_err_goal);
 
-% %% Simulation / Visualization
-% % Precompute end-effector path for plotting.
-% n_samples = size(q_traj, 2);
-% ee_path = zeros(3, n_samples);
-% for k = 1:n_samples
-%     T_k = forwardKinematics(q_traj(:, k), robot);
-%     ee_path(:, k) = T_k(1:3, 4);
-% end
-% 
-% figure('Color', 'w', 'Name', '7-DOF Redundant Manipulator Motion');
-% ax = axes('Projection', 'perspective');
-% hold(ax, 'on');
-% grid(ax, 'on');
-% axis(ax, 'equal');
-% view(ax, 36, 22);
-% xlabel(ax, 'X [m]');
-% ylabel(ax, 'Y [m]');
-% zlabel(ax, 'Z [m]');
-% title(ax, 'Resolved-Rate IK + Quintic Joint Trajectory');
-% 
-% plot3(ax, ee_path(1, :), ee_path(2, :), ee_path(3, :), 'k--', 'LineWidth', 1.1);
-% plot3(ax, p_des_start(1), p_des_start(2), p_des_start(3), 'bo', 'MarkerFaceColor', 'b', 'MarkerSize', 7);
-% plot3(ax, p_des_goal(1), p_des_goal(2), p_des_goal(3), 'go', 'MarkerFaceColor', 'g', 'MarkerSize', 7);
-% quiver3(ax, p_des_start(1), p_des_start(2), p_des_start(3), ...
-%     R_des_start(1, 3), R_des_start(2, 3), R_des_start(3, 3), 0.5, ...
-%     'Color', [0 0 0.8], 'LineWidth', 1.4, 'MaxHeadSize', 0.8);
-% quiver3(ax, p_des_goal(1), p_des_goal(2), p_des_goal(3), ...
-%     R_des_goal(1, 3), R_des_goal(2, 3), R_des_goal(3, 3), 0.5, ...
-%     'Color', [0 0.5 0], 'LineWidth', 1.4, 'MaxHeadSize', 0.8);
-% 
-% [~, joints_0] = forwardKinematics(q_traj(:, 1), robot);
-% h_robot = plot3(ax, joints_0(1, :), joints_0(2, :), joints_0(3, :), '-o', ...
-%     'Color', [0.15 0.45 0.85], 'LineWidth', 2.0, 'MarkerSize', 4, 'MarkerFaceColor', [0.15 0.45 0.85]);
-% 
-% xlim(ax, [-3 6]);
-% ylim(ax, [-3 3]);
-% zlim(ax, [-3 4]);
-% 
-% for k = 1:n_samples
-%     [~, joints_k] = forwardKinematics(q_traj(:, k), robot);
-%     set(h_robot, 'XData', joints_k(1, :), 'YData', joints_k(2, :), 'ZData', joints_k(3, :));
-%     drawnow;
-%     pause(0.015);
-% end
-% 
-% %% Joint Profiles
-% figure('Color', 'w', 'Name', 'Joint Profiles');
-% tiledlayout(3, 1, 'TileSpacing', 'compact');
-% 
-% nexttile;
-% plot(t_vec, q_traj.', 'LineWidth', 1.2);
-% grid on;
-% ylabel('q [rad]');
-% title('Joint Position');
-% legend('q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'Location', 'eastoutside');
-% 
-% nexttile;
-% plot(t_vec, qd_traj.', 'LineWidth', 1.2);
-% grid on;
-% ylabel('qdot [rad/s]');
-% title('Joint Velocity');
-% 
-% nexttile;
-% plot(t_vec, qdd_traj.', 'LineWidth', 1.2);
-% grid on;
-% xlabel('Time [s]');
-% ylabel('qddot [rad/s^2]');
-% title('Joint Acceleration');
 
 %% Outputs in Workspace
 % q_start, q_goal, t_vec, q_traj, qd_traj, qdd_traj, report_start, report_goal
@@ -402,20 +283,11 @@ function [q_solution, report] = inverseKinematics(T_des, q_init, robot, options)
 %   R_err = R_des * R_current'
 %   e_or = log_SO3(R_err)
 % and total task error is e = [e_p; e_or].
-%
-% Candidate selection policy (minimal-energy branch choice):
-%   Among all restart candidates that satisfy tolerances, choose the one
-%   minimizing transition energy from q_init, approximated by
-%   ||q_candidate - q_init||^2. This prefers the closest configuration
-%   branch while preserving the existing IK update law.
 
 q_init = q_init(:);
 q_center = mean(robot.jointLimits, 2);
 best_error = inf;
-best_transition_energy = inf;
-best_has_converged = false;
-best_report = struct('converged', false, 'iterations', 0, ...
-    'posErrorNorm', inf, 'oriErrorNorm', inf, 'transitionEnergy', inf);
+best_report = struct();
 q_solution = q_init;
 
 for restart = 1:options.nRandomRestarts
@@ -465,34 +337,17 @@ for restart = 1:options.nRandomRestarts
     end
 
     total_error = pos_error_norm + ori_error_norm;
-    transition_energy = norm(q_current - q_init)^2;
+    if total_error < best_error
+        best_error = total_error;
+        q_solution = q_current;
+        best_report.converged = converged;
+        best_report.iterations = iter;
+        best_report.posErrorNorm = pos_error_norm;
+        best_report.oriErrorNorm = ori_error_norm;
+    end
 
     if converged
-        % Prefer converged candidates with minimum transition energy.
-        if ~best_has_converged || transition_energy < best_transition_energy || ...
-                (abs(transition_energy - best_transition_energy) < 1e-12 && total_error < best_error)
-            best_has_converged = true;
-            best_transition_energy = transition_energy;
-            best_error = total_error;
-            q_solution = q_current;
-            best_report.converged = converged;
-            best_report.iterations = iter;
-            best_report.posErrorNorm = pos_error_norm;
-            best_report.oriErrorNorm = ori_error_norm;
-            best_report.transitionEnergy = transition_energy;
-        end
-    else
-        % If nothing converges, keep the smallest residual fallback.
-        if ~best_has_converged && total_error < best_error
-            best_error = total_error;
-            best_transition_energy = transition_energy;
-            q_solution = q_current;
-            best_report.converged = converged;
-            best_report.iterations = iter;
-            best_report.posErrorNorm = pos_error_norm;
-            best_report.oriErrorNorm = ori_error_norm;
-            best_report.transitionEnergy = transition_energy;
-        end
+        break;
     end
 end
 
