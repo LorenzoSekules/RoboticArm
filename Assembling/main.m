@@ -34,21 +34,36 @@ R_up = [0 0 1; 0 1 0; -1 0 0]';
 R_down = [-1 0 0; 0 1 0; 0 0 -1]';
 
 % Named waypoints (columns of p_waypoints) for readability.
-% Each pX is [x; y; z] in meters.
-p1  = [-0.5;               0.0;  1.5 + sqrt(3)/2];
-p2  = [ 4.0;               0.0; -1.3];
-p3  = [-0.7;               0.0;  1.5 + sqrt(3)/2];
-p4  = [ 4.0 + sqrt(3);     0.0; -1.3];
-p5  = [-0.9;               0.0;  1.5 + sqrt(3)/2];
-p6  = [ 4.0 + sqrt(3)/2;  -1.5; -1.3];
-p7  = [-1.1;               0.0;  1.5 + sqrt(3)/2];
-p8  = [ 4.0 - sqrt(3)/2;  -1.5; -1.3];
-p9  = [-1.3;               0.0;  1.5 + sqrt(3)/2];
-p10 = [ 4.0 - sqrt(3);     0.0; -1.3];
-p11 = [-1.5;               0.0;  1.5 + sqrt(3)/2];
-p12 = [ 4.0 - sqrt(3)/2;   1.5; -1.3];
-p13 = [-1.7;               0.0;  1.5 + sqrt(3)/2];
-p14 = [ 4.0 + sqrt(3)/2;   1.5; -1.3];
+% Each pX is [x; y; z] in meters. It is wrt to the starting robot point
+% p1  = [-0.5;               0.0;  1.5 + sqrt(3)/2];
+% p2  = [ 4.0;               0.0; -1.3];
+% p3  = [-0.7;               0.0;  1.5 + sqrt(3)/2];
+% p4  = [ 4.0 + sqrt(3);     0.0; -1.3];
+% p5  = [-0.9;               0.0;  1.5 + sqrt(3)/2];
+% p6  = [ 4.0 + sqrt(3)/2;  -1.5; -1.3];
+% p7  = [-1.1;               0.0;  1.5 + sqrt(3)/2];
+% p8  = [ 4.0 - sqrt(3)/2;  -1.5; -1.3];
+% p9  = [-1.3;               0.0;  1.5 + sqrt(3)/2];
+% p10 = [ 4.0 - sqrt(3);     0.0; -1.3];
+% p11 = [-1.5;               0.0;  1.5 + sqrt(3)/2];
+% p12 = [ 4.0 - sqrt(3)/2;   1.5; -1.3];
+% p13 = [-1.7;               0.0;  1.5 + sqrt(3)/2];
+% p14 = [ 4.0 + sqrt(3)/2;   1.5; -1.3];
+
+p1  = [-0.0;               0.0;  2.25 + sqrt(3)/2];
+p2  = [ 3.8;               0.0; -2.8];
+p3  = [-0.2;               0.0;  2.25 + sqrt(3)/2];
+p4  = [ 3.8 + sqrt(3);     0.0; -2.8];
+p5  = [-0.4;               0.0;  2.25 + sqrt(3)/2];
+p6  = [ 3.8 + sqrt(3)/2;  -1.5; -2.8];
+p7  = [-0.6;               0.0;  2.25 + sqrt(3)/2];
+p8  = [ 3.8 - sqrt(3)/2;  -1.5; -2.8];
+p9  = [-0.8;               0.0;  2.25 + sqrt(3)/2];
+p10 = [ 3.8 - sqrt(3);     0.0; -2.8];
+p11 = [-1.0;               0.0;  2.25 + sqrt(3)/2];
+p12 = [ 3.8 - sqrt(3)/2;   1.5; -2.8];
+p13 = [-1.2;               0.0;  2.25 + sqrt(3)/2];
+p14 = [ 3.8 + sqrt(3)/2;   1.5; -2.8];
 
 % Waypoint order: p1 -> p2 -> ... -> p14
 p_waypoints = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
@@ -63,8 +78,17 @@ for k = 1:n_wp
     end
 end
 
+% Expand each mission waypoint with pre/post safe waypoints while preserving
+% the original waypoint order and orientation assignment:
+% - odd index (pick): pre/post at +1 m along X
+% - even index (drop): pre/post at +1 m along Z
+% This forces the existing optimizer to pass through collision-aware
+% intermediate poses without changing the optimization architecture.
+[p_waypoints, R_waypoints] = appendCollisionAvoidanceWaypoints(p_waypoints, R_waypoints);
+
 [t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(p_waypoints, R_waypoints);
 
+save('best_trajectory3.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
 %% Trajectory Analysis and Continuity Check
 % In this context, discontinuity means an unexpected sample-to-sample spike
 % in joint position/velocity/acceleration. For redundant robots, moderate
@@ -193,4 +217,48 @@ C_tile_force = 2*5*sqrt(K_tile_force*2.598*0.2*100);
 
 K_tile_torque = 250/deg2rad(10);
 C_tile_torque = 2*1*sqrt(K_tile_torque*0.541266*100)*0.7;
+
+
+function [p_wp_out, R_wp_out] = appendCollisionAvoidanceWaypoints(p_wp_in, R_wp_in)
+% APPENDCOLLISIONAVOIDANCEWAYPOINTS Inserts pre/post waypoints around each target.
+%
+% For each original waypoint k:
+%   - if k is odd  (pick phase), offset point is p_k + [1; 0; 0]
+%   - if k is even (drop phase), offset point is p_k + [0; 0; 1]
+% The output sequence is [pre_k, target_k, post_k] for every k.
+
+n_wp = size(p_wp_in, 2);
+p_wp_out = zeros(3, 3 * n_wp);
+R_wp_out = zeros(3, 3, 3 * n_wp);
+
+for k = 1:n_wp
+    % Pick and drop phases use different safety retreat/approach directions.
+    if mod(k, 2) == 1
+        offset = [2; 0; 0];
+    else
+        offset = [0; 0; 0.8];
+    end
+
+    % Indices for [pre, target, post] slots in the expanded waypoint arrays.
+    idx_pre = 3 * (k - 1) + 1;
+    idx_mid = idx_pre + 1;
+    idx_post = idx_pre + 2;
+
+    p_target = p_wp_in(:, k);
+    R_target = R_wp_in(:, :, k);
+
+    % Pre and post waypoints are both placed in the assumed safe direction.
+    p_safe = p_target + offset;
+
+    p_wp_out(:, idx_pre) = p_safe;
+    p_wp_out(:, idx_mid) = p_target;
+    p_wp_out(:, idx_post) = p_safe;
+
+    % Keep orientation unchanged across pre/target/post for smooth IK seeding.
+    R_wp_out(:, :, idx_pre) = R_target;
+    R_wp_out(:, :, idx_mid) = R_target;
+    R_wp_out(:, :, idx_post) = R_target;
+end
+
+end
 

@@ -106,7 +106,10 @@ report_waypoints(1, n_waypoints) = struct('converged', false, 'iterations', 0, .
 %   E = sum_k ||q(:,k+1) - q(:,k)||^2
 % Minimizing E reduces unnecessary joint displacement, which generally
 % correlates with lower actuation effort and smoother physical motion.
-nTrajectoryCandidates = 100;
+nTrajectoryCandidates = 2;
+% Large additive penalty used to keep unconstrained optimization structure
+% while strongly discouraging configurations that collide.
+collisionPenaltyWeight = 1e5;
 best_energy = inf;
 best_total_residual = inf;
 best_all_converged = false;
@@ -143,6 +146,19 @@ for traj_idx = 1:nTrajectoryCandidates
 
     delta_q_wp = diff(q_waypoints_candidate, 1, 2);
     energy_candidate = sum(sum(delta_q_wp.^2, 1));
+
+    % Collision-aware augmentation for unconstrained selection:
+    % we keep the same energy objective and add a large penalty whenever a
+    % waypoint configuration violates floor/obstacle/self-collision checks.
+    % This preserves the original architecture and only changes scoring.
+    n_collision_waypoints = 0;
+    for i_wp = 1:n_waypoints
+        if check_collisions_arm(q_waypoints_candidate(:, i_wp))
+            n_collision_waypoints = n_collision_waypoints + 1;
+        end
+    end
+    energy_candidate = energy_candidate + collisionPenaltyWeight * n_collision_waypoints;
+
     total_residual_candidate = sum([report_candidate.posErrorNorm]) + sum([report_candidate.oriErrorNorm]);
     all_converged_candidate = all([report_candidate.converged]);
 
