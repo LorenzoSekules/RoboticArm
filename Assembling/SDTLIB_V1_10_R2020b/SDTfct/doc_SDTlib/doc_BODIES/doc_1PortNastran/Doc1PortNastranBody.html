@@ -1,0 +1,148 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>One-port (6x18) NASTRAN flexible body</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+    <h1><b>1 port Nastran body</b></h1>
+    <hr>
+<h1>One-port (6x18) model of a NASTRAN flexible body from <i>.f06</i> file</h1><!--introduction--><p>This block is a NASTRAN/MATLAB interface to compute the $(6 \times 18)$ linear dynamic model of a flexible body $\mathcal{A}$   from the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a>  to the  wrench applied by this body to the parent body.</p>
+  <p> This interface reads the values from the  NASTRAN/PATRAN analysis output file (file with extension <i>.f06</i>) to build the model. The reader is advised to read first the help of <a href="../doc_flexbody/Doconeportflexiblebody.html" target='_blank'>1-port flexible body</a> .</p>
+  
+  <p> The obtained model is expressed:
+  <div><ul>
+  		<li>in its reference frame $\mathcal{R}_a$, </li>
+  		<li>at the point $P$ (the connection point with another body and the <b>reference point for the NASTRAN/PATRAN analysis</b>).</li>
+  	</ul></div>
+  </p>
+  <p>See also: <a href="../doc_hub/DocGeneralNotations.html">General notations</a>,  <a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, <a href="../doc_NPortNastran/DocNPortNastranBody.html">N-ports NASTRAN flexible body</a>, <a href="../doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p><!--/introduction--><h2>Contents</h2>
+  <div><ul>
+  		<li><a href="#1">Description</a></li>
+   		<li><a href="#2">Ports</a></li>
+   		<li><a href="#3">Parameters</a></li>
+  		<li><a href="#4">Simulink diagram under the mask</a></li>
+  		<li><a href="#5">Remarks</a></li>
+  </ul></div>
+<h2 id="1">Description</h2>
+  <p>
+  	The $6\times 18$ model is depicted in the following Figure:: </p><p><img vspace="5" hspace="5" width="100%" src="../doc_flexbody/dynmodelflexible.png" alt=""></p>
+  	<p>It depends on :
+  		<ul>
+  			<li>the frequencies $\omega_i$ and damping ratios $\xi_i$ ($i=1,\cdots,N$) of the $N$ flexible modes,</li>
+  			<li>the $N \times 6$ matrix of modal participation factor $\mathbf{L}^{\mathcal A}_P$,</li>
+  			<li>the residual mass $\mathbf D^{\mathcal{A}}_{P0}$ of the body $\mathcal{A}$ rigidly cantilevered at point $P$. </li>
+  		</ul>
+  		The parameters $\omega_i$, $\mathbf{L}^{\mathcal A}_P$ and $\mathbf D^{\mathcal{A}}_{P0}$ are read from the associated Nastran output files. The damping ratio is the same for all the flexible modes $\xi_i=\xi,\forall\;i=1,\cdots, N$. 
+  		</p>
+  		<p>In the Figure above, $-\mathbf{M}^{\mathcal{A}}_P(\mathrm{s})$ is the $6\times 6$ transfer from the $6$ components of the acceleration dual vector $\boldsymbol{\mathbf x''}^\mathcal{A}_P$ to the $6$ components of the interaction wrench  $\left[\mathbf{W}_{\mathcal{A/.},P} \right]_{\mathcal{R}_a}$. The last $12$ components of the motion vector $\delta\mathbf{m}^{\mathcal{A}}_P$ are not used in this block.</p>
+  		
+  	<h2 id="2">Ports</h2>
+  	<p><b>Input:</b> <li><b>m</b>:
+		the motion vector $\left[\delta\mathbf{m}^{\mathcal{A}}_P \right]_{\mathcal{R}_a}$ (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) at the point $P$, projected in the inherit body frame $\mathcal{R}_a$.</li>
+</p>
+<p><b>Output:</b>  <li><b>Wbody/.</b>:
+		the wrench $\left[\mathbf{W}_{\mathcal{A/.},P} \right]_{\mathcal{R}_a}$ (units: $N$ and $N.m$) applied by the body $\mathcal{A}$ at the point $P$ to the parent body, projected in the inherit body frame $\mathcal{R}_a$.</li>
+</p>
+  	
+  	<h2 id="3">Parameters</h2>
+  	<div><ul>	
+  			<li>Name of the <i>.f06</i> file (without extension): string,</li>
+  			<li>Number of modes to be considered: integer $N$. This integer must equal or lower than the number of flexible modes in the <i>.f06</i> file,</li>
+  			<li>Common damping ratio $\xi$: real (can be declared as an uncertain parameters with <i>ureal</i>),</li>
+  			<li>Uncertainties (%) on the flexible mode frequencies $\omega_i$: a common positive real value or a vector with $N$ components (in increasing frequency order).</li>
+  			</ul></div>
+
+ <h2 id="4">Simulink diagram under the mask</h2>
+ <p>	<img vspace="5" hspace="5" width="100%" src="1portNastran_maskAug.png" alt="">
+ 	</p>
+ 	 	<h2 id="5">Remarks:</h2>
+  	<div><ul>	
+  			<li>for each frequency $\omega_i,\forall\;i=1,\cdots, N$, the associated uncertain parameter is named: <i>'w_name_i'</i> where <i>'name'</i> is the current block name (without spaces).</li>
+  			<li>for the user who wants to take into account uncertainties on the components of the modal participation factor matrix $\mathbf{L}_P$, 2 options are proposed:
+  				<ul>
+  					<li> to extract the data thanks to the function <i>getDataFromNASTRAN1Port.m</i> (see: <i>help getDataFromNASTRAN1Port</i>) and then to use the <a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a> block.</li>
+  				</ul>
+  				   <li> to use the block a <a href="../doc_NPortNastran/DocNPortNastranBody.html">N-ports NASTRAN flexible body</a> (with a dummy child port).
+  			</li>
+   </ul></div>
+  	
+  	
+<p class="footer"><br></p></div></body></html>

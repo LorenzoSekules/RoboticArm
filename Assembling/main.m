@@ -23,6 +23,48 @@ robot.d = [2, 0, 2, 0, 2, 0, 1];
 robot.baseT = [0 0 1 0; 0 1 0 0; -1 0 0 0; 0 0 0 1];
 robot.jointLimits = repmat([-pi, pi], 7, 1);
 
+% %% Flexible substructures data extraction for Solar Arrays
+% 
+% % FEM model name
+% f06_SA='SA_V1_lumped';
+% bdf_SA='sa_v1_lumped';
+% 
+% % Interface points
+% SA.pointP  =       1;          % Attachment node of SA (grid point ID on bdf file)
+% % pointsC_SA =   6488;         % Not used since we use a 1-port approach for the SA (6488 corresponds to grid point ID on bdf file of the tip node of the SA)
+% SA.damping_ratio =  0.003;  % Common damping ratio
+% SA.n_modes =    10;         % Number of modes for each SA
+% unc_freq_SA =   10;         % common uncertain (percentage) on natural frequency
+% SA.n_unc = 6;               % Number of modes considered uncertain
+% 
+% % SA.MPCunc = 20;              % Uncertaintiy on the modal participation factor of the solar arrays
+% % SA.n_MPCunc = 3;              % Number of uncertaintiy on the modal participation factor of the solar arrays
+% 
+% SA.MPCunc = 0;              % Uncertaintiy on the modal participation factor of the solar arrays
+% SA.n_MPCunc = 0;              % Number of uncertaintiy on the modal participation factor of the solar arrays
+% 
+% % Extraction of ROM matrix for Simscape Multibody Flex. Reduced order model
+% [coord_SA,Mrofs_SA,Krofs_SA,Drofs_SA,flagFatal]=Nastran2ROFS(strcat(f06_SA,'.f06'),strcat(bdf_SA,'.bdf'),SA.damping_ratio,SA.pointP,[],SA.n_modes); 
+% 
+% SADM.Stiffness = 10000;       % SADM stiffness [Nm/rad]
+% SADM.damping =   1;           % SADM damping [Nms/rad]
+% 
+% % Rotation of Solar Array with respect to central body
+% theta_SA =          ureal('theta_SA',0,'Range',[-pi pi]);                % [rad] rotation of the SAs
+% theta_SA_simscape = usubs(theta_SA,'theta_SA',theta_SA.NominalValue);    % [rad] - Value imported in Simscape
+% 
+% Benchmark.config.status.SA_rot_symmetry =       0; % 1 = angular difference of SA2 with respect to SA1 (additional parametric uncertainty) 0 = perfect symmetry (same angle used for the 2 SAs)
+% if Benchmark.config.status.SA_rot_symmetry== 1
+%     epsilon_SA2 =          ureal('epsilon_SA2',0,'Range',[-pi pi]);          % [rad] epsilon_SA2 is a further varying parameter that can be used to test 
+%                                                                              % the a different angular config. of SA2 wrt SA1  
+%                                                                              % if users need to do so.
+%     epsilon_SA2_simscape = usubs(epsilon_SA2,'epsilon_SA2',epsilon_SA2.NominalValue);    % [rad] - Value imported in Simscape
+% else
+%     epsilon_SA2 = 0;
+%     epsilon_SA2_simscape=epsilon_SA2;
+% end
+
+
 %% Trejectory
 % Pose is represented as T = [R p; 0 1].
 % Start and goal are fully specified SE(3) targets.
@@ -86,9 +128,10 @@ end
 % intermediate poses without changing the optimization architecture.
 [p_waypoints, R_waypoints] = appendCollisionAvoidanceWaypoints(p_waypoints, R_waypoints);
 
-[t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(p_waypoints, R_waypoints);
+load('best_trajectory2.mat')
+%[t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(p_waypoints, R_waypoints);
 
-save('best_trajectory3.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
+%save('best_trajectory3.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
 %% Trajectory Analysis and Continuity Check
 % In this context, discontinuity means an unexpected sample-to-sample spike
 % in joint position/velocity/acceleration. For redundant robots, moderate

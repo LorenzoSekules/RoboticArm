@@ -86,7 +86,7 @@ ik_options.display = true;
 
 % The key continuity rule for redundant robots:
 %   q_i = IK(T_i, q_{i-1})
-% Why this matters:
+% 
 %   In a redundant manipulator, the same Cartesian pose may admit multiple
 %   joint configurations (different branches). Solving each segment independently
 %   can switch branches at shared waypoints, creating non-physical jumps in q.

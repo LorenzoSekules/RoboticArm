@@ -1,0 +1,184 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Prismatic joint with linear configuration.</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style></head>
+
+<body>	
+	<div class="content">
+      <h1><b>Prismatic joint with linear offset (configuration)</b></h1>
+		<hr>
+<h1>Linear augmented TITOP model of a prismatic joint around a given linear configuration.</h1>
+<p>This block implements the augmented $27 \times 25$ TITOP (Two-Input Two-Output Ports) model of a prismatic joint  located at the interconnection $P_0$  between a parent body $\mathcal P$ and a child body $\mathcal C$ for a given linear configuration $\bar x$ (offset). The inputs and the outputs of this model are:
+  	<div><ul>
+  			<li>the $18 \times 6 $ transfer from the wrench applied by the child body $\mathcal C$  at the point $P$ on the translated output slider of the prismatic joint  to the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a>  of the body $\mathcal C$ at the point $P$, projected in the parent body frame $\mathcal R_p$,</li>
+  			<li>the $6 \times 18 $  transfer from the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> imposed by the parent body $\mathcal P$ at the connection point $P_0$ of the input slider of the prismatic joint to the wrench applied by this input slider  to the parent body  $\mathcal P$ at the point $P_0$, projected in the parent body frame $\mathcal R_p$,</li>
+  			<li>the $3 \times 1 $ transfer from the force applied to the output slider  by the input slider (thanks to an actuator) to the relative motion vector  variation $\delta\mathbf m_t=\left[\ddot x,\;\;\delta\dot x,\;\;\delta x\right]^T$,</li>
+  		</ul></div> </p>
+  <p><b>Remarks:</b>
+  	<ul><li> 
+  			This block includes 2 integrators to model the rigid mode of the prismatic joint. The initial conditions on these 2 integrators are null since only the linear model and small variations around $\bar x$ are considered. That justifies the notation $\delta\dot x$ and $\delta x$ for the successive integration of the accelarations $\ddot x$ (assumed to be small  also).
+  		</li></ul>
+  	</p>
+  
+  <p>See also: <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>,  
+  	<a href="../doc_revolute_configuration/DocRevoluteJoint_configuration.html">Revolute joint + configuration</a>, 
+  	<a href="../doc_revolute/DocRevoluteJoint_joly.html">Revolute joint </a>,  
+  	<a href="../../doc_BODIES/doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, 
+  	<a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi port rigid body</a>
+  </p>
+ 
+<h2>Contents</h2>
+<div><ul>
+		<li><a href="#1">Description</a></li>
+		<li><a href="#2">Ports</a></li>
+		<li><a href="#3">Parameters</a></li>
+		<li><a href="#4">See also</a></li>
+  		<li><a href="#5">Simulink diagram under the mask</a></li>
+</ul></div>
+<h2 id="1">Description</h2>
+<p>Considering a primatic joint (see following Figure) between a parent body, clamped on the input slider of the prismatic joint at the point $P_0$, and the child body $\mathcal C$, clamped on the output slider of the prismatic joint at the point $P$. $P$ and $P_0$ coincide when the linear configuration (offset) of the prismatic joint is null.</p>
+<p><img vspace="5" hspace="5" width="60%" src="figPrisX.png" alt=""></p>
+<p> Let us define:</p>
+<div><ul>
+    	<li>$\mathcal{R}_p$: the frame attached to the input slider or the parent body at the point $P_0$,</li>
+		<li>$\mathbf{t}_a$: the direction of the prismatic joint axis and $\mathbf{\tilde{t}}_a$ a unitary vector along this direction,</li>
+		<li>$\bar x$: the linear configuration of the prismatic joint: $P$ coincides with $P_0$ when $\bar x=0$,</li>
+		<li> $\ddot x$, $\delta\dot x$, $\delta x$ the relative linear acceleration, velocity and position variations of the output slider w.r.t. to the input slider around $\bar x$</li>
+		<li>$F_m$: the force which can be applied inside the prismatic joint by the input slider to the output slider,</li>
+		<li>$m_p$: the mass of the output slider,</li>
+				<li>$\mathbf{W}_{\mathcal C/p,P}=\left[\mathbf{F}^T_{\mathcal C/p} \;\;\mathbf{T}^T_{\mathcal C/p,P}\right]^T$: the external wrench ($6\times 1$) applied by the child body $\mathcal C$ on the output slider, at point $P$,</li>
+		<li>$\delta\mathbf{m}^{\mathcal C}_{P}$ the motion vector ($18\times 1$) of the child body $\mathcal C$ at the point $P$. $\delta\mathbf m^\mathcal{C}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{C}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{C}_P}^T\;\;{\delta\mathbf{x}^\mathcal{C}_P}^T\right]^T$ with $\boldsymbol{\mathbf{x}''}^\mathcal{C}_P= \left[ {\mathbf{a}^{\mathcal C}_P}^T \;\; {\boldsymbol{\dot\omega}^{\mathcal C}}^T \right]^T$,</li>
+		<li>$\delta\mathbf{m}^{\mathcal P}_{P_0}$ the motion vector ($18\times 1$) of the parent body $\mathcal P$ at the point $P_0$. $\delta\mathbf m^\mathcal{P}_{P_0}=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{P}_{P_0}}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{P}_{P_0}}^T\;\;{\delta\mathbf{x}^\mathcal{P}_{P_0}}^T\right]^T$ with $\boldsymbol{\mathbf{x}''}^\mathcal{P}_{P_0}= \left[ {\mathbf{a}^{\mathcal P}_{P_0}}^T \;\; {\boldsymbol{\dot\omega}^{\mathcal P}}^T \right]^T$,</li>
+		<li>$\mathbf{W}_{p/\mathcal P,P_0}=\left[\mathbf{F}^T_{p/\mathcal P_0} \;\;\mathbf{T}^T_{p/\mathcal P,P_0}\right]^T$: the wrench ($6\times 1$) applied by input shaft on the parent body $\mathcal P$, at point $P_0$,</li>
+</ul></div>
+<p>Then, the dynamic model projected along the prismatic joint axis $\mathbf t_a$ reads:</p>
+<p>$$\mathbf{\tilde{t}}_{a6}.\mathbf{W}_{C/p,P}+F_m=m_p\underbrace{\left(\ddot{x}+\mathbf{\tilde{t}}_{a6}.(\boldsymbol\tau_{PP_0}\boldsymbol{\mathbf{x}''}^\mathcal{P}_{P_0})\right)}_{\boldsymbol{\mathbf{x}''}^\mathcal{C}_{P}} $$</p>
+<p>where: 
+	<ul>
+		<li>$\mathbf{a}.\mathbf{b}=\left[\mathbf{a}\right]^T_{\mathcal{R}_p}\left[\mathbf{b}\right]_{\mathcal{R}_p}$ stands for the scalar product of dual vectors $\mathbf{a}$ and $\mathbf{b}$,</li>
+		<li>$\left[\mathbf{\tilde{t}}_{a6}\right]_{\mathcal R_p}=\left[[\mathbf{\tilde{t}}_{a}]^T_{\mathcal R_p}\;\;0\;\;0\;\;0\right]^T$,</li>
+		<li>$\boldsymbol\tau_{PP_0}=\boldsymbol\tau_{-\bar x\mathbf{\tilde{t}}_{a}}$ is the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#3" target='_blank'>kinematic model</a> between points  $P$ and $P_0$.</li>
+	</ul></p>
+<p>The force applied by the joint $p$ to the parent body along the prismatic axis is $-F_m$: $ \mathbf{\tilde{t}}_{a6}.\mathbf{W}_{p/\mathcal P,P_0}=-F_m.$</p>
+
+<p> Along any direction $\mathbf v$ orthogonal to $\mathbf t_a$, the force balance reads: $\mathbf v.\left(\mathbf{F}_{\mathcal C/p,P}-\mathbf{F}_{p/\mathcal P,P_0}\right)=m_p\mathbf v. \mathbf{a}^\mathcal C_P$. </p>
+<p>Finally: $\mathbf{W}_{p/\mathcal P,P_0}=\boldsymbol\tau_{PP_0}^T \mathbf{W}_{p/\mathcal P,P}$.</p>
+<p>Considering the DCM matrix mapping the prismatic joint axis on the third axis :</p>
+<p>$$\mathbf{P}_{t/p}=\mathbf{P_t}_a\left[\begin{array}{ccc} \mbox{det}(\mathbf{P_{t}}_a) & 0 & 0\\ 0 & 1 & 0 \\ 0 & 0 & 1\end{array}\right]\;\; \mbox{with: } \mathbf{P_t}_a=\left[\mbox{null}([\mathbf{\tilde{t}}_a]^T_{\mathcal{R}_p})\quad [\mathbf{\tilde{t}}_a]_{\mathcal{R}_p}\right],$$
+then, the block-diagram of the TITOP model of a prismatic joint can be depicted in the following Figure.</p>
+<p><img vspace="5" hspace="5" width="100%" src="prismatic.png" alt=""> </p>
+
+<h2 id="2">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>		
+		<li><b>W./p,P</b> $=\left[\mathbf{W}_{\mathcal C/p,P}\right]_{\mathcal R_c}$: 6 component signal (units: $N$ and $N.m$),</li>
+		<li><b>m_P0</b> $=\left[\delta\mathbf{m}^{\mathcal P}_{P_0}\right]_{\mathcal{R}_p}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+		<li><b>Fm</b> $=F_m$: scalar signal (unit: $N.m$).</li>
+	</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+		<li><b>m_P</b> $=\left[\delta\mathbf{m}^{\mathcal C}_{P}\right]_{\mathcal{R}_c}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+		<li><b>Wp/.,P0</b> $=\left[\mathbf{W}_{p/\mathcal P,P_0}\right]_{\mathcal{R}_p}$: 6 component signal (units: $N$ and $N.m$),</li>
+		<li><b>m_x</b> $=\delta\mathbf m_t=\left[\ddot x,\;\;\delta\dot x,\;\;\delta x\right]^T$: the relative motion vector  (unit: $m/s^2$, $m/s$, $m$).</li>
+	</ul></div>
+
+<h2 id="3">Parameters</h2>
+<!-- <p>All parameters are expressed in the local (inherit) frame $\mathcal{R}_a$.</p> -->
+<p>The input parameters are:</p>
+<div><ul>
+<li>the direction of the joint-axis in the local frame (3x1 vector): $\left[\mathbf{t}_a\right]_{\mathcal{R}_p}$,</li>
+<li>the output slider mass (unit: $Kg$): $m_p$</li>
+<li> the linear configuration $\bar x$ (unit: $m$)</li>
+</ul></div>
+
+<!--<h2 id="4">See also:</h2>
+<ul>
+	<li><a href="../doc_revolute/DocRevoluteJoint_joly.html">Revolute joint</a></li>
+	<li><a href="../doc_revolute_configuration/DocRevoluteJoint_configuration.html">Revolute joint + configuration</a></li>
+	<li><a href="../../doc_BODIES/doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a></li>
+	<li><a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi port rigid body</a></li>
+	<li><a href="../../doc_DCM/doc_3_vu_rotation/Doc3vurotation.html">3x3 v-u_rotation</a></li>
+</ul><-->
+
+<h2 id="5">Simulink diagram under the mask</h2>
+ <p>	<img vspace="5" hspace="5" width="100%" src="PrismaticJoint_mask.png" alt="">
+ 	</p><p>with: $\mathrm{pass}=\mathbf{P}_{t/p}$ and $\mathrm{tau\_x}=\boldsymbol\tau_{-\bar x\mathbf{\tilde{t}}_{a}}$.</p>
+<p class="footer"><br><br></p></div>
+<!--
+
+
+--></body></html>

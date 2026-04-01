@@ -1,0 +1,183 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>One-port (6x6) angular momentum</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+  <h1><b>1 port spinning wheel</b></h1>
+ <hr>
+ <h1>One-port (6x18) angular momentum linear model</h1><!--introduction--><p>It computes the $(6 \times 18)$ linear dynamic model of a body $\mathcal{A}$ characterized  by an on-board angular momentum (spinning wheel): i.e. the transfer from the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> imposed to the spinning wheel housing to the wrench applied by $\mathcal{A}$ to another (parent) body</p>
+  <div><ul>
+  		<li>in its housing body frame $\mathcal{R}_a$,</li>
+  		<li>at the point $P$ : the connection point with another (parent) body</li>
+    </ul></div>
+    <p>See also: <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>,  <a href="../../doc_BODIES/doc_1PortNastran/Doc1PortNastranBody.html">1-port NASTRAN flexible body</a>,
+    <a href="../../doc_BODIES/doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>,
+    <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p><!--/introduction--><h2>Contents</h2><div><ul>
+    	<li><a href="#1">Description</a></li>
+    	<li><a href="#2">Ports</a></li>
+    	<li><a href="#3">Parameters</a></li>
+    	<li><a href="#4">Simulink diagram under the mask</a></li></ul>
+    </div>
+    
+    <h2 id="1">Description</h2>
+  <p>Let us consider the spinning wheel depicted in the following Figure and characterized by the wheel mass $m$, the wheel axial and radial inertia $I_w$ and $I_r$, the spinning rate $\Omega$ around the wheel axis $\mathbf{z}_w$ and the geometry of the wheel center of mass $G$ and the connection point $P$ in the frame $\mathcal{R}_a = (O,\mathbf{x}_a,\mathbf{y}_a,\mathbf{z}_a)$. 
+  </p>
+  <p><img vspace="5" hspace="5" width="33%" src="wheel.png" alt=""> </p>
+<p> Under the following assumption:
+	<ul>
+	<li><b>[H1]</b> $\Omega$ and $\mathbf{z}_w$ (the spinning rate and the spin axis of the wheel) are constants in frame $\mathcal{R}_a$,</li>
+	<li><b>[H2]</b> the spinning wheel is balanced: i.e. $\left[\mathbf{I}^{\mathcal{A}}_G\right]_{\mathcal{R}_w}=\left[\begin{array}{ccc} I_r & 0 & 0 \\ 0 & I_r & 0\\ 0 & 0 & I_w\end{array}\right]$</li>
+  <li><b>[H3]</b> The mass of the wheel housing is null.</li>
+	</ul>
+	</p>
+	 <p>Note that the wheel frame $\mathcal R_w=(G,\mathbf{x}_w,\mathbf{y}_w,\mathbf{z}_w)$ is attached to the wheel axis but does not spin: $\mathcal R_w$ is motionless in  $\mathcal R_a$.</p>
+	<p>	The dynamic model $\mathbf{M}^{\mathcal{A}}_G$ of the wheel at point $G$ is governed by the following equations:</p>
+
+<p> $\bullet$ At point $G$ the Newton-Euler equations read:
+\begin{equation}
+\mathbf{F}_{\mathcal{./A}}=m\mathbf{a}^{\mathcal A}_G
+\end{equation}
+
+\begin{equation}
+\mathbf{T}_{\mathcal{./A},G}=\frac{d\mathbf{H}^{\mathcal{A}}}{dt}|_{\mathcal{R}_w}+\boldsymbol{\omega}^{\mathcal A}\wedge\mathbf{H}^{\mathcal{A}}
+\end{equation}
+</p>
+
+<p>where $\mathbf{H}^{\mathcal{A}}=\mathbf{I}^{\mathcal{A}}_G\boldsymbol{\omega}^{\mathcal A}+I_w\Omega\mathbf{z}_w$ is the total angular momentum of the wheel  and $\boldsymbol{\omega}^{\mathcal A}$ is the angular rate vector of the parent body (or the wheel housing) w.r.t. inertial frame.
+\begin{equation}
+\mathbf{T}_{\mathcal{./A},G}=\mathbf{I}^{\mathcal{A}}_G\dot{\boldsymbol{\omega}}^{\mathcal A}+I_w\underbrace{\frac{d(\Omega\mathbf{z}_w)}{dt}|_{\mathcal{R}_w}}_{=0\;\mbox{([H1])}}+\underbrace{\boldsymbol{\omega}^{\mathcal A}\wedge\mathbf{I}^{\mathcal{A}}_G\boldsymbol{\omega}^{\mathcal A}}_{\approx 0\;\mbox{( 2-nd order term)}}+\boldsymbol{\omega}^{\mathcal A}\wedge I_w\Omega\mathbf{z}_w
+\end{equation}
+\begin{equation}
+\mathbf{T}_{\mathcal{./A},G}= \mathbf{I}^{\mathcal{A}}_G \dot{\boldsymbol{\omega}}^{\mathcal A} -I_w\Omega (^*\mathbf{z}_w)\boldsymbol{\omega}^{\mathcal A} 
+\end{equation}
+</p>
+<p>$\bullet$	In projection in the frame $\mathcal{R}_w$, $[(^*\mathbf{z}_w)]_{\mathcal{R}_w}=\left[\begin{array}{ccc} 0 & -1 & 0 \\ 1 & 0 & 0\\ 0 & 0 & 0\end{array}\right]=\left[\begin{array}{cc} 0 & -1  \\ 1 & 0 \\ 0 & 0 \end{array}\right]\left[\begin{array}{ccc} 1 & 0 & 0 \\ 0 & 1 & 0\end{array}\right]$ (a rank $2$ matrix).
+</p>
+<p> Taking into account:</p>
+<p> $\bullet$ the DCM between frames $\mathcal{R}_w$ and $\mathcal{R}_a$:	$\mathbf{P}_{w/a}=\mathbf{P_z}_w\left[\begin{array}{ccc} \mbox{det}(\mathbf{P_{z}}_w) & 0 & 0\\ 0 & 1 & 0 \\ 0 & 0 & 1\end{array}\right]$ with: $\mathbf{P_z}_w=\left[\mbox{null}([\mathbf{\tilde{z}}_w]^T_{\mathcal{R}_a})\quad [\mathbf{\tilde{z}}_w]_{\mathcal{R}_a}\right]$ and $\mathbf{\tilde{z}}_w=\mathbf{z}_w/\|\mathbf{z}_w\|$,</p>
+<p> $\bullet$ the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#3" target='_blank'>kinematic model</a> $\boldsymbol\tau_{GP}$ between points $G$ and $P$,</p>
+
+<p>then the direct dynamics model $-\mathbf{M}^{\mathcal{A}}_P$ of the wheel $\mathcal{A}$ at point $P$, i.e. the $6\times 18$ transfer from the motion vector $\delta\mathbf m^\mathcal{A}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{A}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{A}_P}^T\;\;{\delta\mathbf{x}^\mathcal{A}_P}^T\right]^T$ at the point $P$  to the wrench $\mathbf{W}_{\mathcal{A/.},P}=\left[ \mathbf{F}_{\mathcal{A/.}}^T \;\; \mathbf{T}_{\mathcal{A/.},P}^T \right]^T$ applied by $\mathcal{A}$ to the parent body, projected in the body frame $\mathcal R_a$ can be represented by the following block diagram:
+</p>
+<p><img vspace="5" hspace="5" width="100%" src="Sch_wheel.png" alt=""> </p>
+
+<!--<p><b>Remarks </b>(independent of the projection frame used):
+	<ul>
+		<li> $\boldsymbol\tau_{GP}^T\left[\begin{array}{cc}\mathbf{0}_{3 \times 3} &\mathbf{0}_{3 \times 3}
+			\\\mathbf{0}_{3 \times 3} & -\frac{1}{\mathrm{s}}I_w \Omega\,(^*\mathbf{z}_w)\end{array} \right]\boldsymbol{\tau}_{GP}=\left[\begin{array}{cc}\mathbf{0}_{3 \times 3} &\mathbf{0}_{3 \times 3}
+			\\\mathbf{0}_{3 \times 3} & -\frac{1}{\mathrm{s}}I_w \Omega\,(^*\mathbf{z}_w)\end{array} \right],\;\forall \;\boldsymbol\tau_{GP}$.</li>
+		
+		<li> It clearly appears that the model of an embedded angular momentum appendage is a second order $6\times 6$ model containing 2 integrators. These 2 integrators were used to model the rotation vector $\boldsymbol{\omega}$ from the angular acceleration $\dot{\boldsymbol{\omega}}$, that is  the last 3 inputs of  direct dynamics model. Let us named $\mathcal{B}$ and $B$ the parent body and its centre of mass. When computing a minimal realization of the inverse dynamics model $[\mathbf{M}^{\mathcal{A}+\mathcal{B}}_B(\mathrm{s})]^{-1}$ augmented with the 6 integrators required to compute the speeds from the accelerations, these 2 previous integrators must be removed.</li>
+		
+		<li>When considering a parent body $\mathcal{B}$ fitted with $N_a$ embedded angular momentum appendages $\mathcal{A}_i$, $i=1,\cdots,N_a$ (for instance, reaction wheels), the dynamics model of the assembly $\mathbf{M}^{\sum_{i=1}^{N_a} \mathcal{A}_i+\mathcal{B}}(\mathrm{s})$, which is a $2N$ order model, should reduce to a second-order model because the matrix $(^*\mathbf{h})$ is rank 2 for all vectors $\mathbf{h}$ and:
+			\[
+			\sum_{i=1}^{N_a} \frac{1}{\mathrm{s}}I_{w_i} \Omega_i\,(^*\mathbf{z}_{w_i})=\frac{1}{\mathrm{s}}\sum_{i=1}^{N_a}I_{w_i} \Omega_i\,(^*\mathbf{z}_{w_i})=\frac{1}{\mathrm{s}}(^*\mathbf{h})
+			\]
+			where $\mathbf{h}=\sum_{i=1}^{N_a}I_{w_i} \Omega_i\mathbf{z}_{w_i}$ is the total angular momentum of the global assembly, containing the $N_a$ spinning tops.</li>
+	</ul>
+</p>
+-->
+  	
+  	<h2 id="2">Ports</h2>
+  	<p><b>Input:</b>
+  		<li> <b>m</b>: the motion vector $\left[\delta\mathbf{m}^{\mathcal A}_P \right]_{\mathcal{R}_a}$ (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) at point $P$ in the inherit body frame $\mathcal{R}_a$.</li>
+  	</p>
+  	<p><b>Output:</b> 
+  		<li><b>Wbody/.</b>: the wrench $\left[ \mathbf{W}_{\mathcal{A/.},P} \right]_{\mathcal{R}_a}$ (units: $N$ and $N.m$) applied by the body $\mathcal{A}$ at point $P$ to the parent body.</li>
+  	</p>
+  	
+  	<h2 id="3">Parameters</h2>
+  	<p>All parameters are expressed in the inherit body frame $\mathcal{R}_a$. Only the the spinning rate $\Omega$ can be an uncertain parameter declared with "ureal".</p>
+  	<p>The main parameters are:</p>
+  	<div><ul>
+  			<li>the wheel axis: $[\mathbf{z}_w]_{\mathcal{R}_a}$,</li>
+  			<li>the wheel mass (Kg): $m$,</li>
+  			<li>the wheel axial inertia ($kg.m^2$): $I_w$,</li>
+  			<li>the wheel radial inertia ($kg.m^2$): $I_r$,</li>
+  			<li>the $3\times 1$ vector position of $G$ ($m$): $[\overrightarrow{OG}]_{\mathcal{R}_a}$,</li>
+  			<li>the $3\times 1$ vector position of $P$ ($m$): $[\overrightarrow{OP}]_{\mathcal{R}_a}$,</li>
+  			<li>the spinning rate (rd/s): $\Omega$.</li>
+  			</ul></div>
+  	
+  	<h2 id="4">Simulink diagram under the mask</h2><p><img vspace="5" hspace="5" width="100%" src="wheel_mask.png" alt=""> </p><p>with: $\mathrm{pass}=\mathbf{P}_{w/a}$.</p>
+  		<p class="footer"><br><br></p></div>
+  			</body></html>

@@ -1,0 +1,171 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+    
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>6DOF Spring Damper.</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style></head>
+
+<body>	
+	<div class="content">
+      <h1><b>6 DOFs local spring-damper</b></h1>
+		<hr>
+<h1>Linear  TITOP model of a spring-damper system in the 6 d.o.fs case.</h1>
+  <p>This block implements the  $12\times 36$ TITOP (Two-Input Two-Output Ports) model of a massless spring-damper system $\mathcal A$ and connected to a parent body $\mathcal P$ at the point $P$ and to a child body $\mathcal C$ at the point $C$, i.e. the transfer from the $36$ inputs:</p>
+  <div><ul>
+  		<li>the $18$ components of  the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> at the point $C$</li>
+   		<li>the $18$ components of the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> at the point $P$,</li>
+   		</ul>
+   	to the $12$ outputs:
+   	<ul>
+  		<li>the $6$  component external wrench applied by the child body to the spring-damper system at the point $C$,</li>
+  		<li>the $6$  component wrench applied by the spring-damper system to the parent body at the point $P$.</li>
+  </ul></div><!--/introduction-->
+
+<p>See also: <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>,  <a href="../doc_revolute/DocRevoluteJoint_joly.html">Revolute joint</a>,  <a href="../doc_revolute_configuration/DocRevoluteJoint_configuration.html">Revolute joint + configuration</a>,  <a href="../doc_prismatic_configuration/DocPrismatixJoint.html">Prismatic joint</a>, <a href="../../doc_BODIES/doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi port rigid body</a>
+</p>
+
+<h2>Contents</h2>
+<div><ul>
+		<li><a href="#1">Description</a></li>
+		<li><a href="#2">Remark</a></li>
+		<li><a href="#3">Ports</a></li>
+		<li><a href="#4">Parameters</a></li>
+  		<li><a href="#6">Simulink diagram under the mask</a></li>
+</ul></div>
+<h2 id="1">Description</h2>
+<p>Considering a 6 d.o.fs spring mass system $\mathcal A$ centered at the reference point $O$ (see following Figure) and 2 connection points $P$ and $C$  with a parent body $\mathcal P$  and  a the child body $\mathcal C$, respectively.</p>
+<p><img vspace="5" hspace="5" width="50%" src="FigSpringDamper.png" alt=""></p>
+
+<p>Let us define:</p>
+<div><ul>
+		<li>$\mathcal{R}_a$: the local frame,</li>
+		<li>$[\mathbf K_O]_{\mathcal{R}_a}$: the $6\times 6$ stiffness matrix at the reference point $O$, expressed in $\mathcal{R}_a$,</li>
+		<li>$[\mathbf D_O]_{\mathcal{R}_a}$: the $6\times 6$ damping matrix at the reference point $O$, expressed in $\mathcal{R}_a$,</li>	
+		<li>$[\delta\mathbf x_O]_{\mathcal{R}_a}$: the internal deflection vector ($6\times 1$) of the spring-mass system at the point $O$, expressed in $\mathcal{R}_a$,</li>
+				<li>$\delta\mathbf{m}^{\mathcal C}_{C}$ the motion vector ($18\times 1$) of the child body $\mathcal C$ at the point $C$. $\delta\mathbf m^\mathcal{C}_C=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{C}_C}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{C}_C}^T\;\;{\delta\mathbf{x}^\mathcal{C}_C}^T\right]^T$,</li>
+				<li>$\delta\mathbf{m}^{\mathcal P}_{P}$ the motion vector ($18\times 1$) of the parent body $\mathcal P$ at the point $P$. $\delta\mathbf m^\mathcal{P}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{P}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{P}_P}^T\;\;{\delta\mathbf{x}^\mathcal{P}_P}^T\right]^T$,</li>
+					<li>$\mathbf{W}_{\mathcal C/\mathcal A,C}$: the wrench ($6\times 1$) applied by child body $\mathcal C$ to the spring-mass system $\mathcal A$, at point $C$,</li>
+										<li>$\mathbf{W}_{\mathcal A/\mathcal P,P}$: the wrench ($6\times 1$) applied by  the spring-mass system $\mathcal A$ to the parent body $\mathcal P$, at point $P$.</li>
+</ul></div>
+<p>Then, the dynamic model  reads (all the terms are projected in $\mathcal{R}_a$, omitted fot brivety):
+	$$\boldsymbol \tau_{OC} \delta\mathbf{x}^\mathcal{C}_C- \boldsymbol \tau_{OP} \delta\mathbf{x}^\mathcal{P}_P=\delta\mathbf{x}_O$$</p>
+and:
+$$\mathbf{W}_{\mathcal C/\mathcal A,C}= \boldsymbol \tau^T_{OC}\left(\mathbf K_O\delta\mathbf x_O+\mathbf D_O\delta\mathbf{\dot{x}}_O\right)$$
+$$\mathbf{W}_{\mathcal A/\mathcal P,P}= \boldsymbol \tau^T_{OP}\left(\mathbf K_O\delta\mathbf x_O+\mathbf D_O\delta\mathbf{\dot{x}}_O\right)$$<p>where $\boldsymbol\tau_{OP}$ and $\boldsymbol\tau_{OC}$ are the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#3" target='_blank'>kinematic models</a> between points $O$ and $P$ and between points $O$ and $C$, respectively .</p> 
+<!--<p>The block-diagram of the TITOP model of a spring-damper system  can be depicted in the following Figure.</p>
+<p><img vspace="5" hspace="5" width="75%" src="BlkSpringDamper.png" alt=""> </p>-->
+
+<h2 id="2">Remark</h2>
+<p>Such a block can be used:
+	<ul>
+		<li> to close kinematic chains of rigid bodies at a particular point of the mechanism loop with $P\equiv C \equiv O$,</li>
+		<li> to model flexible locked hinges (for instance between 2 solar panels) .</li>
+	</ul>
+    All the parameters can be declared as varying parameters (<i>ureal</i>).
+</p>
+
+<h2 id="3">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>
+				<li><b>m_C</b> $=\left[\delta\mathbf{m}^{\mathcal C}_{C}\right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+				<li><b>m_P</b> $=\left[\delta\mathbf{m}^{\mathcal P}_{P}\right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+		<li><b>Cm</b> $=C_m$: scalar signal (unit: $N.m$).</li>
+	</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+		<li><b>W./s,C</b> $=\left[\mathbf{W}_{\mathcal C/\mathcal A,C}\right]_{\mathcal R_a}$: 6 component signal (units: $N$ and $N.m$),</li>
+		<li><b>Ws/.,P</b> $=\left[\mathbf{W}_{\mathcal A/\mathcal P,P}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$),</li>
+	</ul></div>
+
+<h2 id="4">Parameters</h2>
+All parameters are expressed in the local (inherit) frame $\mathcal{R}_a$.</p> 
+<p>The input parameters are:</p>
+<div><ul>
+<li>the $6\times 6$ stiffness matrix at the reference point $O$ (unit: $N/m,\;Nm/rad$): $[\mathbf K_O]_{\mathcal{R}_a}$,</li>
+<li>the $6\times 6$ dampings matrix at the reference point $O$ (unit: $Ns/m,\;Nms/rad$): $[\mathbf D_O]_{\mathcal{R}_a}$,</li>
+ <li>the $3\times 1$ vector of the position of the parent  point $P$  (unit: $m$): $[\overrightarrow{OP}]_{\mathcal{R}_a}$,</li>
+ <li>the $3\times 1$ vector of the position of the parent  point $C$  (unit: $m$): $[\overrightarrow{OC}]_{\mathcal{R}_a}$.</li>
+</ul></div>
+
+
+<h2 id="6">Simulink diagram under the mask</h2>
+ <p>	<img vspace="5" hspace="5" width="80%" src="MaskSpringDamper.png" alt="">
+ 	</p>
+<p class="footer"><br><br></p></div>
+<!--
+
+
+--></body></html>

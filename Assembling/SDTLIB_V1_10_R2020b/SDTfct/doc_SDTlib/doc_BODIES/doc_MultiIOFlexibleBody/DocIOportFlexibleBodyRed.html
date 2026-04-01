@@ -1,0 +1,197 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Multi in/out-port flexible body</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+      <h1><b>Multi in/out-port flexible body</b></h1>
+      <hr>
+<h1> Model of a flexible body from $\mathbf M$, $\mathbf K$, $\mathbf D$, $\boldsymbol \Phi_{in}$ and $\boldsymbol \Phi_{out}$ matrices</h1><!--introduction--><p>This block computes the $(18n_C+6) \times (6n_B+18)$ linear dynamic model of a flexible body $\mathcal{A}$ from the masss, stiffness, damping and projection matrices of the body clamped at the point $P$. The inputs and the outputs of this model are:</p>
+  <div><ul>
+	<li>the $18n_C\times 6n_B$ transfer  from the wrenches applied to the body at points $B_j$ ($j=1,\cdots,n_B$) by the child substructures to the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vectors</a>  of points $C_i$ ($i=1,\cdots,n_C$),</li>
+<li>the port at point $P$, i.e.: the $6\times 18$ channel from the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of point $P$ to the wrench applied by the body to the parent substructure at point $P$.</li></ul></div>  	
+  
+  <p> <b> Assumptions:</b>
+  <ul>
+  	<li>$\mathbf M$, $\mathbf K$ and $\mathbf D$ are $(6+n_f)\times(6+n_f)$ mass, stiffness and damping matrices where $n_f$ is the number of flexible modes and have the following structures: 
+  		$$\mathbf{M} =\left[\begin{array}{cc}\mathbf{D}_P^{\mathcal A}  & \mathbf{L}_P^T\\ \mathbf{L}_P & \mathbf{1}_{n_f} \end{array}\right]\;,\quad \mathbf{K} =\left[\begin{array}{cc}\mathbf{0}_{6\times 6}  & \mathbf{0}_{6\times n_f} \\ \mathbf{0}_{n_f \times 6} & \mathrm{diag(\omega_i^2)} \end{array}\right]\;,\quad\mathbf{D} =\left[\begin{array}{cc}\mathbf{0}_{6\times 6}  & \mathbf{0}_{6\times n_f} \\ \mathbf{0}_{n_f \times 6} & \mathrm{diag(2\xi_i\omega_i)} \end{array}\right]\;,\quad i=1,\cdots n_f\;.$$
+  </li> 
+ <li>  $\boldsymbol \Phi_{in}$, the projection matrix of the $n_f$ modal shapes at the point $P$ and $B_j$, is a $(6+n_f)\times(6(n_B+1))$ matrix with the following structure:
+ 	$$  \boldsymbol{\Phi}_{in}=\left[\begin{array}{cccc}  \boldsymbol{\phi}_{P}^T  & \boldsymbol{\phi}_{B_1}^T & \cdots &  \boldsymbol{\phi}_{B_{n_B}}^T \end{array}\right]\;\quad \mathrm{with}\quad \boldsymbol{\phi}_{P}=[\mathbf{1}_6\quad \mathbf{0}_{6\times n_f} ]\;.$$
+ </li>
+ <li>  $\boldsymbol \Phi_{out}$, the projection matrix of the $n_f$ modal shapes at the point $P$ and $C_i$, is a $(6+n_f)\times(6(n_C+1))$ matrix with the following structure:
+	$$  \boldsymbol{\Phi}_{out}=\left[\begin{array}{c}  \boldsymbol{\phi}_{P}  \\ \boldsymbol{\phi}_{C_1} \\ \vdots \\ \boldsymbol{\phi}_{C_{n_C}} \end{array}\right]\;.$$
+</li>
+</ul>
+</p>
+  
+ <p>A check box  <b>"Model reduction"</b> can be used to perform a balanced reduction of the model.</p>
+
+<p>The body $\mathcal{A}$ is modeled under the <i>clamped at $P$ - free at $C_i\;(i=1,\cdots, n)$</i> boundary conditions.</p>
+<p style="color:darkblue;">A check-box <b>"Free body at P"</b>  allows to free the model at the port $P$. Then the model is $18(n_C+1)\times 6(n_B+1)$ and includes $12$ integrators to model the $6$ rigid modes at the point $P$. The last $18\times 6$ channel corresponds to the channel from the wrench applied to the body at the point $P$  to the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of the point $P$.</p>
+
+<p>See also: <a href="../doc_hub/DocGeneralNotations.html">General notations</a>, 
+	<a href="../doc_MultiPortFlexibleBody/DocNPortFlexibleBodyRed.html">N ports flexible body</a>,
+	<a href="../doc_NPortNastran/DocNPortNastranBody.html">N-port NASTRAN body</a>,
+	<a href="../doc_plate/DocPlate_joly.html">multi-port flexible plate</a>, 
+	<a href="../doc_Kirchhoff/DocPlate_Kirchhoff.html">multi-port FEM Kirchhoff plate</a>, 
+	<a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, 
+	<a href="../doc_beam/DocBeam.html">TITOP model of a flexible beam</a>, 
+	<a href="../doc_1PortNastran/Doc1PortNastranBody.html">1-port NASTRAN flexible body</a>, 
+	<a href="../doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p><!--/introduction-->
+  
+  <h2>Contents</h2><div><ul>
+  		<li><a href="#1">Description</a></li>
+  		<li><a href="#2">Ports</a></li>
+  		<li><a href="#3">Parameters</a></li>
+  		<li><a href="#4">Simulink diagram under the mask</a></li>
+  		</ul></div>
+  
+  <h2 id="1">Description</h2>
+  $\mathcal R_P$, $\mathcal R_{B_j}$, $\mathcal R_{C_i}$ are local body frames attached to the bodies connected to the body $\mathcal A$ at points $P$, $B_j$, $C_i$. 
+  <p> Let us define:</p>
+  <div><ul>			
+  		<li>$\left[\mathbf{W}_{./\mathcal{A},B_j}\right]_{\mathcal{R}_{B_j}} $: the external wrench ($6\times 1$) applied to the body at point $B_j$, expressed in $\mathcal{R}_{B_j}$,</li>
+  		<li>$\left[\delta\mathbf{m}^{\mathcal A}_{C_i}\right]_{\mathcal{R}_{C_i}}$: the motion vector ($18\times 1$) of the body at point $C_i$, expressed in $\mathcal{R}_{C_i}$,</li>
+  		<li>$\left[\delta\mathbf{m}^{\mathcal A}_{P}\right]_{\mathcal{R}_P} $: the motion vector ($18\times 1$) of the body at point $P$, expressed in $\mathcal{R}_P$,</li>
+  		<li>$\left[\mathbf{W}_{\mathcal{A}/.,P}\right]_{\mathcal{R}_{P}}$: the wrench ($6\times 1$) applied by the body at point $P$, expressed in $\mathcal{R}_{P}$.</li>
+  	</ul></div>
+  	<p>
+  		The dynamic model of the body $\mathcal A$, cantileverd at point $P$ is described by the generalized second order model:
+  		$$
+  		\left[\begin{array}{cc}\mathbf{D}_P^{\mathcal A}  & \mathbf{L}_P^T\\ \mathbf{L}_P & \mathbf{1}_{n_f} \end{array}\right]
+  		\left[\begin{array}{c}\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_P}   \\  \ddot{\eta}_1 \\ \vdots \\ \ddot{\eta}_{n_f}  \end{array}\right]
+  		 + \left[\begin{array}{cc}\mathbf{0}_{6\times 6}  & \mathbf{0}_{6\times n_f} \\ \mathbf{0}_{n_f \times 6} & \mathrm{diag(2\xi_i\omega_i)} \end{array}\right]
+  		 \left[\begin{array}{c}  \left[\delta\boldsymbol{ \mathbf{x'}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_P}   \\  \dot{\eta}_1 \\ \vdots \\ \dot{\eta}_{n_f}  \end{array}\right]
+  		  + \left[\begin{array}{cc}\mathbf{0}_{6\times 6}  & \mathbf{0}_{6\times n_f} \\ \mathbf{0}_{n_f \times 6} & \mathrm{diag(\omega_i^2)} \end{array}\right]
+  		  \left[\begin{array}{c}\left[\delta\boldsymbol{ \mathbf{x}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_P}   \\  \eta_1 \\ \vdots \\ \eta_{n_f}  \end{array}\right]
+  		  =\left[\begin{array}{cccc}  \boldsymbol{\phi}_{P}^T  & \boldsymbol{\phi}_{B_1}^T & \cdots &  \boldsymbol{\phi}_{B_{n_B}}^T \end{array}\right]
+  		  \left[\begin{array}{c} \left[\mathbf{W}_{./\mathcal{A},P}\right]_{\mathcal{R}_{P}}  \\ \left[\mathbf{W}_{./\mathcal{A},B_1}\right]_{\mathcal{R}_{B_1}}  \\ \vdots \\ \left[\mathbf{W}_{./\mathcal{A},B_{n_B}}\right]_{\mathcal{R}_{B_{n_B}}}  \end{array}\right] \;.
+  		$$
+  		and the output equation:
+  		$$
+  		 \left[\begin{array}{c} \left[\ddot{\mathbf{x}}_P\right]_{\mathcal{R}_{P}}  \\ \left[\ddot{\mathbf{x}}_{C_1}\right]_{\mathcal{R}_{C_1}}  \\ \vdots \\ \left[\ddot{\mathbf{x}}_{C_{n_C}}\right]_{\mathcal{R}_{C_{n_C}}}  \end{array}\right]
+  		 =\left[\begin{array}{c}  \boldsymbol{\phi}_{P} \\  \boldsymbol{\phi}_{C_1} \\ \vdots \\  \boldsymbol{\phi}_{C_{n_C}} \end{array}\right]
+  		 \left[\begin{array}{c} \left[\ddot{\mathbf{x}}_{P}\right]_{\mathcal{R}_{P}}   \\  \ddot{\eta}_1 \\ \vdots \\ \ddot{\eta}_{n_f}  \end{array}\right]
+  		$$
+  	where $\eta_i$ are the flexible modal coordinates, $\delta\mathbf m^\mathcal{A}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{A}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{A}_P}^T\;\;{\delta\mathbf{x}^\mathcal{A}_P}^T\right]^T$ (in any projection frame) and  $\mathbf{W}_{./\mathcal{A},P}=-\mathbf{W}_{\mathcal{A}/.,P}$.</p>
+  	  		
+  	<p>The NINOP model $\mathbf{M}^{\mathcal{A}}_{P,B_j,C_i}(\mathrm{s})$ of the flexible body is then described by the following block diagram: </p><p><img vspace="5" hspace="5" width="50%" src="NINOP_BC.png" alt=""></p>
+  	</p>
+  	  			<p style="color:darkblue;">If the check box <b>"Free body at P"</b> is selected, then: let us denote  $\mathbf M^{\mathcal A}_{P,B_j,C_i}(\mathrm s)(18n_C+1:18n_C+6,6n_B+1:6n_B+6)$ the transfer from $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_P}$ (the $6$ components acceleration dual vector at the point $P$) to $\left[ \mathbf{W}_{\mathcal{A}/.,P} \right]_{\mathcal{R}_P}$ (the $6$ components wrench). This chanel is then inverted and $12$ integrators are added according to following Figure to output the motion vector $\left[ \delta\mathbf{m}^{\mathcal A}_{P}  \right]_{\mathcal{R}_P}$ of the body $\mathcal A$ at the point $P$.</p>
+
+<p><img vspace="5" hspace="0" width="100%" src="NINOP_BCinv.png" alt="">	
+		<p style="color:darkblue;">$\mathbf G(\mathrm s)^{-1_{[I,J]}}$ denotes the system $\mathbf(\mathrm s)$ where the channel from the inputs numbered in $I$ to the outputs numbered in $J$ is inverted (the vector of indices $I$ and $J$ must have the same length).</p>
+		
+		<p>
+			The model $\mathbf{M}^{\mathcal{A}}_{C_1,\dots,C_n,P}(\mathrm{s})$  can be reduced to the order $2n_r$ by a balanced reduction where $n_r$ (intreger between $0$ and $n_f$) is the number of flexible modes retained in the reduced-order model.</p>
+
+<h2 id="2">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>
+		<li><b>W./body,Bj</b> $=\left[\mathbf{W}_{./\mathcal{A},B_j}\right]_{\mathcal{R}_{B_j}} $: 6 component signal (units: $N$ and $N.m$),</li>
+		<li><b>m_P</b> $=\left[\delta\mathbf{m}^{\mathcal A}_{P}\right]_{\mathcal{R}_P}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) <p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected, <b>W./body,P</b> $=\left[\mathbf{W}_{./\mathcal{A},P}\right]_{\mathcal{R}_P}$: 6 component signal (units: $N$ and $N.m$).</p></li>
+	</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+		<li><b>m_Ci</b> $=\left[\delta\mathbf{m}^{\mathcal A}_{C_i}\right]_{\mathcal{R}_{C_i}}$: 6 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+		<li><b>Wbody/.,P</b> $=\left[\mathbf{W}_{\mathcal{A}/.,P}\right]_{\mathcal{R}_P}$: 6 component signal (units: $N$ and $N.m$)  <p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected, <b>m_P</b> $=\left[\delta\mathbf{m}^{\mathcal A}_{P}\right]_{\mathcal{R}_P}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$).</p></li>
+	</ul></div>
+
+  	<h2 id="3">Parameters</h2>
+  	<div><ul>
+  			<li>the mass matrix: $\mathbf M$,</li>
+    	    <li>the stiffness matrix: $\mathbf K$,</li>
+    	    <li>the damping matrix: $\mathbf D$,</li>
+   			<li>the input projection matrix: $\boldsymbol\Phi_{in}$,</li>
+   			<li>the output projection matrix: $\boldsymbol\Phi_{out}$,</li>
+  			<li>a check box (<b>reduction</b>) to  reduce the order of the model  to $2n_r$ where $n_r$  can be specified in the dialog box,</li>
+<li><p style="color:darkblue;">A  check box <b>"Free body at P".</b></p> </li>
+ 			</ul></div>
+ <h2 id="4">Simulink diagram under the mask</h2>
+ The Simulink block is built by the initialization according to the parameters in the dialog box. Examples:
+		<li> Dynamic model with $n_B=2$, $n_C=3$ and:</li>
+		<img vspace="5" hspace="5" width="70%" src="IOportMask.png" alt="">
+	<li><p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected:</p></li>
+<img vspace="5" hspace="5" width="70%" src="IOportInvMask.png" alt="">
+
+  	
+<p class="footer"><br></p></div></body></html>

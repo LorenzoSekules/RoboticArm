@@ -1,0 +1,128 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<html>
+
+<head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Linear parametrization of the (3x3) Direction Cosine Matrix associated to a rotation around the z-axis.</title>
+	  <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style>
+</head>
+
+<body>
+	<div class="content">
+		<h1><b>3x3 z-u_rotation</b></h1>		    
+		<hr>
+<h1>Linear parametrization of the (3x3) Direction Cosine Matrix associated to a rotation around the z-axis.</h1>
+		<!--introduction-->
+		<p>This block implements the LFT parametrization of the (3x3) direction cosine matrix (DCM) -or its transposed- associated to the rotation of a given angle $\theta$ around the $3^{rd}$ axis to transform the frame $\mathcal{R}_1$ into the frame $\mathcal{R}_2$.</p>
+		<p>$$ \mathbf{DCM}=\mathbf{P}_{2/1} = \left[\begin{array}{ccc}&#xA;\cos(\theta) &amp; -\sin(\theta) &amp; 0 \\&#xA;\sin(\theta) &amp; \cos(\theta) &amp; 0 \\&#xA;0 &amp; 0 &amp; 1&#xA;\end{array}\right] $$
+		The parametrization is in tangent of the quarter-angle: $\sigma_4=\tan(\theta/4)$ to derive LFT when $\theta$ is a varying or an uncertain parameter.</p>
+		<p>
+			See also: <a href="../doc_6_zu_rotation/Doc6zurotation.html">6x6z-u_rotation</a>, <a href="../doc_18_zu_rotation/Doc18zurotation.html">18x18z-u_rotation</a>, <a href="../doc_3_znl_rotation/Doc3znlrotation.html">3x3z-nl_rotation</a>, <a href="../doc_6_znl_rotation/Doc6znlrotation.html">6x6 z-nl_rotation</a>
+		</p>
+		<!--/introduction-->
+		
+		<h2>Contents</h2>
+		<div><ul>
+			<li><a href="#1">Description</a></li>
+			<li><a href="#2">Ports</a></li>
+			<li><a href="#3">Parameters</a></li>
+			<li><a href="#4">Simulink diagram under the mask</a></li>
+		</ul></div>
+		
+		<h2 id="1">Description</h2>
+		<p>If we consider the tangent of the half-angle: $\sigma_2 = \tan (\theta/2)$, the Direction Cosine Matrix becomes:</p>
+		<p>$$ \mathbf{DCM} = \left[\begin{array}{ccc}&#xA;\frac{\displaystyle 1 - \sigma_2 ^2}{\displaystyle 1 + \sigma_2 ^2} &amp; -\frac{\displaystyle 2\sigma_2 }{\displaystyle 1 + \sigma_2 ^2} &amp; 0 \\&#xA;\frac{\displaystyle 2\sigma_2 }{\displaystyle 1 + \sigma_2 ^2} &amp; \frac{\displaystyle 1 - \sigma_2 ^2}{\displaystyle 1 + \sigma_2 ^2} &amp; 0 \\&#xA;0 &amp; 0 &amp; 1&#xA;\end{array}\right] = \left[\begin{array}{ccc}&#xA;1 - \frac{\displaystyle 2 \sigma_2 ^2}{\displaystyle 1 + \sigma_2 ^2} &amp; -\frac{\displaystyle 2\sigma_2 }{\displaystyle 1 + \sigma_2 ^2} &amp; 0 \\&#xA;\frac{\displaystyle 2\sigma_2 }{\displaystyle 1 + \sigma_2 ^2} &amp; 1 - \frac{\displaystyle 2 \sigma_2 ^2}{\displaystyle 1 + \sigma_2 ^2} &amp; 0 \\&#xA;0 &amp; 0 &amp; 1&#xA;\end{array}\right] $$</p>
+		<p>As terms like $\frac{\displaystyle \sigma_2 ^2}{\displaystyle 1 + \sigma_2 ^2}$ and $\frac{\displaystyle \sigma_2 }{\displaystyle 1 + \sigma_2 ^2}$ can be easily represented by feedback loops, a representation of the -uncertain or not- DCM matrix can be deduced:</p>
+		<p><img vspace="5" hspace="5" width="100%"  src="tanalphasur2_R2R1.png" alt=""> </p>
+		<p>Finally, as:</p>
+		<p>$$ \sigma_2 = \tan (\theta/2) = \frac{\displaystyle 2 \tan&#xA;(\theta/4)}{\displaystyle 1 - \tan ^2 (\theta/4)} = \frac{\displaystyle 2 \sigma_4}{\displaystyle 1 - \sigma_4 ^2}\;, $$</p>
+		<p>blocks $\sigma_2$ can be changed into feedback loops with $\sigma_4$ (see <a href="#4">Simulink diagram under the mask</a>).</p>
+		<p>If $\theta$ has a fixed value, $\sigma_4$ has too. If $\theta$ is an uncertain parameter declared with "ureal", then $\sigma_4$ is also an uncertain parameter repeated $4$ times. Moreover if $\theta \in [-\pi,\pi]$ (a whole revolution), $\sigma_4$ varies in $[-1,1]$.</p>
+		
+		<h2 id="2">Ports</h2>
+		<p><b>Input:</b> a (3x1) vector $\mathbf{x}$ in the frame $\mathcal{R}_{2}$ (resp. $\mathcal{R}_{1}$)</p>
+		<p><b>Output:</b> the expression of the (3x1) vector $\mathbf{x}$ in the frame $\mathcal{R}_{1}$  (resp. $\mathcal{R}_{2}$).</p>
+		<p>$\left[\mathbf{x}\right]_{\mathcal{R}_{1}} = \mathbf{DCM} \, \left[\mathbf{x}\right]_{\mathcal{R}_{2}}$ (resp. $\left[\mathbf{x}\right]_{\mathcal{R}_{2}} = \mathbf{DCM}^T \, \left[\mathbf{x}\right]_{\mathcal{R}_{1}}$)</p>
+		
+		<h2 id="3">Parameters</h2><p>The only parameter is the angle $\theta$ (unit: $rad$). It can also be an uncertain parameter declared with "ureal" with mode "Range".</p>
+		<p><i>Example:</i> &gt;&gt; ureal('theta',0,'Range',[-pi pi])</p>
+		<p><i>Remarks:</i> when "ureal" us used, "ulinearize" rather than "linmod" is recommanded. Then the uncertain model is parameterized according to the real parameter labelled "tan_theta_div4".</p>
+			
+		<p>A checkbox is proposed to implement the transposed: $\mathbf{DCM}^T$.</p>
+		<h2 id="4">Simulink diagram under the mask</h2>
+		<p><img vspace="5" hspace="5" width="100%" src="zu_3_rot.png" alt=""> </p><p class="footer"><br></p></div>
+		
+
+</body>
+</html>

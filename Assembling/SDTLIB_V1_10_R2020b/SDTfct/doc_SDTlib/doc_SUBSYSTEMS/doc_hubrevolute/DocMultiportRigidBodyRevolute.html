@@ -1,0 +1,180 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Multiport rigid body with revolute joint</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+        <h1><b>Multi port rigid body + revolute joint</b></h1>
+        <hr>
+<h1>Dynamic model of a rigid body connected through a revolute joint at one port and loaded at other ports</h1><!--introduction-->
+<p>Considering a rigid body $\mathcal{A}$ connected to a parent body $\mathcal{P}$ through a revolute joint at a point $P_1$ and to child bodies at point $P_2,\cdots,P_n$, this block computes the $(18n-9)\times (6n+13)$ dynamic model, linearized around a given revolute joint configuration $\bar\theta$, composed of:
+  <div><ul>
+  		<li>the $6 \times 18 $  channel from the  from the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> imposed by the parent body $\mathcal P$ at the connection point $P_1$ to the wrench applied by the input shaft of the revolute joint to the parent body  $\mathcal P$ at the point $P_1$, projected in the parent body frame $\mathcal R_p$,</li>
+ 		<li>the $3 \times 1 $ transfer from the in-joint torque  to the relative motion vector variation $\delta\mathbf m_r=\left[\ddot\theta,\;\;\delta\dot\theta,\;\;\delta\theta\right]^T$,</li>
+ 				<li>the $(n-1)$ $18 \times 6 $ transfers from the wrenches applied to the body $\mathcal A$ at the point $P_j$ , $i=2,\cdots,n$ by child bodies to  the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vectors</a>  of the body $\mathcal A$ at the point $P_j$, projected in the body frame $\mathcal R_a$,</li>
+  </ul></div>
+   </p>
+	<p><b>Remarks:</b>
+	<ul>
+		<li> This block includes 2 integrators to model the rigid mode of the revolute joint. The initial conditions on these 2 integrators are null since only the linear model and small variations around $\bar\theta$ are considered. That justifies the notation $\delta\dot\theta$ and $\delta\theta$ for the successive integration of the accelarations $\ddot\theta$ (assumed to be small  also).
+		</li></ul>
+</p>
+
+
+<p> see also:  <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>, 
+	<a href="../../doc_Mechanisms/doc_revolute_configuration/DocRevoluteJoint_configuration.html">Revolute joint + configuration</a>,
+	<a href="../../doc_SUBSYSTEMS/doc_hubprismatic/DocMultiportRigidBodyPrismatic.html">Rigid body + prismatic joint</a>,
+	 <a href="../../doc_BODIES/doc_beam/DocBeam.html">TITOP flexible beam</a>, 
+	 <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi port rigid body</a>, 
+	 <a href="../doc_beamrevolute/DocBeamRevolute.html">Flexible Beam + revolute joint</a>, 
+	 <a href="../../doc_BODIES/doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a></li>
+</p> 
+	
+   <h2>Contents</h2>
+   <div><ul>
+   		<li><a href="#1">Description</a></li>
+   		<li><a href="#2">Ports</a></li>
+   		<li><a href="#3">Parameters</a></li>
+   		<li><a href="#5">Simulink diagram under the mask</a></li>
+   	</ul></div>
+   
+   <h2 id="1">Description</h2>
+<p>The rigid body $\mathcal{A}$ connected to the parent body $\mathcal{P}$ at point $P_1$ through a revolute joint and loaded at point $P_2$ is depicted in the following Figure.</p>
+	<p><img vspace="5" hspace="5" width="50%" src="figRevRig.png" alt=""></p>
+<p> Let us define:</p>
+<div><ul>
+		<li>$\mathcal{R}_a$: the body frame attached to $\mathcal{A}$,</li>
+		<li>$\mathcal{R}_p$: the body frame attached to $\mathcal{P}$,</li>
+		<li>$\mathbf{r}_a$: the direction of the revolute joint axis and $\mathbf{\tilde{r}}_a$ a unitary vector along this direction,</li>
+		<li>$\bar\theta$: the angular configuration of the revolute joint: $\mathcal{R}_a$ is obtained from $\mathcal{R}_p$ by a rotation of $\theta$ around $\mathbf{r}_a$,
+		<li>$O$ and $G$: the reference point and the center of mass of body $\mathcal{A}$,</li>
+		<li>$C_m$: the driving torque which can be applied inside the revolute joint by an external driving system,</li>
+		<li>$\ddot{\theta}$, $\delta\dot\theta$, $\delta\theta$: the relative angular acceleration, velocity and position variations of the body side shaft w.r.t. to the parent side shaft,
+	around $\bar\theta$,</li>
+<li>$\delta\mathbf{m}^{\mathcal P}_{P_1}$ the motion vector ($18\times 1$) of the parent body $\mathcal P$ at the point $P_1$,</li>
+<li>$\mathbf{W}_{\mathcal A/\mathcal P,P_1}$: the wrench ($6\times 1$) applied by input shaft of the revolute joint on the parent body $\mathcal P$, at point $P_1$,</li>
+		<li>$\mathbf{W}_{./\mathcal A,P_j},\;j=2,\cdots n$: the external wrench ($6\times 1$) applied to the body $\mathcal A$, at point $P_j$,</li>
+<li>$\delta\mathbf{m}^{\mathcal A}_{P_j}$ the motion vector ($18\times 1$) of the body $\mathcal A$ at the point $P_j$.</li>
+		</ul></div>
+	<p>	The dynamics model can be represented by the following block diagram:</p>
+	<p><img vspace="5" hspace="5" width="70%" src="figHubRevNew.png" alt=""></p>
+  <p> This block uses the 2 blocks: <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi port rigid body</a> and <a href="../../doc_Mechanisms/doc_revolute_configuration/DocRevoluteJoint_configuration.html">Revolute joint + configuration</a>.</p>
+  <p> <b>Its main interest are:</b>
+  		<ul>
+  			<li> it is not required to specify the output shaft inertia $J_r$ in the revolute joint block,</li>
+  			<li> the angular configuration $\bar\theta$ of the revolute joint can be declared as a varying parameter.</il>
+	  	</ul>
+  </p>
+   <h2 id="2">Ports</h2>
+  <p><b>Inputs:</b></p>
+  <div><ul>		
+ 	<li><b>m_P1|p</b> $=\left[\delta\mathbf{m}^{\mathcal P}_{P_1}\right]_{\mathcal{R}_p}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+  		<li><b>Cm_at_P</b> $=C_m$: scalar signal (unit: $N.m$).</li>
+   		<li><b>W./body,Pj|a</b> $=\left[\mathbf{W}_{/\mathcal A,P_j}\right]_{\mathcal R_a}$: 6 component signal (units: $N$ and $N.m$), $j=2,\cdots n$</li>
+  	  	</ul></div>
+  <p><b>Outputs:</b></p>
+  <div><ul>
+  		<li><b>Wbody/.,P1|p</b> $=\left[\mathbf{W}_{\mathcal A/\mathcal P,P_1}\right]_{\mathcal{R}_p}$: 6 component signal (units: $N$ and $N.m$),</li>
+  		<li><b>m_theta_at_P1</b> $=\delta\mathbf m_r=\left[\ddot\theta,\;\;\delta\dot\theta,\;\;\delta\theta\right]^T$: the relative motion vector  (unit: $rd/s^2$, $rd/s$, $rd$).</li>
+    		<li><b>m_Pj|a</b> $=\left[\delta\mathbf{m}^{\mathcal A}_{P_j}\right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$), $j=2,\cdots n$.</li>
+  	</ul></div>
+  
+   <h2 id="3">Parameters</h2>
+   <p>All parameters are expressed in the body frame $\mathcal{R}_a$. Each parameter (except $\mathbf r_a$) can be an uncertain parameter declared with "ureal".</p>
+   <p>The main parameters are:</p>
+   <div><ul>
+   		<li>the body mass (unit: $kg$)</li>
+   		<li>the $3 \times 3$ inertia matrix of the body expressed at its center of mass $G$ (unit of each term: $kg.m^2$)</li>
+   		<li>the $3\times 1$ vector $\overrightarrow{OG}$, the position of the center of mass $G$ in $\mathcal{R}_a$ (unit: $m$)</li>
+   		<li>the number of ports $n$</li>
+   		<li>the $3\times 1$ vectors $\overrightarrow{OP_i}$, the positions of the connection points $P_i$ in $\mathcal{R}_a$ (unit: $m$), $i=1,\cdots,n$</li>
+   		<li>the $3\times 1$ revolution axis direction $\mathbf r_a$: $[\mathbf r_a]_{\mathcal{R}_a}=[\mathbf r_a]_{\mathcal{R}_p}$</li>
+   		<li>the angular configuration $\bar\theta$ (unit: $rd$)</li>
+   	</ul></div>
+   <p>Remark: if $\theta$ is declared as varying parameter with "ureal" and mode "Range" (ex: ureal('theta',0,'Range',[-pi pi])), then  "ulinearize" computes a LPV model parameterized according to the real parameter labelled "tan_theta_div4".</p>
+
+
+   <h2 id="5">Simulink diagram under the mask</h2>
+   <p>For instance in the case $n=3$:</p>
+   	
+   	<p><img vspace="5" hspace="5" width="50%" src="hubrevolute_mask.png" alt=""> </p>
+   	
+   	<p class="footer"><br></p></div>
+</body></html>

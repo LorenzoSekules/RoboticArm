@@ -1,0 +1,161 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+  <html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Multi-port rigid free body.</title>
+   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+  	<h1><b>Multi port rigid free body</b></h1>
+<hr>
+    <h1>Multi-port rigid free body linear model.</h1><!--introduction--><p>
+  It computes the inverse linearized dynamic model of a rigid body $\mathcal{B}$ free to move in 3-D space</p>
+<div><ul>
+		<li>at $n$ given points,</li>
+		<li>in its reference frame $\mathcal{R}_b $.</li>
+</ul></div>
+<p>It results in a $(18n \times 6n)$ model  between wrenches applied at the $n$ points and <a href="DocGeneralNotations.html/#2" target='_blank'>motion vectors</a> at these points. This $12$-th order model includes the $6$ rigid modes.</p>
+
+  <p>See also: <a href="DocGeneralNotations.html">General notations</a>, <a href="Docmultiportrigidbody.html">Multi port rigid body</a>,  <a href="../doc_massless/DocMassLessBody.html">massless connection body</a>, <a href="../doc_1PortNastran/Doc1PortNastranBody.html">1-port NASTRAN flexible body</a>.</p>
+  <!--/introduction-->
+  <h2>Contents</h2>
+  <div>
+      <ul><li><a href="#1">Description</a></li>
+          <li><a href="#2">Ports</a></li>
+          <li><a href="#3">Parameters</a></li>
+          <li><a href="#4">Simulink diagram under the mask</a></li></ul>
+  </div>
+  <h2 id="1">Description</h2>
+  <p>The Newton- Euler equations applied to a rigid body $\mathcal{B}$ at its center of mass $B$ reads:</p><p>	$$ 
+  	\underbrace{\left[\begin{array}{c}
+  \mathbf{F}_{ext/\mathcal B} \\
+  \mathbf{T}_{ext/\mathcal B,B}
+  \end{array}\right]}_{\mathbf W_{ext/\mathcal B,B}}
+  = \underbrace{\left[\begin{array}{cc}
+  m^{\mathcal{B}} \mathbf{1}_3 & \mathbf{0}_{3 \times 3} \\
+  \mathbf{0}_{3 \times 3} & \mathbf{I}^{\mathcal{B}}_B
+  \end{array}\right]}_{\mathbf D_B^{\mathcal{B}}}
+  \underbrace{\left[\begin{array}{c}
+  \mathbf{a}^{\mathcal B}_{B} \\
+  \boldsymbol{\dot\omega}^{\mathcal B}
+  \end{array}\right]}_{\mathbf{x''}^{\mathcal B}_B}
+  + \left[\begin{array}{c}
+  \mathbf{0}_{3 \times 1} \\
+  \boldsymbol{\omega}^{\mathcal B} \times \mathbf{I}^{\mathcal{B}}_B \boldsymbol{\omega}^{\mathcal B}
+  \end{array}\right] $$
+  </p>
+  <p>The linearized Newton-Euler equations assume that $\boldsymbol{\omega}^{\mathcal B}$ is small. The quadratic terms can be neglected, leading to these equations :</p>
+  <p>$$ \mathbf{W}_{ext/\mathcal B,B} = \mathbf D_B^{\mathcal{B}}\mathbf{x''}^\mathcal B_B \quad \mbox{or}\quad \mathbf{x''}^\mathcal B_B=\left[ \mathbf D_B^{\mathcal{B}}\right]^{-1} \mathbf{W}_{ext/\mathcal B,B}. $$ </p>
+  
+  <p>Moreover let us consider another point $P$ on the rigid body $\mathcal{B}$. Then $ \mathbf{x''}^{\mathcal B}_P=\boldsymbol\tau_{PB}\mathbf{x''}^{\mathcal B}_B$  or considering the linearized motion vector projected in the body frame: $\left[ \delta \mathbf m^{\mathcal B}_P\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{PB}^{\times 3}\right]_{\mathcal R_b}\left[ \delta \mathbf m^{\mathcal B}_B\right]_{\mathcal R_b}$  (see  <a href="DocGeneralNotations.html/#3" target='_blank'>Kinematic model on the motion vector</a>).</p>
+  
+ <p>It can also be shown that:</p>
+  		<p>$$ \mathbf{W}_{ext/\mathcal B,B}= \boldsymbol\tau_{PB}^T \mathbf{W}_{ext/\mathcal B,P}.$$</p>
+  		<p>(Indeed, due to the lever arm effect: $ \mathbf{T}_{ext/\mathcal B,B}= \mathbf{T}_{ext/\mathcal B,P}-(^*\overrightarrow{PB})\mathbf{F}_{ext/\mathcal B}$.)</p>
+  		<p>Thus: $\left[ \mathbf D_P^{\mathcal{B}}\right]^{-1} =\boldsymbol\tau_{PB}\left[ \mathbf D_B^{\mathcal{B}}\right]^{-1} \boldsymbol\tau_{PB}^T\quad$ or $\quad\mathbf D_P^{\mathcal{B}}=\boldsymbol\tau_{BP}^T\mathbf D_P^{\mathcal{B}}\boldsymbol\tau_{BP}.$</p>
+  		<p>The inverse dynamic model of the rigid body $\mathcal{B}$ in its reference frame $\mathcal{R}_b$ at different points $P_i$ with $i=\{1,... n\}$ can be obtain following this scheme:</p>
+  		<p><img vspace="5" hspace="5" width="100%" src="figHubAug.png" alt=""> </p>
+  			
+  			<h2 id="2">Ports</h2>
+  			<p>The number of ports depends on the number $n$ of given points where the inverse dynamic model has to be computed.</p>
+  			<p><b>Inputs:</b></p>
+  			<div><ul>
+  					<li><b>W./body,Pi</b>: the wrenches (units: $N$ and $N.m$) applied to the rigid body $\mathcal{B}$ at the $n$ different points $P_i$ with $i=\{1,... n\}$  in the rigid body frame $\mathcal{R}_b$: $ \left[\mathbf{W}_{./\mathcal{B},P_i} \right]_{\mathcal{R}_b} $.</li>
+  			</ul></div>
+   		    <p><b>Outputs:</b></p>
+  		    <div><ul>
+  		    		<li><b>m_Pi</b>: the linearized motion vectors (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) at the $n$ different points $P_i$ with $i=\{1,... n\}$ in the rigid body frame $\mathcal{R}_b$: $\left[\delta\mathbf{m}^{\mathcal B}_{P_i} \right]_{\mathcal{R}_b}$.</li>
+  		    </ul></div>
+  	  		<h2 id="3">Parameters</h2><p>All parameters are expressed in the body frame $\mathcal{R}_b$. Each parameter can be an uncertain parameter declared with "ureal".</p>
+  		<p>The main parameters are:</p>
+  		<div><ul>
+  				<li>the body mass (unit: $kg$)</li>
+  				<li>the $3 \times 3$ inertia matrix of the body expressed at its center of mass $G$ (unit of each term: $kg.m^2$)</li>
+  				<li>the $3\times 1$ vector $\overrightarrow{OG}$: the position of the center of mass $G$ in $\mathcal{R}_b$ (unit: $m$)</li>
+  				<li>the number of ports (more exactly, the number $n$ of points $P_i$ with $i=\{1,... n\}$ where the inverse dynamic model has to be computed)</li>
+  				<li>eventually, the number of the port (between $1$ and $n$) which must be inverted</li>
+  				<li>the $3\times 1$ vectors $\overrightarrow{OP_i}$, $i=\{1,... n\}$: the positions of the connection points $P_i$ in $\mathcal{R}_b$ (unit: $m$).</li>
+		</ul></div>
+<div>	<h2 id="4">Simulink diagram under the mask</h2><p>
+		The Simulink block is built by the initialization function in the block mask according to the parameters in the dialog box. Example with $3$ ports:</p>
+		<p><img vspace="5" hspace="5" width="70%" src="bodies2maskAug.png" alt=""></p>
+</div>
+<p class="footer"><br></p>
+			</body></html>

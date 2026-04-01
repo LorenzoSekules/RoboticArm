@@ -1,0 +1,466 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Flexible plate.</title>
+   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style></head>
+
+<body>	
+	<div class="content">
+		  	<h1><b>multi-port flexible plate</b></h1>
+		<hr>
+<h1>Multi-port, linear and analytical model of a flexible plate.</h1>
+  <!--introduction--><p>This block implements the $(18n_C+6n_P) \times (6n_C+18n_P)$ multi-port model of a flexible plate where $n_C$ is the number or child modes $C_i$, $i=1,\cdots,n_C$ (points of the plate connected to a child sub-structure(s)) and $n_P$ is the number of parent nodes $P_i$, $i=1,\cdots,n_P$ (points of the plate connected to a parent sub-structure(s)). To each of the nodes $C_i$ or $P_i$, corresponds a $18\times 6$  or a $6\times 18$ channel:</p>
+  <div><ul>
+  		<li>at port $C_i$, $18\times 6$ channel is the transfer from the wrench applied to the plate at $C_i$ by the child substructure to the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of $C_i$,</li>
+  		<li>at port $P_i$, the $6\times 18$ channel is the transfer from the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of $P_i$ to the wrench applied by the plate to the parent substructure at $P_i$.</li>
+  </ul></div><!--/introduction-->
+  <p> The obtained model is expressed in its reference frame $\mathcal{R}_a $.
+</p>
+<p>If $n_P=0$, then the model is $18n_C\times 6n_C$ and includes $12$ integrators to model the $6$ rigid modes at the point $C_{n_C}$ (the last port).</p>
+  <p>See also: <a href="../doc_hub/DocGeneralNotations.html">General notations</a>,  <a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, <a href="../doc_beam/DocBeam.html">2 port flexible beam</a>, <a href="../doc_NPortNastran/DocNPortNastranBody.html">N-port NASTRAN flexible body</a>, <a href="../doc_Kirchhoff/DocPlate_Kirchhoff.html">multi-port FEM Kirchhoff plate</a>, <a href="../doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p>
+<h2>Contents</h2>
+<div><ul>
+		<li><a href="#2">Description</a></li>
+		<li><a href="#3">Ports</a></li>
+		<li><a href="#4">Parameters</a></li>
+		<li><a href="#5">Simulink diagram under the mask</a></li>
+		<li><a href="#7">Rigid dynamics</a></li>
+		<li><a href="#8">Flexible dynamics</a></li>
+		<li><a href="#9">Rigid/flexible dynamics assembly</a></li>
+</ul></div>
+<h2 id="2">Description</h2>
+<p>Considering a plate $\mathcal{A}$ described in the following Figure</p>
+<p><img vspace="5" hspace="5" width="70%" src="plate2.png" alt=""></p>	
+<p>and	characterized by
+<ul>
+	<li>the local frame $\mathcal{R}_a$,</li>
+	<li>the dimensions: $l_x$, $l_y$, $h$,</li>
+	<li>mass density: $\rho$, </li>
+	<li>Young modulus $E$ and Poisson coefficient $\nu$. </li>
+</ul>
+<p> Let us define:</p>
+<div><ul>			
+		<li>$\left[\mathbf{W}_{./\mathcal{A},C_i}\right]_{\mathcal{R}_a}$: the external wrench ($6\times 1$) applied to the beam at point $C_i$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\delta\mathbf m^{\mathcal A}_{C_i} \right]_{\mathcal{R}_a}$: the motion vector ($18\times 1$) of the beam at point $C_i$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\delta\mathbf m^{\mathcal A}_{P_i} \right]_{\mathcal{R}_a}$: the motion vector ($18\times 1$) of the beam at point $P_i$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\mathbf{W}_{\mathcal{A}/.,P_i}\right]_{\mathcal{R}_a}$: the wrench ($6\times 1$) applied by the beam at point $P_i$, expressed in $\mathcal{R}_a$.</li>
+	</ul></div>
+For each port, the 6 degrees-of-freedom ($\mbox{trans}_{\;x}$, $\mbox{trans}_{\;y}$, $\mbox{trans}_{\;z}$, $\mbox{rot}_{\;x}$, $\mbox{rot}_{\;y}$, $\mbox{rot}_{\;z}$) are split into:
+<ul>
+	<li> [$\mbox{trans}_{\;x},\;\mbox{trans}_{\;y},\;\mbox{rot}_{\;z}$] for which the motion is assumed to be rigid (see also: <a href="#7">Rigid dynamics</a>)</li>
+	<li> [$\mbox{trans}_{\;z},\;\mbox{rot}_{\;x},\;\mbox{rot}_{\;y}$] for which the motion is flexible (see also: <a href="#8">Flexible dynamics</a>) and computed using a $5$-th order polynomial approximation in $x$ and $y$ of the deflection $w(x,y,t)$ (see also: <a href="http://oatao.univ-toulouse.fr/19279/">Finite element based N-Port model for preliminary design of multibody systems (F. Sanfedino et al.)</a>).</li>
+	</ul>
+<p>Then, inversion channel function (see also: <a href="../../doc_SDTfunc/docInvio/docInvio.html"><code>invio</code></a>) is used to switch from child node to parent node.</p>
+	
+<p>The multi-port model of the flexible plate is described by the following block diagram:</p>
+<p><img vspace="5" hspace="5" width="50%" src="NINOPplate.png" alt=""> </p>
+<p>When the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vectors</a> $\left[
+	\delta\mathbf m^{\mathcal A}_{P_i} \right]_{\mathcal{R}_a}$ and $\left[
+	\delta\mathbf m^{\mathcal A}_{C_i} \right]_{\mathcal{R}_a}$ are reduced to the first $6$ components of the dual acceleration vector $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{P_i}  \right]_{\mathcal{R}_a}$ and $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{C_i}  \right]_{\mathcal{R}_a}$, the TITOP model is denoted $\left[\mathbf{M\!a}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})\right]_{\mathcal{R}_a}$ and is detailled in sections  <a href="#7">(Rigid dynamics)</a> to <a href="#9">(Rigid/flexible dynamics assembly)</a>. Then it is possible to ouput the internal deflextion $\left[\delta\boldsymbol{ \mathbf{x}}^{\mathcal A}_{\overline {C_i}C_i}  \right]_{\mathcal{R}_a}$ of the beam at each free tip $C_i$ and its time-derivative $\left[\delta\dot{\boldsymbol{ \mathbf{x}}}^{\mathcal A}_{\overline {C_i}C_i}  \right]_{\mathcal{R}_a}$ (see also: <a href="../doc_hub/DocGeneralNotations.html/#12" target='_blank'>General notations/Flexible body</a>). The model  $\left[\mathbf{M}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})\right]_{\mathcal{R}_a}$  considering the full motion vectors can be built according to the following Figure where $\left[\boldsymbol{\tau}_{C_iP_{n_P}}  \right]_{\mathcal{R}_a}$ is the "rigid" kinematic model between points $P_{n_P}$ (the rigid motion is governed by the motion of the last parent port) and $C_i$  (see also: <a href="../doc_hub/DocGeneralNotations.html/#3" target='_blank'>Kinematic model on the motion vector</a>.</p>
+
+<p><img vspace="5" hspace="5" width="70%" src="TITOplateAug.png" alt=""></p> 
+	
+	<p >If $n_P=0$, then $12$ integrators are added according to following Figure to output the motion vector $\left[ \delta\mathbf{m}^{\mathcal A}_{C_{n_C}}  \right]_{\mathcal{R}_a}$ of the body $\mathcal A$ at the point $C_{n_C}$.</p>
+	<p><img vspace="5" hspace="0" width="100%" src="TITOPplateInv.png" alt="">	
+			
+<h2 id="3">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>
+<li><b>W./body,Ci</b> $=\left[\mathbf{W}_{./\mathcal{A},C_i}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$) for $i=1,\cdots,n_C$,</li>
+<li><b>m_Pi</b> $=\left[\delta\mathbf m^{\mathcal A}_{P_i} \right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$).</li>
+</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+<li><b>m_Ci</b> $=\left[\delta\mathbf m^{\mathcal A}_{C_i} \right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+<li><b>Wbody/.,Pi</b> $=\left[\mathbf{W}_{\mathcal{A}/.,P_i}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$) for $i=1,\cdots,n_P$.</li>
+</ul></div>
+
+<h2 id="4">Parameters</h2>
+<p>The parameters are:</p>
+<div><ul>
+<li>length along $x$ (unit: $m$): $l_x$,</li>
+<li>width along $y$ (unit: $m$): $l_y$,</li>
+<li>thickness along $z$ (unit: $m$): $h$,</li>
+<li>mass density (unit: $Kg/m^3$): $\rho$,</li>
+<li>Young modulus (unit: $N/m^2$): $E$,</li>
+<li>Poisson coefficient; $\nu$,</li>
+<li>damping ratio; $\xi$,</li>
+<li>number of child nodes (integer): $n_C$, </li>
+<li>number of parent nodes (integer): $n_P$, </li>
+<li>position of each child node (unit: $m$): $[x_{C_i},\;y_{C_i},\;0]^T\quad i=1,\cdots, n_C$,</li>
+<li>position of each parent node (unit: $m$): $[x_{P_i},\;y_{P_i},\;0]^T\quad i=1,\cdots, n_P$,</li>
+<li>percentage of uncertainty of the first $N_f$ cantilevered frequencies at parent node $P_1$,</li>
+<li>number of uncertain cantilevered frequencies ($N_f$).</li>
+</ul></div>
+
+<h2 id="5">Simulink diagram under the mask</h2>
+<p>
+	The Simulink block is built by the initialization according to the parameters in the dialog box. Example: TITOP (Two-Input Two-Output Port) model of  a plate with $n_P=3$ and $n_C=1$:</p>
+
+<p><img vspace="5" hspace="5" width="70%" src="plate_mask.png" alt="">
+</p>
+<h2 id="6">See also:</h2>
+<!--<ul>
+	    <li><a href="../doc_Kirchhoff/DocPlate_Kirchhoff.html">multi-port FEM Kirchhoff plate</a></li>
+		<li><a href="../doc_NPortNastran/DocNPortNastranBody.html">N-port Nastran body</a></li>
+		<li><a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a></li>
+		<li><a href="../doc_beam/DocBeam.html">2 port flexible beam</a></li>
+		<li><a href="../doc_hub/Docmultiportrigidbody.html">multi-port rigid body</a></li>
+		<li><a href="../../doc_DCM/doc_3_vu_rotation/Doc3vurotation.html">LPV Direction Cosine Matrix</a></li>
+</ul>-->
+<hr>
+<h1 id="7">Rigid dynamics:</h1>
+<p>Rigid dynamics concerns the 3 degrees-of-freedom $\mbox{trans}_{\;x},\;\mbox{trans}_{\;y},\;\mbox{rot}_{\;z}$ of the plate.</p>
+	
+<p>At the first step all the $n=n_C+n_P$ nodes (child or parent) are considered as child nodes, and the $6n \times 6n$ inverse dynamics model $[\mathbf{D}^{\mathcal{A}}_{[C_1 \cdots C_{n_C},P_1 \cdots P_{n_P}]}]_{\mathcal{R}_a}^{-1}$ of the plate between the $n$ wrenches applied at all the nodes and the $n$ acceleration twists at the theses nodes is computed using the block <a href="../doc_hub/Docmultiportrigidbody.html">multi-port rigid body</a>.	
+$$
+\left[\begin{array}{c}
+\left[\begin{array}{c}\mathbf{a}_{C_1}\\ \dot{\boldsymbol{\omega}}_{C_1} \end{array}\right]_{\mathcal{R}_a} \\ \vdots \\
+\left[\begin{array}{c}\mathbf{a}_{C_{n_C}}\\ \dot{\boldsymbol{\omega}}_{C_{n_C}} \end{array}\right]_{\mathcal{R}_a} \\
+\left[\begin{array}{c}\mathbf{a}_{P_1}\\ \dot{\boldsymbol{\omega}}_{P_1} \end{array}\right]_{\mathcal{R}_a} \\ \vdots \\
+\left[\begin{array}{c}\mathbf{a}_{P_{n_C}}\\ \dot{\boldsymbol{\omega}}_{P_{n_P}} \end{array}\right]_{\mathcal{R}_a}
+\end{array}\right]
+= \underbrace{
+\left[\begin{array}{c}
+[\boldsymbol{\tau}_{C_1G}]_{\mathcal{R}_a} \\ \vdots \\
+[\boldsymbol{\tau}_{C_{n_C}G}]_{\mathcal{R}_a} \\
+[\boldsymbol{\tau}_{P_1G}]_{\mathcal{R}_a} \\ \vdots \\
+[\boldsymbol{\tau}_{P_{n_P}G}]_{\mathcal{R}_a} \\
+\end{array}\right]
+[\mathbf{D}^{\mathcal{A}}_G]_{\mathcal{R}_a}^{-1}
+\left[[\boldsymbol{\tau}_{C_1G}]_{\mathcal{R}_a}^T\;\cdots\; [\boldsymbol{\tau}_{C_{n_C}G}]_{\mathcal{R}_a}^T\;[\boldsymbol{\tau}_{P_1G}]_{\mathcal{R}_a}^T\;\cdots\;[\boldsymbol{\tau}_{P_{n_P}G}]_{\mathcal{R}_a}\right]
+}_{[\mathbf{D}^{\mathcal{A}}_{[C_1 \cdots C_{n_C},P_1 \cdots P_{n_P}]}]_{\mathcal{R}_a}^{-1}}
+\left[\begin{array}{c}
+\left[\begin{array}{c}\mathbf{F}_{./\mathcal{A},C_1} \\ \mathbf{T}_{./\mathcal{A},C_1}\end{array}\right]_{\mathcal{R}_a} \\ \vdots \\
+\left[\begin{array}{c}\mathbf{F}_{./\mathcal{A},C_{n_C}} \\ \mathbf{T}_{./\mathcal{A},C_{n_C}}\end{array}\right]_{\mathcal{R}_a} \\
+\left[\begin{array}{c}\mathbf{F}_{./\mathcal{A},P_1} \\ \mathbf{T}_{./\mathcal{A},P_1}\end{array}\right]_{\mathcal{R}_a} \\ \vdots \\
+\left[\begin{array}{c}\mathbf{F}_{./\mathcal{A},P_{n_p}} \\ \mathbf{T}_{./\mathcal{A},P_{n_P}}\end{array}\right]_{\mathcal{R}_a}\end{array}\right]
+$$
+where:
+<ul>
+	<li> $G$ is the center of mass of the plate: $OG=[l_x/2\quad l_y/2\quad 0]^T_{\mathcal{R}_a}$,</li>
+	<li> $\mathbf{D}^{\mathcal{A}}_G$ is the dynamic model of the rigid plate $\mathcal{A}$ at its center of mass $G$: $$[\mathbf{D}^{\mathcal{A}}_G]_{\mathcal{R}_a}=\left[\begin{array}{cc}
+		m^{\mathcal{A}}\mathbf{1}_3 & \mathbf{0}_{3\times 3}\\ \mathbf{0}_{3\times 3} & [\mathbf{J}^{\mathcal{A}}_G]_{\mathcal{R}_a} 
+		\end{array}\right]\quad \mbox{with: } m^{\mathcal{A}}=\rho\,l_x\,l_y\,h\quad \mbox{and } [\mathbf{J}^{\mathcal{A}}_G]_{\mathcal{R}_a}=m^{\mathcal{A}}\mbox{diag}\left(\frac{l_y^2}{12},\frac{l_x^2}{12},\frac{l_x^2+l_y^2}{12}\right)$$</li>
+	<li> $\boldsymbol{\tau}_{AB}$  is the kinematic model between points $A$ and $B$ .
+</ul>	
+</p>
+<p>
+	The model $\mathbf{R}^{\mathcal{A}}_{[C_1 \cdots C_{n_C}],[P_1 \cdots P_{n_P}]}$ of the rigid plate between the $n_C$ child nodes and the $n_P$ parent mode is obtained from $[\mathbf{D}^{\mathcal{A}}_{[C_1 \cdots C_{n_C},P_1 \cdots P_{n_P}]}]^{-1}$ by:
+	<ul>
+		<li> inverting the 6 channels of the last port relative to the node $P_{n_P}$ (see also: <a href="../../doc_SDTfunc/docInvio/docInvio.html"><code>invio</code></a>),</li>
+		<li> changing the sign on the 6 outputs of the channels relative to $P_{n_P}$.</li>
+		<li> multiplying by $0$ all the inputs and outputs of the channels relative to the nodes $P_i$, $i=1,\cdots,n_P-1$.</li>
+	</ul>
+That is:
+$$\mathbf{R}^{\mathcal{A}}_{[C_1 \cdots C_{n_C}],[P_1 \cdots P_{n_P}]}=\mbox{diag}\left(\mathbf{1}_{6n_C},\mathbf{0}_{6(n_P-1)\times 6(n_P-1) },-\mathbf{1}_{6}\right)\left[[\mathbf{D}^{\mathcal{A}}_{[C_1 \cdots C_{n_C},P_1 \cdots P_{n_P}]}]^{-1}\right]^{-1_{[6n-5:6n]}}\mbox{diag}\left(\mathbf{1}_{6n_C},\mathbf{0}_{6(n_P-1)\times 6(n_P-1) },\mathbf{1}_{6}\right)\;.$$
+</p>
+<p>
+	<b>Remark: </b> note that for the rigid motion of the plate $\mathcal{A}$ only the last node $P_{n_P}$ is considered as a parent node. That is justifies considering that:
+	<ul>
+		<li>it is impossible to prescribe 2 independent acceleration twists at 2 different points of a rigid body,</li>
+		<li>closed-loop kinematic chains of pure rigid bodies are not considered here.</li>
+	</ul>
+</p>
+
+
+<hr>
+<h1 id="8">Flexible dynamics:</h1>
+<p>Flexible dynamics concerns the 3 degrees-of-freedom $\mbox{trans}_{\;z},\;\mbox{rot}_{\;x},\;\mbox{rot}_{\;y}$ of the plate.</p>
+
+<p> The deflection of a point $(x,y)$ in the plate plane along $\mathbf{z}$ is denoted $w(x,y,t)$ and the angular deflections around $\mathbf{x}$ and $\mathbf{y}$ are, respectively:
+	<ul>
+		<li>$\theta_x(x,y,t) = \frac{\partial w}{\partial y}$</li>
+		<li>$\theta_y(x,y,t) = -\frac{\partial w}{\partial x}$</li>
+	</ul>
+Then, let us defined:
+	$$\mathbf{q}(x,y,t)=\left[\begin{array}{c}w(x,y,t) \\ \theta_{x}(x,y,t) \\ \theta_{y}(x,y,t) \end{array}\right]$$
+	</p>
+	
+<h2>Coordinates and associated shape functions:</h2>
+<p>The rigid and flexible motion can be split by introducing the parent node $O$ (located at $(0, 0)$) containing the rigid vertical displacement ($w_O(t)=w(0,0,t)$) and the linearized rotation along $x$ ($\theta_{x,O}(t)=\theta_x(0,0,t)$) and $y$ ($\theta_{y,O}=\theta_y(0,0,t)$)
+$$
+w(x,y,t) = w_O(t) + y \theta_{x,O}(t) - x \theta_{y,O}(t) + w_f(x, y, t)\;.
+$$
+The flexible part $w_f(x, y, t)$ is approximated by a $5$-th order polynomial in $x$ and $y$: 
+$$w_f(x,y,t) = \mathbf{P}_{w_f}(x,y)^T \mathbf{a}_f(t)$$
+where $\mathbf{P}_{w_f}(x,y)$ is a vector of 18 elementary monomials:
+$$\mathbf{P}_{w_f}(x,y) = [x^2,\; xy,\; y^2,\; x^3,\;   x^2y,\; xy^2,\; y^3,\;   x^4,\;    x^3y,\;   x^2y^2,\; xy^3,\;   y^4,\;    x^5,\;      x^4y,\;     x^3y^2,\;   x^2y^3,\;   xy^4,\;      y^5]^T 
+$$</p>
+
+<p>Analogously: 
+<ul>
+	<li>$\theta_{x, f}(x,y,t)= \mathbf{P}_{\theta_{x,f}}(x,y)^T \mathbf{a}_f(t)$ with $\mathbf{P}_{\theta_{x,f}}(x,y)=\frac{\partial}{\partial y}\mathbf{P}_{w_f}(x,y)$</li>
+	<li>$\theta_{y, f}(x,y,t)= \mathbf{P}_{\theta_{y,f}}(x,y)^T \mathbf{a}_f(t)$ with $\mathbf{P}_{\theta_{y,f}}(x,y)=-\frac{\partial}{\partial x}\mathbf{P}_{w_f}(x,y)$</li>
+	</ul>
+Then one can define the $18\times 3$ matrix of monomials:
+$$\mathbf{P}_f(x,y)=[\mathbf{P}_{w_f}(x,y)\quad \mathbf{P}_{\theta_{x,f}}(x,y) \quad \mathbf{P}_{\theta_{y,f}}(x,y)]$$
+</p>
+<p>Considering the 6 points $A_i$ of coordinates $(x_{A_i},y_{A_i})$ defined in the following Figure. Then:
+	$$\mathbf{q}_{f,A_i}(t)=\left[\begin{array}{c}w_f(x_{A_i},y_{A_i},t) \\ \theta_{x, f}(x_{A_i},y_{A_i},t) \\ \theta_{y, f}(x_{A_i},y_{A_i},t) \end{array}\right]=\mathbf{P}_f(x_{A_i},y_{A_i})^T \mathbf{a}_f(t),\;\;\forall\;i=1,\cdots,6$$
+	<p>
+<p><img vspace="5" hspace="5" width="50%" src="pointsAi.png" alt=""> </p>
+<p>Then one can express the vector of $18$ time-dependant coefficient $\mathbf{a}_f(t)$ as a function of the vector of flexible coordinates $\mathbf{q}_f(t)=[\mathbf{q}_{f,A_1}(t)^T,\;\;\mathbf{q}_{f,A_2}(t)^T,\cdots ,\mathbf{q}_{f,A_6}(t)^T ]^T$:
+	$$
+	\mathbf{a}_f(t)=   \mathbf{P}^{-1}\mathbf{q}_f(t)\quad\mbox{with}\quad \mathbf{P}_{18\times 18}=[\mathbf{P}_f(x_{A_1},y_{A_1}),\cdots,\mathbf{P}_f(x_{A_6},y_{A_6})]^T\;.
+	$$
+	</p>
+<p>Then, defining the vector of the 3 rigid coordinates (at point $O$): $\mathbf{q}_r(t)=[w_O(t),\; \theta_{x,O}(t),\;\theta_{y,O}(t)]^T$, one can express:
+	$$\mathbf{q}(x,y,t)=\boldsymbol{\Phi}_r(x,y) \mathbf{q}_r(t)+ \boldsymbol{\Phi}_f(x,y) \mathbf{q}_f(t)\quad \mbox{with:}\;\boldsymbol{\Phi}_r(x,y)=\left[\begin{array}{ccc}
+	1 & y & -x \\ 0 & 1 & 0\\ 0 & 0 & 1
+	\end{array}\right];\;\mbox{and}\;\boldsymbol{\Phi}_f(x,y)=\mathbf{P}_f(x,y)^T\mathbf{P}^{-1}\;.$$ </p>
+
+<h2>Mass and stiffness matrices</h2>
+<p>The kinetic energy is given by
+$$
+\mathcal{T} = \frac{1}{2} \int_{0}^{l_x} \int_{0}^{l_y}
+\dot{\mathbf{q}}^T \left[\begin{array}{ccc}
+\rho h & 0 & 0\\
+0 & \frac{\rho h^3}{12} & 0\\
+0 & 0 & \frac{\rho h^3}{12}\\
+\end{array}\right] \dot{\mathbf{q}}
+dx\, dy=\frac{1}{2} \left[\begin{array}{c}\dot{\mathbf{q}}_r \\ \dot{\mathbf{q}}_f \end{array}\right]^T\left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]\left[\begin{array}{c}\dot{\mathbf{q}}_r \\ \dot{\mathbf{q}}_f \end{array}\right]
+$$
+with the mass matrix: $\mathbf{M}=\left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]=\int_{0}^{l_x} \int_{0}^{l_y}
+\left[\begin{array}{c}
+\boldsymbol{\Phi}_r^T \\
+\boldsymbol\Phi_f^T
+\end{array}\right] 
+\left[\begin{array}{ccc}
+\rho h & 0 & 0\\
+0 & \frac{\rho h^3}{12} & 0\\
+0 & 0 & \frac{\rho h^3}{12}\\
+\end{array}\right][
+\boldsymbol{\Phi}_r \;\;
+\boldsymbol\Phi_f 
+]
+dx\, dy$ </p>
+
+<p>(Rk: $\mathbf{M}_{rf}=\mathbf{M}_{fr}^T$)</p>
+<p>
+	The elastic potential energy is given by:
+	$$
+	\mathcal{K} = \frac{1}{2} \int_{0}^{l_x} \int_{0}^{l_y}
+	\mathbf{\kappa}^T \mathbf{D} \mathbf{\kappa} 
+	dx\, dy
+	$$
+	The curvatures and the flexural rigidity matrix are given by
+	$$
+	\mathbf{\kappa} = \left[\begin{array}{c}
+	-\frac{\partial^2 w_f}{\partial x^2} \\
+	-\frac{\partial^2 w_f}{\partial y^2}  \\
+	-2  \frac{\partial^2 w_f}{\partial x\partial y} \\
+	\end{array}\right]=\left[\begin{array}{c}
+	-\frac{\partial^2 P_{w_f}^T}{\partial x^2} \\
+	-\frac{\partial^2 P_{w_f}^T}{\partial y^2}  \\
+	-2  \frac{\partial^2 P_{w_f}^T}{\partial x\partial y} \\
+	\end{array}\right]\mathbf{P}^{-1}\mathbf{q}_f=\mathbf\Phi_{\mathbf{\kappa}}\mathbf{q}_f
+	  \quad \mbox{and}\quad
+	\mathbf{D}=\left[\begin{array}{ccc}
+	D & D \nu & 0\\
+	D \nu & D & 0\\
+	0 & 0 & \frac{D}{2} (1 - \nu)
+	\end{array}\right]
+	$$
+	where $D = \frac{E h^3}{12 (1 - \nu^2)}$ is the flexural stiffness and $\nu$ is the Poisson ratio.
+
+Thus $\mathcal{K} = \frac{1}{2} \mathbf{q}_f^T\mathbf{K}\mathbf{q}_f$ with $\mathbf{K}=\int_{0}^{l_x} \int_{0}^{l_y} \mathbf\Phi_{\mathbf{\kappa}}^T\mathbf{D}\mathbf\Phi_{\mathbf{\kappa}}dx\,dy$.</p>
+
+<h2>2-port model</h2>
+<p>
+	Let us denote:
+	<ul>
+		<li>$\mathbf{W}_{\mathcal{A}/.,O}=[F_O^z, T_O^x, T_O^y]^T$ the 3 d.o.f wrench (one force and 2 torques) applied by the plate to the parent substructure at the point $O$,</li>
+		
+		<li>$\mathbf{W}_{./\mathcal{A},C}=[F_C^z, T_C^x, T_C^y]^T$ the 3 d.o.f wrench (one force and 2 torques) applied to the plate at a given child node $C\,(x_C,y_C)$.</li>
+	</ul>
+Then the work of these wrenches read: $\mathcal{W}_e(t)=-\mathbf{q}(0,0,t)^T\mathbf{W}_{\mathcal{A}/.,O}(t)+\mathbf{q}(x_C,y_C,t)^T\mathbf{W}_{./\mathcal{A},C}(t)$ or:
+$$\mathcal{W}_e= \left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]^T\left[\begin{array}{cc}-\mathbf{1}_3 & \boldsymbol{\Phi}_r(x_C,y_C)^T \\ \mathbf{0}_{18\times 3} & \boldsymbol{\Phi}_f(x_C,y_C)^T \end{array}\right]\left[\begin{array}{c} \mathbf{W}_{\mathcal{A}/.,O} \\ \mathbf{W}_{./\mathcal{A},C} \end{array}\right]$$
+
+Thus the dynamic model reads:
+
+$$ \left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]\left[\begin{array}{c}\ddot{\mathbf{q}}_r \\ \ddot{\mathbf{q}}_f \end{array}\right]+ \left[\begin{array}{cc}\mathbf{0}_{3\times 3}& \mathbf{0}_{3\times 18}\\ \mathbf{0}_{18\times 3} & \mathbf{K} \end{array}\right]\left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]=
+\left[\begin{array}{cc}-\mathbf{1}_3 & \boldsymbol{\Phi}_r(x_C,y_C)^T \\ \mathbf{0}_{18\times 3} & \boldsymbol{\Phi}_f(x_C,y_C)^T \end{array}\right]\left[\begin{array}{c} \mathbf{W}_{\mathcal{A}/.,O} \\ \mathbf{W}_{./\mathcal{A},C} \end{array}\right]$$
+	</p>
+
+<p>
+	The modal coordinates are introduced by solving the eigenvalue problem $
+	\mathbf{M}_{ff} \mathbf{V}\boldsymbol{\Omega}^2  = \mathbf{K} \mathbf{V} \qquad \mbox{where } \boldsymbol{\Omega}^2 = \mbox{diag}(\omega_i^2)$</p>
+	
+<p>	Applying the transformation $\mathbf{q}_f = \mathbf{V} \boldsymbol{\eta}$ the system becomes:
+	
+$$ \left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{L}_{O}^T\\
+\mathbf{L}_{O} & \mathbf{1}_{18\times 18}\end{array}\right]\left[\begin{array}{c}\ddot{\mathbf{q}}_r \\ \ddot{\boldsymbol{\eta}} \end{array}\right]+ \left[\begin{array}{cc}\mathbf{0}_{3\times 3}& \mathbf{0}_{3\times 18}\\ \mathbf{0}_{18\times 3} & \boldsymbol{\Omega}^2 \end{array}\right]\left[\begin{array}{c}\mathbf{q}_r \\ \boldsymbol{\eta}\end{array}\right]=
+\left[\begin{array}{cc}-\mathbf{1}_3 & \boldsymbol{\Phi}_r(x_C,y_C)^T \\ \mathbf{0}_{18\times 3} & \boldsymbol{\Phi}_\eta(x_C,y_C)^T \end{array}\right]\left[\begin{array}{c} \mathbf{W}_{\mathcal{A}/.,O} \\ \mathbf{W}_{./\mathcal{A},C} \end{array}\right]$$	
+
+where: $\mathbf{L}_{O}=\mathbf{V}^T\mathbf{M}_{fr}$ and $\boldsymbol{\Phi}_\eta=\boldsymbol{\Phi}_f \mathbf{V} $</p>		
+
+<p> Damping can be added by introducing matrix $\boldsymbol{\Xi}= \mbox{diag}(2 \xi_i \omega_i)$.<p>
+		
+<p>The 3 d.o.f.  acceleration twist at child node $C$ is written as: $\ddot{\mathbf{q}}_C(t) = \ddot{\mathbf{q}}(x_C,y_C,t)=\underbrace{\boldsymbol{\Phi}_{r}(x_C,y_C)}_{\boldsymbol{\Phi}_{r,C}}\ddot{\mathbf{q}}_r(t) + \underbrace{\boldsymbol{\Phi}_\eta(x_C,y_C)}_{\boldsymbol{\Phi}_{\eta,C}}  \ddot{\boldsymbol{\eta}}(t)$</p>
+
+<p>
+	The 2 ports model ($6\times 6$ )for the  plate $\mathcal{A}$ considering as inputs the acceleration twist at the parent node $O$ and the wrench at the child node $C$ is denoted $\mathbf{F}^{\mathcal{A}}_{C,O}(\mathrm{s})$ and can be described by the following state-space representation ($\mathbf{q}_r$ is renamed $\mathbf{q}_O$):
+$$ \left[\begin{array}{c}
+	\dot{\boldsymbol\eta} \\
+	\ddot{\boldsymbol\eta} \\
+	\hline \ddot{\mathbf{q}}_C \\
+	 \mathbf{W}_{\mathcal{A}/.,O}  \end{array}\right]
+	= 
+	\left[
+	\begin{array}{cc|cc}
+	\mathbf{0}_{18 \times 18} & \mathbf{1}_{18} & \mathbf{0}_{18 \times 3} & \mathbf{0}_{18 \times 3} \\
+	-\boldsymbol{\Omega}^2 & -\boldsymbol{\Xi}  & \boldsymbol{\Phi}_{\eta, C}^T & -\mathbf{L}_O  \\
+	\hline
+	-\boldsymbol{\Phi}_{\eta, C}\boldsymbol{\Omega}^2 & -\boldsymbol{\Phi}_{\eta, C}\boldsymbol{\Xi} &  \boldsymbol{\Phi}_{\eta, C}  \boldsymbol{\Phi}_{\eta, C}^T & \left(\boldsymbol{\Phi}_{r,C} - \boldsymbol{\Phi}_{\eta, C} \mathbf{L}_O \right)  \\
+	\mathbf{L}_O^T \boldsymbol{\Omega}^2 & \mathbf{L}_O^T \boldsymbol{\Xi} &  \left( \boldsymbol{\Phi}_{r,C} - \boldsymbol{\Phi}_{\eta, C} \mathbf{L}_O\right)^T & \mathbf{L}_O^T \mathbf{L}_O - \mathbf{M}_{rr} \\	
+	\end{array}
+	\right]	\left[\begin{array}{c}
+	\boldsymbol{\eta} \\
+	\dot{\boldsymbol\eta} \\
+	\hline  \mathbf{W}_{./\mathcal{A},C}\\
+	\ddot{\mathbf{q}}_O
+	\end{array}\right]
+	$$
+	This model represent the case of a plate clamped at $O$ and free at $C$. Thanks to the fact that the feedthrough matrix has consists of non null terms on the diagonal the inversion of the channel is possible (see also: <a href="../../doc_SDTfunc/docInvio/docInvio.html"><code>invio</code></a>). It is therefore possible to represent other boundary conditions by inversion of one or several channels. 
+
+	</p>
+
+<h2>n-port model</h2>
+<p>
+Considering 2 child nodes $C_1$ and $C_2$, one can easily derived the 3-port model of the plate  $\mathbf{F}^{\mathcal{A}}_{[C_1,C_2],O}(\mathrm{s})$:
+
+$$ \left[\begin{array}{c}
+\dot{\boldsymbol\eta} \\
+\ddot{\boldsymbol\eta} \\
+\hline \ddot{\mathbf{q}}_{C_1} \\ \ddot{\mathbf{q}}_{C_2} \\
+\mathbf{W}_{\mathcal{A}/.,O}  \end{array}\right]
+= 
+\left[
+\begin{array}{cc|ccc}
+\mathbf{0}_{18 \times 18} & \mathbf{1}_{18} & \mathbf{0}_{18 \times 3} & \mathbf{0}_{18 \times 3} & \mathbf{0}_{18 \times 3} \\
+-\boldsymbol{\Omega}^2 & -\boldsymbol{\Xi}  & \boldsymbol{\Phi}_{\eta, C_1}^T & \boldsymbol{\Phi}_{\eta, C_2}^T & -\mathbf{L}_O  \\
+\hline
+-\boldsymbol{\Phi}_{\eta, C_1}\boldsymbol{\Omega}^2 & -\boldsymbol{\Phi}_{\eta, C_1}\boldsymbol{\Xi} &  \boldsymbol{\Phi}_{\eta, C_1}  \boldsymbol{\Phi}_{\eta, C_1}^T & \boldsymbol{\Phi}_{\eta, C_1}  \boldsymbol{\Phi}_{\eta, C_2}^T & \left(\boldsymbol{\Phi}_{r,C_1} - \boldsymbol{\Phi}_{\eta, C_1} \mathbf{L}_O \right)  \\
+-\boldsymbol{\Phi}_{\eta, C_2}\boldsymbol{\Omega}^2 & -\boldsymbol{\Phi}_{\eta, C_2}\boldsymbol{\Xi} &  \boldsymbol{\Phi}_{\eta, C_2}  \boldsymbol{\Phi}_{\eta, C_1}^T & \boldsymbol{\Phi}_{\eta, C_2}  \boldsymbol{\Phi}_{\eta, C_2}^T & \left(\boldsymbol{\Phi}_{r,C_2} - \boldsymbol{\Phi}_{\eta, C_2} \mathbf{L}_O \right)  \\
+\mathbf{L}_O^T \boldsymbol{\Omega}^2 & \mathbf{L}_O^T \boldsymbol{\Xi} &  \left( \boldsymbol{\Phi}_{r,C_1} - \boldsymbol{\Phi}_{\eta, C_1} \mathbf{L}_O\right)^T &  \left( \boldsymbol{\Phi}_{r,C_2} - \boldsymbol{\Phi}_{\eta, C_2} \mathbf{L}_O\right)^T & \mathbf{L}_O^T \mathbf{L}_O - \mathbf{M}_{rr} \\	
+\end{array}
+\right]	\left[\begin{array}{c}
+\boldsymbol{\eta} \\
+\dot{\boldsymbol\eta} \\
+\hline  \mathbf{W}_{./\mathcal{A},C_1}\\ \mathbf{W}_{./\mathcal{A},C_2}\\
+\ddot{\mathbf{q}}_O
+\end{array}\right]
+$$
+</p>
+
+<p>
+Considering now that the parent node is no more $O$ but $P\,(x_P,y_P)$, it is possible to compute the model $\mathbf{F}^{\mathcal{A}}_{C,P}(\mathrm{s})$ by:
+<ul>
+	<li> computing the model $\mathbf{F}^{\mathcal{A}}_{[C,P],O}(\mathrm{s})$ considering both nodes $C$ and $P$ as child nodes</li>  <li> freeing the node $O$ (no wrench applied at $O$) and transforming the child node $P$ into a parent node by inverting the channels 4 to 9 of the model $\mathbf{F}^{\mathcal{A}}_{[C,P],O}(\mathrm{s})$,</li>
+	<li> forgetting the $3 \times 3$ last channels (at $O$) in the model,</li>
+	<li> changing the sign on the 3 outputs of the channels relative to $P$.</li>
+</ul>
+These operations can be summarized by the mathematical expression:
+$$\mathbf{F}^{\mathcal{A}}_{C,P}(\mathrm{s})=\left[\begin{array}{cc}
+\mathbf{1}_3 & \mathbf{0}_{3\times 3} \\  \mathbf{0}_{3\times 3} & -\mathbf{1}_3
+\end{array}\right] \left[\left[\mathbf{F}^{\mathcal{A}}_{[C,P],O}(\mathrm{s})\right]^{-1_{[4:9]}}\right]_{[1:6]}\;.$$
+In this expression:
+<ul>
+	<li>the notation $[\star]^{-1_{\mathbf{I}}}$ stands for the <b>inversion</b> in the model $\star$ of the channels listed in the vector of indices $\mathbf{I}$,</li>
+	<li>the notation $[\star]_\mathbf{I}$ stands for the <b>selection</b> in the model $\star$ of the channels listed in the vector of indices $\mathbf{I}$.</li>
+</ul>
+</p>
+<p>
+	Considering the plate $\mathcal{A}$ with the $n_P$ parent nodes and $n_C$ child modes, one can easily compute the $n$-port model which size is $3n\times 3n$ ($n=n_P+n_C$):
+	$$\mathbf{F}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})=\left[\begin{array}{cc}
+	\mathbf{1}_{3n_C} & \mathbf{0}_{3n_C\times 3n_P} \\  \mathbf{0}_{3n_P\times 3n_C} & -\mathbf{1}_{3n_P}
+	\end{array}\right] \left[\left[\mathbf{F}^{\mathcal{A}}_{[C_1\cdots C_{n_C},P_1\cdots P_{n_P}],O}(\mathrm{s})\right]^{-1_{[3n_C+1:3(n+1)]}}\right]_{[1:3n]}\;.$$
+	</p>
+
+<hr>
+	<h1 id="9">Rigid/flexible dynamics assembly:</h1>
+<p>
+	The $n$-port model $\mathbf{M\!a}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})$ (see Figure above) of the plate is finally obtained from the rigid model $\mathbf{R}^{\mathcal{A}}_{[C_1 \cdots C_{n_C}],[P_1 \cdots P_{n_P}]}$ by overwriting the channels numbers 3, 4 and 5 of each of the $n$ ports with the 3 channels of the corresponding port of the model $\mathbf{F}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})$. That is:
+	$$\mathbf{M\!a}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})=\mathbf{R}^{\mathcal{A}}_{[C_1 \cdots C_{n_C}],[P_1 \cdots P_{n_P}]}$$
+	$$ [\mathbf{M\!a}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})]_{[6i+3,6i+4,6i+5]}=[\mathbf{F}^{\mathcal{A}}_{[C_1\cdots C_{n_C}],[P_1\cdots P_{n_P}]}(\mathrm{s})]_{[3i+1,3i+2,3i+3]}\;,\quad i=0,\cdots,n-1\;.$$
+</p>
+	
+	<p class="footer"><br><br></p></div>
+</body></html>

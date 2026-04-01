@@ -1,0 +1,443 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Flexible beam.</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style></head>
+
+<body>	
+	<div class="content">
+				  	<h1><b> 2 ports flexible beam</b></h1>
+				  	<hr>
+<h1>TITOP (Two-Inputs Two-Outputs Port), linear and analytical model of a flexible beam.</h1>
+  <!--introduction--><p>This block implements the $24 \times 24$ TITOP model of a flexible beam. The 2 ports of this model are:</p>
+  <div><ul>
+  		<li>the port at point $C$, i.e.: the $18\times 6$ channel from the wrench applied to the beam at point $C$ by the child substructure to the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of point $C$,</li>
+  		<li>the port at point $P$, i.e.: the $6\times 18$ channel from the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of point $P$ to the wrench applied by the beam to the parent substructure at point $P$.</li>
+  </ul></div>
+  <p> The obtained model is expressed in its reference frame $\mathcal{R}_a $.
+</p>
+<p>Thus the beam $\mathcal{A}$ is modeled under the <i>clamped at $P$ - free at $C$</i> boundary conditions.</p>
+<p style="color:darkblue;">A check-box <b>"Free body at P"</b>  allows to free the model at the port $P$. Then the model is $36\times 12$ and includes $12$ integrators to model the $6$ rigid modes at the point $P$. The last $18\times 6$ channel corresponds to the channel from the wrench applied to the body at the point $P$  to the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> of the point $P$.</p>
+
+  <p>See also: <a href="../doc_hub/DocGeneralNotations.html">General notations</a>,  <a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a>, <a href="../doc_NPortNastran/DocNPortNastranBody.html">N-port NASTRAN flexible body</a>, <a href="../doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div><ul>
+		<li><a href="#2">Description</a></li>
+		<li><a href="#3">Ports</a></li>
+		<li><a href="#4">Parameters</a></li>
+		<li><a href="#5">Simulink diagram under the mask</a></li>
+		<li><a href="#7">Pure flexion dynamics</a></li>
+		<li><a href="#8">Torsion dynamics</a></li>
+		<li><a href="#9">Traction dynamics</a></li>
+		<li><a href="#10">$12 \times 12$ TITOP model assembly</a></li>
+</ul></div>
+<h2 id="2">Description</h2>
+<p>Considering a beam $\mathcal{A}$ described in the following Figure</p>
+<p><img vspace="5" hspace="5" width="70%" src="poutre.png" alt=""></p>
+		<p>Figure 1: A flexible beam in 3D.</p>	
+<p>and	characterized by
+<ul>
+	<li>the local frame $\mathcal{R}_a$,</li>
+	<li>the dimensions: $l\,(m)$, $s\,(m^2)$, $I_z\,(m^4)$ and $I_y\,(m^4)$,</li>
+	<li>mass density: $\rho$, </li>
+	<li>Young modulus $E$ and Poisson coefficient $\nu$. </li>
+</ul>
+<p> Let us define:</p>
+<div><ul>			
+		<li>$\left[\mathbf{W}_{./\mathcal{A},C}\right]_{\mathcal{R}_a}$: the external wrench ($6\times 1$) applied to the beam at point $C$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\delta\mathbf m^{\mathcal A}_{C} \right]_{\mathcal{R}_a}$: the motion vector ($18\times 1$) of the beam at point $C$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\delta\mathbf m^{\mathcal A}_{P} \right]_{\mathcal{R}_a}$: the motion vector ($18\times 1$) of the beam at point $P$, expressed in $\mathcal{R}_a$,</li>
+		<li>$\left[\mathbf{W}_{\mathcal{A}/.,P}\right]_{\mathcal{R}_a}$: the wrench ($6\times 1$) applied by the beam at point $P$, expressed in $\mathcal{R}_a$.</li>
+</ul></div>
+For each port, the 6 degrees-of-freedom ($\mbox{trans}_{\;x}$, $\mbox{trans}_{\;y}$, $\mbox{trans}_{\;z}$, $\mbox{rot}_{\;x}$, $\mbox{rot}_{\;y}$, $\mbox{rot}_{\;z}$) are split into:
+<ul>
+	<li> [$\mbox{trans}_{\;y},\;\mbox{rot}_{\;z}$] for which the motion is assumed to be pure flexion in the plane $(P,\mathbf{x},\mathbf{y})$ (see also: <a href="#7">Pure flexion dynamics</a>) and computed using a $5$-th order polynomial approximation in $x$ of the deflection $v(x,t)$ (see also: <a href="http://oatao.univ-toulouse.fr/16559/"> (C. Jawhar et al.)</a>)</li>
+	<li> [$\mbox{trans}_{\;z},\;\mbox{rot}_{\;y}$] for which the motion is assumed to be pure flexion in the plane $(P,\mathbf{x},\mathbf{z})$ and computed analogously to the previous case,</li>	
+	<li> [$\mbox{rot}_{\;x}$] for which the motion is assumed to be pure torsion around $(P,\mathbf{x})$-axis (see also: <a href="#8">Torsion dynamics</a>) and computed using a $1$-th order polynomial approximation in $x$ of the angular deflection $\theta(x,t)$ ,</li>
+	<li> [$\mbox{trans}_{\;x}$] for which the motion is assumed to be pure traction along $(P,\mathbf{x})$-axis (see also: <a href="#9">Traction dynamics</a>) and computed using a $1$-th order polynomial approximation in $x$ of the linear deflection $u(x,t)$ ,</li>
+	</ul>
+	
+<p>The TITOP model $[\mathbf M^{\mathcal A}_{C,P}(\mathrm s)]_{\mathcal R_a}$ of the flexible beam is described by the following block diagram:</p>
+<p><img vspace="5" hspace="5" width="50%" src="TITOPbeam.png" alt=""></p> 
+<p>When the <a href="../doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vectors</a> $\left[
+	\delta\mathbf m^{\mathcal A}_{P} \right]_{\mathcal{R}_a}$ and $\left[
+	\delta\mathbf m^{\mathcal A}_{C} \right]_{\mathcal{R}_a}$ are reduced to the first $6$ components of the dual acceleration vector $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_a}$ and $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{C}  \right]_{\mathcal{R}_a}$, the TITOP model is denoted $\mathbf{M\!a}^{\mathcal{A}}_{C,P}(\mathrm s)$ and is detailled in sections  <a href="#7">(Pure flexion dynamics)</a> to <a href="#10">($12 \times 12$ TITOP model assembly)</a>. Then it is possible to ouput the internal deflextion $\left[\delta\boldsymbol{ \mathbf{x}}^{\mathcal A}_{\overline CC}  \right]_{\mathcal{R}_a}$ of the beam at the free tip $C$ and its time-derivative $\left[\delta\dot{\boldsymbol{ \mathbf{x}}}^{\mathcal A}_{\overline CC}  \right]_{\mathcal{R}_a}$ (see also: <a href="../doc_hub/DocGeneralNotations.html/#12" target='_blank'>General notations/Flexible body</a>). The model  $[\mathbf M^{\mathcal A}_{C,P}(\mathrm s)]_{\mathcal R_a}$  considering the full motion vectors can be built according to the following Figure where $\left[\boldsymbol{\tau}_{CP}  \right]_{\mathcal{R}_a}$ is the "rigid" kinematic model between points $P$ and $C$  (see also: <a href="../doc_hub/DocGeneralNotations.html/#3" target='_blank'>Kinematic model on the motion vector</a>.</p>
+	
+<p><img vspace="5" hspace="5" width="70%" src="TITOPbeamAug.png" alt=""></p> 
+			
+  			<p style="color:darkblue;">If the check box <b>"Free body at P"</b> is selected, then: let us denote  $[\mathbf M^{\mathcal A}_{C,P}(\mathrm s)]_{\mathcal R_a}(19:24,7:12)$ the transfer from $\left[\boldsymbol{ \mathbf{x''}}^{\mathcal A}_{P}  \right]_{\mathcal{R}_a}$ (the $6$ components acceleration dual vector at the point $P$) to $\left[ \mathbf{W}_{\mathcal{A}/.,P} \right]_{\mathcal{R}_a}$ (the $6$ components wrench). This chanel is then inverted and $12$ integrators are added according to following Figure to output the motion vector $\left[ \delta\mathbf{m}^{\mathcal A}_{P}  \right]_{\mathcal{R}_a}$ of the body $\mathcal A$ at the point $P$.</p>
+	<p><img vspace="5" hspace="0" width="100%" src="TITOPbeamInv.png" alt="">	
+
+		<p style="color:darkblue;">$\mathbf G(\mathrm s)^{-1_{[I,J]}}$ denotes the system $\mathbf(\mathrm s)$ where the channel from the inputs numbered in $I$ to the outputs numbered in $J$ is inverted (the vector of indices $I$ and $J$ must have the same length).</p>
+
+<h2 id="3">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>
+<li><b>W./body,C</b> $=\left[\mathbf{W}_{./\mathcal{A},C}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$),</li>
+<li><b>m_P</b> $=\left[\delta\mathbf m^{\mathcal A}_{P} \right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) <p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected, <b>W./body,P</b> $=\left[\mathbf{W}_{./\mathcal{A},P}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$).</p></li>
+</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+<li><b>m_C</b> $=\left[\delta\mathbf m^{\mathcal A}_{C} \right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$),</li>
+<li><b>Wbody/.,P</b> $=\left[\mathbf{W}_{\mathcal{A}/.,P}\right]_{\mathcal{R}_a}$: 6 component signal (units: $N$ and $N.m$) <p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected, <b>m_P</b> $=\left[\delta\mathbf{m}^{\mathcal A}_{P}\right]_{\mathcal{R}_a}$: 18 component signal (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$).</p></li>
+</ul></div>
+
+<h2 id="4">Parameters</h2>
+<p>The parameters are:</p>
+<div><ul>
+<li>length along $x$ (unit: $m$): $l$,</li>
+<li>cross section (unit: $m^2$): $s$,</li>
+<li>mass density (unit: $Kg/m^3$): $\rho$,</li>
+<li>Young modulus (unit: $N/m^2$): $E$,</li>
+<li>second moment of area along z axis (unit: $m^4$), $I_z$,</li>
+<li>second moment of area along y axis (unit: $m^4$), $I_y$,</li>
+<li>Poisson coefficient; $\nu$,</li>
+<li>damping ratio; $\xi$,</li>
+ <li><p style="color:darkblue;">A  check box <b>"Free body at P".</b></p> </li>
+ <li>A check box to overright the uncertainties on the  physical paramets (length, mass desity,...) by a common relative uncertainty (percentage) on the first $n_u\le 10$ flexible mode frequencies of the clamped at P / free at C beam</li>
+</ul></div>
+
+<h2 id="5">Simulink diagram under the mask</h2>
+<p>
+<img vspace="5" hspace="5" width="50%" src="beam_mask.png" alt="">
+</p>
+<p style="color:darkblue;">or, if <b>"Free body at P"</b> is selected:</p>
+<img vspace="5" hspace="5" width="50%" src="beamInv_mask.png" alt="">
+
+<!--<h2 id="6">See also:</h2>
+<ul>
+		<li><a href="../doc_flexbody/Doconeportflexiblebody.html">1-port flexible body</a></li>
+		<li><a href="../doc_2PortNastran/Doc2PortNastranBody.html">2-ports NASTRAN flexible body</a></li>
+		<li><a href="../doc_hub/Docmultiportrigidbody.html">multi-port rigid body</a></li>
+		<li><a href="../doc_plate/DocPlate_joly.html">multi-port flexible plate</a></li>
+		<li><a href="../../doc_DCM/doc_3_vu_rotation/Doc3vurotation.html">LPV Direction Cosine Matrix</a></li>
+</ul>-->
+<hr>
+<h1 id="7">Pure flexion dynamics in the plane ($P,\mathbf{x},\mathbf{y}$):</h1>
+<p>Dynamics of pure flexion in the plane ($P,\mathbf{x},\mathbf{y}$) concerns the 2 degrees-of-freedom $\mbox{trans}_{\;y},\;\mbox{rot}_{\;z}$ of the beam.</p>
+
+<p><img vspace="5" hspace="5" width="70%" src="flexion.png" alt=""></p>
+		<p>Figure 3: Pure flexion in the plane ($P,\mathbf{x},\mathbf{y}$).</p>	
+
+
+<p> The deflection along $\mathbf{y}$ of a point of abscissa $x$ is denoted $v(x,t)$.
+Let us defined:
+	$$\mathbf{q}(x,t)=\left[\begin{array}{c}v(x,t) \\ v'(x,t) \\ v''(x,t) \end{array}\right]$$
+	</p>
+with: $v'(x,t) = \frac{\partial v}{\partial x}(x,t)$ and  $v''(x,t) = \frac{\partial^2 v}{\partial x^2}(x,t)$
+<h2>Coordinates and associated shape functions:</h2>
+<p>The rigid and flexible motion can be split by introducing the motion of the point $P$  through the rigid vertical displacement ($v_P(t)=v(0,t)$) and the rotation ($v'_P(t)=v'(0,t)$) of $P$:
+$$
+v(x,t) = v_P(t) + x v'_{P}(t) + v_f(x, t)\;.
+$$
+The flexible part $v_f(x, t)$ is approximated by a $5$-th order polynomial in $x$: 
+$$v_f(x,t) = \mathbf{P}_{v_f}(x)^T \mathbf{a}_f(t)$$
+where $\mathbf{P}_{v_f}(x)$ is a vector of 4 elementary monomials:
+$$\mathbf{P}_{v_f}(x) = [x^2,\; x^3,\; x^4,\; x^5]^T 
+$$
+such that : $v_f(0,t)=0\quad \mbox{and}\quad v'_f(0,t)=0\quad\forall^;t$.</p>
+
+<p>$\mathbf{a}_f(t)$ is the vector of the time-dependent polynomial coefficient.</p>
+<p>Analogously: 
+<ul>
+	<li>$v'_f(x,t)= \mathbf{P}'_{v_f}(x)^T \mathbf{a}_f(t)$,</li>
+	<li>$v''_f(x,t)= \mathbf{P}''_{v_f}(x)^T \mathbf{a}_f(t)$.</li>
+</ul>
+Then one can define the $4\times 3$ matrix of monomials:
+$$\mathbf{P}_f(x)=[\mathbf{P}_{v_f}(x)\quad \mathbf{P}'_{v_f}(x) \quad \mathbf{P}''_{v_f}(x)]\;.$$
+</p>
+	<p>Considering the 4 component vector of flexible coordinates: 
+	$$\mathbf{q}_{f}(t)=\left[\begin{array}{c}v''_f(0,t) \\ v_f(l,t) \\ v'_f(l,t) \\ v''_f(l,t) \end{array}\right]=\underbrace{[\mathbf{P}''_{v_f}(0)\quad \mathbf{P}_{v_f}(l)\quad \mathbf{P}'_{v_f}(l)\quad \mathbf{P}''_{v_f}(l)]^T}_{\mathbf{P}_{4\times 4}} \mathbf{a}_f(t),$$
+	one can express the vector of $4$ time-dependent coefficient $\mathbf{a}_f(t)$ as a function of the vector of flexible coordinates:
+	$$
+	\mathbf{a}_f(t)=   \mathbf{P}^{-1}\mathbf{q}_f(t)\;.
+	$$
+	</p>
+<p>Then, defining the vector of the 2 rigid coordinates (at point $P$): $\mathbf{q}_r(t)=\mathbf{q}_P(t)=[v_P(t),\; v'_P(t)]^T$, one can express:
+	$$\mathbf{q}(x,t)=\boldsymbol{\Phi}_r(x) \mathbf{q}_r(t)+ \boldsymbol{\Phi}_f(x) \mathbf{q}_f(t)\quad \mbox{with:}\;\boldsymbol{\Phi}_r(x)=\left[\begin{array}{ccc}
+	1 & x \\ 0 & 1\\ 0 & 0
+	\end{array}\right];\;\mbox{and}\;\boldsymbol{\Phi}_f(x)=\mathbf{P}_f(x)^T\mathbf{P}^{-1}\;.$$ 
+	$$\mbox{or: }\mathbf{q}(x,t)=\underbrace{[\boldsymbol{\Phi}_r(x)\quad \boldsymbol{\Phi}_f(x)]}_{\boldsymbol{\Phi}(x)_{3\times 6}}\left[\begin{array}{c}\mathbf{q}_r(t) \\ \mathbf{q}_f(t) \end{array}\right]$$</p>
+
+<h2>Mass and stiffness matrices</h2>
+<p>The kinetic energy is given by
+$$
+\mathcal{T} = \frac{1}{2} \int_{0}^{l} 
+\dot{\mathbf{q}}^T \left[\begin{array}{ccc}
+\rho s & 0 & 0\\
+0 & \color{red}{0} & 0\\
+0 & 0 & 0\
+\end{array}\right] \dot{\mathbf{q}}
+\,dx=\frac{1}{2} \left[\begin{array}{c}\dot{\mathbf{q}}_r \\ \dot{\mathbf{q}}_f \end{array}\right]^T\left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]\left[\begin{array}{c}\dot{\mathbf{q}}_r \\ \dot{\mathbf{q}}_f \end{array}\right]
+$$
+with the mass matrix: $\mathbf{M}=\left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]=\int_{0}^{l}
+\left[\begin{array}{c}
+\boldsymbol{\Phi}_r^T \\
+\boldsymbol\Phi_f^T
+\end{array}\right] 
+\left[\begin{array}{ccc}
+\rho s & 0 & 0\\
+0 &  \color{red}{0}& 0\\
+0 & 0 & 0\\
+\end{array}\right][
+\boldsymbol{\Phi}_r \;\;
+\boldsymbol\Phi_f 
+]
+\,dx\;.$</p>
+<p>The red $\color{red}{0}$ in the matrix, instead of $\rho\,I_z$, highlights that the rotational contribution to the kinetic energy is neglected.</p>
+
+<p>(Rk: $\mathbf{M}_{rf}=\mathbf{M}_{fr}^T$)</p>
+<p>
+	The elastic potential energy is given by:
+	$$
+	\mathcal{K} = \frac{1}{2} \int_{0}^{l} 
+	\mathbf{q}^T \left[\begin{array}{ccc}
+	0 & 0 & 0\\
+	0 & 0 & 0\\
+	0 & 0 & E\,I_z\
+	\end{array}\right] \mathbf{q} 
+	\,dx=\frac{1}{2} \left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]^T\left[\begin{array}{cc}\mathbf{0}_{2\times 2} & \mathbf{0}_{2\times 4}\\
+	\mathbf{0}_{4\times 2} & \mathbf{K}_{4\times 4}\end{array}\right]
+	\left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]
+	$$
+with the stiffness matrix: $\mathbf{K}=\int_{0}^{l}
+\boldsymbol\Phi_f^T
+\left[\begin{array}{ccc}
+0 & 0 & 0\\
+0 & 0 & 0\\
+0 & 0 & E\,I_z\\
+\end{array}\right]
+\boldsymbol\Phi_f 
+\,dx\;.$
+</p>
+
+<h2>2-port model</h2>
+<p>
+	Let us denote (see Figure 3):
+	<ul>
+		<li>$\mathbf{W}_{\mathcal{A}/.,P}=[F_P^y\quad T_P^z]^T$ the 2 d.o.f wrench (1 force and 1 torque) applied by the beam to the parent substructure at the point $P$,</li>
+		
+		<li>$\mathbf{W}_{./\mathcal{A},C}=[F_C^y\quad T_C^z]^T$ the 2 d.o.f wrench (1 force and 1 torque) applied to the beam by the child substructure at the point $C$.</li>
+	</ul>
+Then the work of these wrenches read: 
+$$\mathcal{W}_e(t)=-[v_P(t)\quad v'_P(t)]\mathbf{W}_{\mathcal{A}/.,P}(t)+[v(l,t)\quad v'(l,t)]\mathbf{W}_{./\mathcal{A},C}(t)=-\mathbf{q}_r^T(t)\mathbf{W}_{\mathcal{A}/.,P}(t)+{\mathbf{q}_{1:2}}^T(l,t)\mathbf{W}_{./\mathcal{A},C}(t)$$ where $\mathbf{X}_{1:2}$ stands for the rows $1$ and $2$ of the vector or matrix $\mathbf{X}$. Thus:
+$$\mathcal{W}_e= \left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]^T\left[\begin{array}{cc} -\mathbf{1}_2 & {\boldsymbol{\Phi}_{r,1:2}}^T(l) \\ \mathbf{0}_{4\times 2} & {\boldsymbol{\Phi}_{f,1:2}}^T(l) \end{array}\right]\left[\begin{array}{c} \mathbf{W}_{\mathcal{A}/.,O} \\ \mathbf{W}_{./\mathcal{A},C} \end{array}\right]\;.$$
+
+Thus the dynamic model obtained by Lagrange derivation reads:
+
+$$ \left[\begin{array}{cc}\mathbf{M}_{rr} & \mathbf{M}_{rf}\\
+\mathbf{M}_{fr} & \mathbf{M}_{ff}\end{array}\right]\left[\begin{array}{c}\ddot{\mathbf{q}}_r \\ \ddot{\mathbf{q}}_f \end{array}\right]+ \left[\begin{array}{cc}\mathbf{0}_{3\times 3}& \mathbf{0}_{3\times 18}\\ \mathbf{0}_{18\times 3} & \mathbf{K} \end{array}\right]\left[\begin{array}{c}\mathbf{q}_r \\ \mathbf{q}_f \end{array}\right]=\left[\begin{array}{cc} -\mathbf{1}_2 & {\boldsymbol{\Phi}_{r,1:2}}^T(l) \\ \mathbf{0}_{4\times 2} & {\boldsymbol{\Phi}_{f,1:2}}^T(l) \end{array}\right]
+\left[\begin{array}{c} \mathbf{W}_{\mathcal{A}/.,O} \\ \mathbf{W}_{./\mathcal{A},C} \end{array}\right]$$
+	</p>
+<p>
+	Using the eigen-vector matrix $\mathbf{V}$ of the eigenvalue problem $
+	\mathbf{V}\boldsymbol{\Omega}^2  = \mathbf{M}_{ff}^{-1} \mathbf{K} \mathbf{V} \quad \mbox{where } \boldsymbol{\Omega}^2 = \mbox{diag}(\omega_i^2),\;i=1\cdots 4$, one can introduce the damping matrix $\mathbf{D}=\mathbf{V}\,\mbox{diag}(2\xi\omega_i)\,\mathbf{V}^{-1}$
+	</p>
+	
+<p>The 2 d.o.f.  acceleration twists at points $P$ and $C$ are written as: $\ddot{\mathbf{q}}_P(t) = \ddot{\mathbf{q}}_r(t)$ and $\ddot{\mathbf{q}}_C(t)=\ddot{\mathbf{q}}_{1:2}(l,t)= [\boldsymbol{\Phi}_{r,1:2}(l)\quad \boldsymbol{\Phi}_{f,1:2}(l)]\left[\begin{array}{c}\ddot{\mathbf{q}}_r(t) \\ \ddot{\mathbf{q}}_f(t) \end{array}\right]$ </p>
+
+<p>
+	Then, the 2 ports model ($4\times 4$ )for the beam $\mathcal{A}$ considering as inputs the acceleration twist at the parent node $P$ and the wrench at the child node $C$ is denoted ${}^y \mathbf{B}^{\mathcal{A}}_{C,P}(\mathrm{s})$ and can be described by the following state-space representation ($\mathbf{q}_r$ is renamed $\mathbf{q}_P$):
+$$ \left[\begin{array}{c}
+	\dot{\mathbf{q}}_f \\
+	\ddot{\mathbf{q}}_f \\
+	\hline \ddot{\mathbf{q}}_C \\
+	 \mathbf{W}_{\mathcal{A}/.,P}  \end{array}\right]
+	= 
+	\left[
+	\begin{array}{cc|cc}
+	\mathbf{0}_{4 \times 4} & \mathbf{1}_{4} & \mathbf{0}_{4 \times 2} & \mathbf{0}_{4 \times 2} \\
+	-\mathbf{M}_{ff}^{-1}\mathbf{K} & -\mathbf{D}  & 
+	 \mathbf{M}_{ff}^{-1}{\boldsymbol{\Phi}_{f,1:2}}^T(l) & - \mathbf{M}_{ff}^{-1} \mathbf{M}_{fr}\\
+	\hline
+	-\boldsymbol{\Phi}_{f,1:2}(l)\mathbf{M}_{ff}^{-1}\mathbf{K} & -\boldsymbol{\Phi}_{f,1:2}(l)\mathbf{D} &  \boldsymbol{\Phi}_{f,1:2}(l)\mathbf{M}_{ff}^{-1}{\boldsymbol{\Phi}_{f,1:2}}^T(l) & \left(\boldsymbol{\Phi}_{r,1:2}(l) -  \boldsymbol{\Phi}_{f,1:2}(l)\mathbf{M}_{ff}^{-1} \mathbf{M}_{fr}\right)  \\
+	\mathbf{M}_{rf}\mathbf{M}_{ff}^{-1}\mathbf{K}	
+	 & \mathbf{M}_{rf}\mathbf{D}
+	  &  \left(\boldsymbol{\Phi}_{r,1:2}(l) -  \boldsymbol{\Phi}_{f,1:2}(l)\mathbf{M}_{ff}^{-1} \mathbf{M}_{fr}\right)^T
+	  & \mathbf{M}_{rf}\mathbf{M}_{ff}^{-1}\mathbf{M}_{fr}-\mathbf{M}_{rr} \\	
+	\end{array}
+	\right]	\left[\begin{array}{c}
+	\mathbf{q}_f \\
+	\dot{\mathbf{q}}_f \\
+	\hline  \mathbf{W}_{./\mathcal{A},C}\\
+	\ddot{\mathbf{q}}_P
+	\end{array}\right]
+	$$
+	This model represent the case of a beam clamped at $P$ and free at $C$. Thanks to the fact that the feed-through matrix consists of non null terms on the diagonal the inversion of the channel is possible (see also: <a href="../../doc_SDTfunc/docInvio/docInvio.html"><code>invio</code></a>). It is therefore possible to represent other boundary conditions by inversion of one or several channels. 
+
+	</p>
+
+<hr>
+	<h1>Pure flexion dynamics in the plane ($P,\mathbf{x},\mathbf{z}$):</h1>
+The TITOP model ${}^z \mathbf{B}^{\mathcal{A}}_{C,P}(\mathrm{s})$ for the pure flexion of the beam in the plane ($P,\mathbf{x},\mathbf{z}$) can be obtained from the previous model just:
+<ul>
+	<li>changing $I_z$ by $I_y$ in the computation of the matrix $\mathbf{K}$, </li>
+	<li> pre-multiplying and post-pultiplying the $4 \times 4$ TITOP model by $\mbox{diag}([1,\;-1,\;1,\;-1])$ (to take into account that $\textbf{x}\wedge\textbf{z}=-\textbf{y}$).</li>
+	</ul>
+<hr>
+	<h1 id="8">Torsion dynamics (around $(P,\mathbf{x})$-axis):</h1>
+<p> Only one flexible mode is considered to represent the torsion along  $(P,\mathbf{x})$-axis. Let $\theta(x,t)$ the axial angular deformation at any point of abscissa  $x$ ($x\in [0\,;\;\; l]$) due to axial torques $-T^x_P$ and $T^x_C$ applied to the beam at points $P$ and $C$, respectively. Then, it is assumed that:
+	$$
+	\theta(x,t)= \theta_P(t)+\frac{x}{l}(\theta_C(t)-\theta_P(t))=\theta_P(t)+\frac{x}{l}\,\delta_\theta(t)=\left[1\quad \frac{x}{l}\right]\left[\begin{array}{c} \theta_P(t)\\ \delta_\theta(t)\end{array}\right]\,,
+	$$
+	that is, the deformation at $x$ is proportional to the total deformation $\delta_\theta(t)$ of the beam.
+	
+	Then, the kinetic energy reads:
+	$$
+	\mathcal{T}=\frac{1}{2}\int_{0}^l\rho I_{px}\dot{\theta}^2(x,t) \,dx=\frac{1}{2}[\dot{\theta}_P \quad \dot{\delta}_\theta]\mathbf{M}\left[\begin{array}{c}\dot{\theta}_P \\ \dot{\delta}_\theta \end{array}\right]
+	$$
+	with: $\mathbf{M}=\rho I_{px} l\left[\begin{array}{cc}1 & 1/2 \\ 1/2 & 1/3 \end{array}\right]$ and $I_{px}=I_y+I_z$.
+	The potential energy reads:
+		$$
+		\mathcal{V}=\frac{1}{2}\int_{0}^l G I_{px}\frac{\partial \theta}{\partial x}^2(x,t) \,dx=\frac{1}{2}[\theta_P \quad \delta_\theta]\mathbf{K}\left[\begin{array}{c}\theta_P \\ \delta_\theta \end{array}\right]
+		$$
+		with: $\mathbf{K}=\frac{G I_{px}}{l}\left[\begin{array}{cc}0 & 0 \\ 0 & 1 \end{array}\right]$ and $G=\frac{E}{2(1+\nu)}$ (shear modulus).</p>
+	
+	<p>The state space representation of the $2\times 2$ TITOP model ${}^x \mathbf{T}^{\mathcal{A}}_{C,P}(\mathrm{s})$ relative to the traction/compression dynamics along $(P,\mathbf{x})$-axis  taking into account a damping ratio $\xi$ is:
+		$$
+		\left[\begin{array}{c} \dot{\delta}_\theta \\ \ddot{\delta}_\theta\\ \hline
+		\ddot{\theta}_C
+		\\ 
+		T^x_P
+		\end{array}\right]=\left[\begin{array}{cc|cc}
+		0 & 1 & 0 & 0\\ -\frac{3 G}{\rho l^2} & -2\xi\sqrt{\frac{3 G}{\rho l^2}} & \frac{3}{\rho I_{px} l} & -\frac{3}{2}\\ \hline -\frac{3 G}{\rho l^2} & -2\xi\sqrt{\frac{3 G}{\rho l^2}} & \frac{3}{\rho I_{px} l}  & -\frac{1}{2} \\ \frac{3 G I_{px}}{2\,l} & \rho I_{px}l\xi\sqrt{\frac{3 G}{\rho l^2}} &  -\frac{1}{2} & -\frac{\rho I_{px} l}{4}\end{array}\right]\left[\begin{array}{c} \delta_\theta \\ \dot{\delta}_\theta \\ \hline  
+		T^x_C
+		\\ 
+		\ddot{\theta}_P
+		\end{array}\right]		\;.
+		$$
+	</p>	
+<hr>
+	<h1 id="9">Traction dynamics (along $(P,\mathbf{x})$-axis):</h1>
+	<p>Only one flexible mode is considered to represent the traction-compression along  $(P,\mathbf{x})$-axis. Let $u(x,t)$ the axial deformation at any point of abscissa  $x$ ($x\in [0\,;\;\; l]$) due to axial forces $-F^x_P$ and $F^x_C$ applied to the beam at points $P$ and $C$, respectively. Then, it is assumed that:
+		$$
+		u(x,t)= u_P(t)+\frac{x}{l}(u_C(t)-u_P(t))=u_P(t)+\frac{x}{l}\,\delta_u(t)=\left[1\quad \frac{x}{l}\right]\left[\begin{array}{c} u_P(t)\\ \delta_u(t)\end{array}\right]\,,
+		$$
+		that is, the deformation at $x$ is proportional to the total deformation $\delta_u(t)$ of the beam.
+		
+		Then, the kinetic energy reads:
+		$$
+		\mathcal{T}=\frac{1}{2}\int_{0}^l\rho s \dot{u}^2(x,t) \,dx=\frac{1}{2}[\dot{u}_P \quad \dot{\delta}_u]\mathbf{M}\left[\begin{array}{c}\dot{u}_P \\ \dot{\delta}_u \end{array}\right]
+		$$
+		with: $\mathbf{M}=\rho s l\left[\begin{array}{cc}1 & 1/2 \\ 1/2 & 1/3 \end{array}\right]$,
+		and the potential energy reads:
+		$$
+		\mathcal{V}=\frac{1}{2}\int_{0}^l E s \frac{\partial u}{\partial x}^2(x,t) \,dx=\frac{1}{2}[u_p \quad \delta_u]\mathbf{K}\left[\begin{array}{c}u_p \\ \delta_u \end{array}\right]
+		$$
+		with: $\mathbf{K}=\frac{E s}{l}\left[\begin{array}{cc}0 & 0 \\ 0 & 1 \end{array}\right]$.</p>
+		
+		<p>The state space representation of the $2\times 2$ TITOP model ${}^x \mathbf{C}^{\mathcal{A}}_{C,P}(\mathrm{s})$ relative to the traction/compression dynamics along $(P,\mathbf{x})$-axis taking into account a damping ratio $\xi$ is:
+		$$
+		\left[\begin{array}{c} \dot{\delta}_u \\ \ddot{\delta}_u\\ \hline
+		\ddot{u}_C
+		\\ 
+		F^x_P
+		\end{array}\right]=\left[\begin{array}{cc|cc}
+		0 & 1 & 0 & 0\\ -\frac{3 E}{\rho l^2} & -2\xi\sqrt{\frac{3 E}{\rho l^2}} & \frac{3}{\rho s l} & -\frac{3}{2}\\ \hline -\frac{3 E}{\rho l^2} & -2\xi\sqrt{\frac{3 E}{\rho l^2}} & \frac{3}{\rho s l}  & -\frac{1}{2} \\ \frac{3 E s}{2\,l} & \rho s l \xi\sqrt{\frac{3 E}{\rho l^2}} &  -\frac{1}{2} & -\frac{\rho s l}{4}\end{array}\right]\left[\begin{array}{c} \delta_u \\ \dot{\delta}_u \\ \hline  
+		F^x_C
+		\\ 
+		\ddot{u}_P
+		\end{array}\right]		\;.
+		$$
+		 </p>	
+<hr>
+	<h1  id="10">$12 \times 12$ TITOP model assembly:</h1>
+	<p>
+	The $12 \times 12$ TITOP  model $\mathbf{M\!a}^{\mathcal{A}}_{C,P}(s)$ (see Figure 2) of the beam is finally obtained by concatenating the 4 previous models and re-ordering the inputs and outputs using the permutation matrix $\mathbf{P}$.  That is:
+	$$\mathbf{M\!a}^{\mathcal{A}}_{C,P}(\mathrm{s})=\mathbf{P}^T\left[\begin{array}{cccc}
+	{}^y \mathbf{B}^{\mathcal{A}}_{C,P}(\mathrm{s}) & & &\\ & {}^z \mathbf{B}^{\mathcal{A}}_{C,P}(\mathrm{s}) & & \\ & &  {}^x \mathbf{T}^{\mathcal{A}}_{C,P}(\mathrm{s}) & \\ & & & 
+	{}^x \mathbf{C}^{\mathcal{A}}_{C,P}(\mathrm{s})\end{array}\right]\mathbf{P}$$
+	$$ \mbox{with:  } \mathbf{P}=\left[\begin{array}{cccccccccccc}
+	0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+	0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0\\
+	0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+	1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+	0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0
+	\end{array}\right]\;.$$
+</p>
+	
+	<p class="footer"><br><br></p></div>
+</body></html>

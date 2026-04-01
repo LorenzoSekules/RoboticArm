@@ -1,0 +1,320 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+  <html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>General notations.</title>
+   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+  	<h1><b>General notations, assumptions and definitions</b></h1>
+<hr>
+   <h2>Contents</h2>
+ <div>
+ 	<ul>
+ 		<li><a href="#1">General notations</a></li>
+ 		<ul><li><a href="#11">Rigid body,</a></li><li><a href="#12">Flexible body,</a></li></ul>
+ 		<li><a href="#2">Kinematics: the motion vector</a></li>
+ 		<li><a href="#3">Kinematic model on the motion vector</a></li>
+ 		<ul><li><a href="#31">Rigid body case,</a></li><li><a href="#32">Flexible body case,</a></li></ul> 		
+ 	 	<li><a href="#4">Change of frames for motion vectors</a></li>
+ 	 	<li><a href="#5">Propagation of motion vectors</a></li>
+ 	 	<li><a href="#Ref">References</a></li>
+ 		</ul>
+ </div>
+ <div>
+ <h2 id="1">General notations</h2>
+ <h3 id="11"> Rigid body </h3>
+	 <p>
+	<img vspace="5" hspace="5" width="40%" src="bodyBr.png" alt="">			
+	</p>
+     <p>
+    	A calligraphic letter (for example $\mathcal{B}$) is used to label a body. The same uppercase letter ($B$) is used to denote its center of mass. The subscript with the same lower case letter ($b$) is used to denote its body frame and reference axes (for example, $\mathcal{R}_b = (O,\mathbf{x}_b,\mathbf{y}_b,\mathbf{z}_b)$ is the body frame attached to $\mathcal B$ at the reference point $O$ ). $\mathcal{R}_i = (I,\mathbf{x}_i,\mathbf{y}_i,\mathbf{z}_i)$ is the inertial frame. In addition, the following notations will be used for a rigid body:
+    	</p>
+    	
+    <p><table>
+    	<tr>
+    	<td>$\mathbf{P}_{a/b}$</td>
+    	<td>$3 \times 3$ Direction Cosine Matrix (DCM) of the rotation from frame $\mathcal{R}_a$ to frame $\mathcal{R}_b$, that contains the coordinates of vectors $\mathbf{x}_a$, $\mathbf{y}_a$, $\mathbf{z}_a$ expressed in frame $\mathcal{R}_b$.</td>
+    </tr>
+    <tr>
+	<td>$\overrightarrow{IP}$</td>
+	<td>The vector from point $I$ to point $P$ ($3 \times 1$ vector, $m$)</td>
+	</tr>
+	<tr><td>$\boldsymbol{\Theta}^\mathcal{B}$</td> 	<td> The Euler angle vector of the attitude of the frame $\mathcal R_b$  w.r.t. $\mathcal R_i$ for a given rotation sequence ($3 \times 1$ vector, $rad$)</td>	</tr> 
+		<tr><td> $\mathbf P_{./i}(\boldsymbol \Theta^\mathcal{B})$ </td><td> The Euler angles to DCM conversion function (for the given rotation sequence): $\mathbf{P}_{b/i}=\mathbf P_{./i}(\boldsymbol \Theta^\mathcal{B})$.</td></tr> 
+		<tr><td>$\boldsymbol\Theta(\mathbf{P}_{b/i})$ </td><td> The inverse function : $\boldsymbol{\Theta}^\mathcal{B}=\boldsymbol\Theta(\mathbf{P}_{b/i})$.</td></tr> 
+		<tr><td>$\mathbf{v}^\mathcal{B}_P$ </td><td> Inertial velocity of body $\mathcal{B}$ at point $P$ ($3 \times 1$ vector, $m/s$).</td></tr> 
+		<tr><td>$\boldsymbol{\omega}^\mathcal{B}$ </td><td> Angular speed of $\mathcal{R}_b$ with respect to  $\mathcal{R}_i$ ($3 \times 1$ vector, $rad/s$).</td></tr>
+		 <tr><td>$\mathbf{a}^\mathcal{B}_P$ </td><td> Inertial acceleration of body $\mathcal{B}$ at point $P$ ($3 \times 1$ vector, $m/s^2$).</td></tr>
+		 <tr><td>$\mathbf{F}_{\mathcal{B/A}}$ </td><td> Force applied by body $\mathcal{B}$ on body $\mathcal{A}$ ($3 \times 1$ vector, $N$).</td></tr> <tr><td>$\mathbf{T}_{\mathcal{B/A},P}$ </td><td> Torque applied by $\mathcal{B}$ on $\mathcal{A}$ at point $P$ ($3 \times 1$ vector, $Nm$).</td></tr> 
+		 <tr><td>$\mathbf{F}_{ext/\mathcal B}$  </td><td> Total external force applied to body $\mathcal{B}$ ($3 \times 1$ vector, $N$).</td></tr> 
+		 <tr><td> $\mathbf{T}_{ext/\mathcal B,P}$ </td><td> Total external torque applied to body $\mathcal{B}$ at the point $P$ ($3 \times 1$ vector, $Nm$).</td></tr>
+		  <tr><td> $\left[\star\right]_{\mathcal R_b}$ </td><td> Projection of $\star$ (vector, wrench, tensor, model,...) in the frame $\mathcal R_b$. For a  vector $\mathbf v$: $[\mathbf v]_{\mathcal R_b}=\mathbf{P}_{a/b}[\mathbf v]_{\mathcal R_a}$. </td></tr> 
+		  <tr><td> $\overline{\star}$ </td><td> Nominal value of $\star$ at equilibrium. </td></tr> 
+		  <tr><td>$\mathbf{W}_{\mathcal{B/A},P}$ </td><td> $6 \times 1$  wrench applied by $\mathcal{B}$ on $\mathcal{A}$ at point $P$: $\mathbf{W}_{\mathcal{B/A},P}=\left[\begin{array}{c}\mathbf{F}_{\mathcal{B/A}} \\ \mathbf{T}_{\mathcal{B/A},P}\end{array}\right]$.</td></tr>
+		   <tr><td>$\mathbf{W}_{ext/\mathcal B,P}$ </td><td> $6 \times 1$ total external wrench applied on $\mathcal{B}$  at point $P$. </td></tr> 
+       <tr><td> $\mathbf{W}_{\mathcal{./A},P}$ </td><td> $6 \times 1$  local wrench applied on $\mathcal{A}$ at point $P$.</td></tr> 
+        <tr><td>$\mathbf{W}_{\mathcal{A/.},P}$ </td><td> $6 \times 1$  local wrench applied by $\mathcal{A}$ at point $P$.</td></tr> 
+        <tr><td>${\left.\frac{d \mathbf{v}}{dt}\right\vert }_{\mathcal{R}}$ </td><td> Time-derivative w.r.t. frame $\mathcal{R}$ of the vector $\mathbf{v}$ $\left(\left[\frac{d \mathbf{v}}{dt}\vert_{\mathcal{R}}\right]_{\mathcal R}=\frac{d\left[ \mathbf v\right]_{\mathcal{R}}}{dt}\right)$ .</td></tr> 
+        <tr><td>$\mathbf{\dot v}^{\mathcal B}$ </td><td> Time-derivative of the vector $\mathbf v^{\mathcal B}$ in the body frame: $\mathbf{\dot v}^{\mathcal B}={\frac{d \mathbf{v}^{\mathcal B}}{dt}\vert}_{\mathcal{R}_b}$</td></tr>
+         <tr><td>$\mathbf{x}^\mathcal{B}_P$ </td><td> $6 \times 1$ pose dual vector of body $\mathcal B$ at point $P$: $\mathbf{ x}^\mathcal{B}_P=\left[\begin{array}{c} \overrightarrow{IP}\\ \boldsymbol{\Theta}^\mathcal{B}\end{array}\right]$.</td></tr> 
+         <tr><td>$\boldsymbol{\mathbf x'}^\mathcal{B}_P$ </td><td> $6 \times 1$ twist (dual vector) of body $\mathcal B$ at point $P$: $\mathbf{ x'}^\mathcal{B}_P=\left[\begin{array}{c}\mathbf{v}^\mathcal{B}_P \\ \boldsymbol{\omega}^\mathcal{B}\end{array}\right]$.</td></tr> 
+         <tr><td> $\boldsymbol{\mathbf x''}^\mathcal{B}_P$ </td><td> $6 \times 1$  acceleration dual vector of body $\mathcal B$ at point $P$: $\mathbf{ x''}^\mathcal{B}_P=\left[\begin{array}{c}\mathbf{a}^\mathcal{B}_P \\ \boldsymbol{\dot\omega}^\mathcal{B}\end{array}\right]$.</td></tr>
+          <tr><td> $\mathbf m^\mathcal{B}_P$ </td><td> The $18$ components motion vector of body $\mathcal B$ at point $P$; for the purposes of notations: $\mathbf m^\mathcal{B}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{B}_P}^T\;\;{\boldsymbol{\mathbf x'}^\mathcal{B}_P}^T\;\;{\mathbf{x}^\mathcal{B}_P}^T\right]^T$ </td></tr>
+          <tr><td> $\boldsymbol{\Gamma(\Theta)}$ </td><td> The relation from angular velocity to  Euler angle time-derivatives (for the given rotation sequence) $\dot{\boldsymbol\Theta}^{\mathcal B}=\boldsymbol\Gamma(\boldsymbol\Theta^\mathcal{B})[\boldsymbol\omega^\mathcal{B}]_{\mathcal R_b}$.	</td></tr>
+          <tr><td>	$m^{\mathcal{B}}$ </td><td>  mass of body $\mathcal{B}$.</td></tr>
+          <tr><td>	$\mathbf{I}^{\mathcal{B}}_P$ </td><td>  $3 \times 3$  inertia tensor of body $\mathcal{B}$ at point $P$.</td></tr>
+          <tr><td>$\mathbf{D}^{\mathcal{B}}_P$ </td><td> $6\times 6$ static dynamic model of body $\mathcal B$ expressed at point $P$.</td></tr>
+          <tr><td> $\boldsymbol{\tau}_{PB}$ </td><td>  Kinematic model between points $P$ and $B$:
+          		 $\boldsymbol{\tau}_{PB}=\left[\begin{array}{cc}
+          		\mathbf{1}_3  & (^*\overrightarrow{PB})\\
+          		\mathbf{0}_{3\times 3} & \mathbf{1}_3  \\
+          		\end{array}\right]$.</td></tr>
+          	<tr><td>	$(^*\mathbf v)$ </td><td> Skew symmetric matrix associated with vector $\mathbf v$: if $\left[\mathbf v\right]_{\mathcal{R}}=\left[\begin{array}{c}x \\y \\ z\end{array}\right]$ then $\left[(^*\mathbf v)\right]_{\mathcal{R}}=  \left[\begin{array}{ccc}
+          		0  & -z & y\\
+          		z & 0 & -x  \\
+          		-y & x & 0
+          		\end{array}\right]$.</td></tr>
+<!--          	<tr><td>$\mathbf{g}$ </td><td>  gravitational or uniform acceleration ($3 \times 1$ vector, $m/s^2$).</td></tr>-->
+          	<tr><td>$\mathbf{r},\;\mathbf t$ </td><td> directions of the revolute, prismatic joint axes ($3\times 1$ vectors, $m$).</td></tr>
+          	<tr><td>$\mathbf{\tilde r},\;\mathbf{\tilde t}$ </td><td> unit vectors along $\mathbf{ r},\;\mathbf{t}$ ($3\times 1$ vectors).</td></tr>
+          	<tr><td>$\theta,\;\theta_0$ </td><td> angular configuration of a revolute joint, its initial value  ($rad$). </td></tr><tr><td>
+          		$x,\;x_0$ </td><td> linear configuration of a prismatic joint , its initial value ($m$). </td></tr>
+          	<tr><td>$\mathrm{s}$ </td><td>  Laplace's variable.</td></tr>
+          	<tr><td>$\mathbf{1}_n$ </td><td>  Identity matrix $n \times n$.</td></tr>
+          	<tr><td>$\mathbf{0}_{n\times m}$  </td><td> Zero matrix $n \times m$.</td></tr>
+          	<tr><td>	$\mathbf{0}$  </td><td> Null  vector ($3 \times 1$).</td></tr>
+          	<tr><td>$\mathbf{A}^T$ </td><td> Transpose of $\mathbf{A}$.</td></tr>
+          	<tr><td>$\mathrm{diag}$ </td><td> Diagonal augmentation.</td></tr>
+          	<tr><td>$\mathbf{P}_{a/b}^{\times 2}$ </td><td> Augmented DCM for dual vectors $\mathbf{P}_{a/b}^{\times 2}=\mathrm{diag}\left(\mathbf{P}_{a/b},\,\mathbf{P}_{a/b}\right)$.</td></tr>
+          	<tr><td>$\mathbf P_{a/b}^{18}$ </td><td>  Augmented DCM for motion vectors (non-linear case):  $\mathbf P_{a/b}^{18}=\mathrm{diag}\left(\mathbf{P}_{a/b}^{\times 2},\;\mathbf{P}_{a/b}^{\times 2},\;\mathbf{P}_{a/b},\;\mathbf 1_3\right)$.</td></tr>
+          	<tr><td>$\mathbf P_{a/b}^{\times 6}$ </td><td>  Augmented DCM for motion vectors (linear case):  $\mathbf P_{a/b}^{18}=\mathrm{diag}\left(\mathbf{P}_{a/b}^{\times 2},\;\mathbf{P}_{a/b}^{\times 2},\;\mathbf{P}_{a/b}^{\times 2}\right)$.</td></tr>
+           	<tr><td>$\boldsymbol \tau_{PB}^{\times 3}$ </td><td>  Augmented kinematic model for motion vectors (linear case):  $\boldsymbol \tau_{PB}^{\times 3}=\mathrm{diag}\left(\boldsymbol \tau_{PB},\;\boldsymbol \tau_{PB},\,\boldsymbol \tau_{PB}\right)$.</td></tr>
+ 	</table></p>
+ 	
+<p> The reader will find in [1] (Chapter 3) the expressions of $\mathbf P_{./i}(\boldsymbol \Theta^\mathcal{B})$,  $\boldsymbol\Theta(\mathbf{P}_{b/i})$, $\boldsymbol{\Gamma(\Theta)}$  and the basic background in kinematics and attitude parameterization.
+</p>
+ <h3 id="12"> Flexible body </h3><p>
+	 <p>
+	<img vspace="5" hspace="5" width="40%" src="bodyBf.png" alt="">			
+	</p>
+	<p>According to the previous figure the internal deflection $\left[\delta\mathbf x^{\mathcal B}_{\overline P P}\right]_{\mathcal R_b}$ of the flexible body is expressed w.r.t to the body frame $\mathcal R_b$ attached to the reference point $O$ which is not deformed $O\equiv \overline O$ .</p>
+<p> Due to this deflection, which is assumed to be small (and null at the equilibrium), we have to consider that the attitude, angular rates and angular acceleration depend on the point $P$ on the flexible body $\mathcal B$. So, for a flexible body, we will use the following additional notations :
+	</p>
+    <p><table>
+	<tr><td>$\boldsymbol{\Theta}^\mathcal{B}_P$</td> 	<td> The Euler angle vector of the attitude of the body $\mathcal B$  at the point $P$ w.r.t. $\mathcal R_i$ for a given rotation sequence ($3 \times 1$ vector, $rad$)</td></tr>
+<tr><td>$\boldsymbol{\omega}^\mathcal{B}_P$ </td><td> Angular speed of body $\mathcal B$ at the point $P$ with respect to  $\mathcal{R}_i$ ($3 \times 1$ vector, $rad/s$).</td></tr>
+        <tr><td>$\mathbf{x}^\mathcal{B}_P$ </td><td> $6 \times 1$ pose dual vector of body $\mathcal B$ at point $P$: $\mathbf{ x}^\mathcal{B}_P=\left[\begin{array}{c} \overrightarrow{IP}\\ \boldsymbol{\Theta}^\mathcal{B}_P\end{array}\right]$.</td></tr> 
+<tr><td>$\boldsymbol{\mathbf x'}^\mathcal{B}_P$ </td><td> $6 \times 1$ twist (dual vector) of body $\mathcal B$ at point $P$: $\mathbf{ x'}^\mathcal{B}_P=\left[\begin{array}{c}\mathbf{v}^\mathcal{B}_P \\ \boldsymbol{\omega}^\mathcal{B}_P\end{array}\right]$.</td></tr> 
+<tr><td> $\boldsymbol{\mathbf x''}^\mathcal{B}_P$ </td><td> $6 \times 1$  acceleration dual vector of body $\mathcal B$ at point $P$: $\mathbf{ x''}^\mathcal{B}_P=\left[\begin{array}{c}\mathbf{a}^\mathcal{B}_P \\ \boldsymbol{\dot\omega}^\mathcal{B}_P\end{array}\right]$.</td></tr>
+		<tr><td>$\boldsymbol \eta^\mathcal B$</td><td>The internal state vector used to model the internal deflection of the body $\mathcal B$ ($N$ components, $\sqrt{Kg}\,m$))</td></tr>
+			<tr><td>$\boldsymbol\Phi^\mathcal B_P$</td><td>the $6\times N$ matrix of the projection coefficients  of the deflection on the $6$ d.o.f. of the motion at the point $P$ ($Kg^{-1/2}$ and $Kg^{-1/2}\,m^{-1}$): $\left[\delta\mathbf x^{\mathcal B}_{\overline P P}\right]_{\mathcal R_b} =\left[\mathbf x^{\mathcal B}_{P}-\mathbf x^{\mathcal B}_{\overline P}\right]_{\mathcal R_b}=\boldsymbol\Phi^\mathcal B_P\boldsymbol \eta^\mathcal B$</td></tr>
+		</table></p>
+</div>
+<div>
+	 <h2 id="2">Kinematics: the motion vector</h2>
+	 <p>As mentionned in the <a href="#1">General notations</a>, the motion vector $\mathbf m^\mathcal{B}_P$  of the body $\mathcal B$ at the point $P$ is a 18 components  vector composed of the acceleration dual vector $\boldsymbol{\mathbf x''}^\mathcal{B}_P$, the twist dual vector $\boldsymbol{\mathbf x'}^\mathcal{B}_P$ and the pose  dual vector $\mathbf{x}^\mathcal{B}_P$ for the 6 degrees-of-freedom (d.o.f.).
+	 </p>
+	 <p>
+	 	In the general non-linear case, the kinematic equations between the various components of the motion vector, allowing to model the <b>rigid modes</b> of the body free to move in space, are:
+	 	<ul>
+	 		<li> $\mathbf{a}^{\mathcal B}_P=\left.\frac{d \mathbf{v}^{\mathcal B}_P}{dt}\right\vert_{\mathcal{R}_i}=\left.\frac{d \mathbf{v}^{\mathcal B}_P}{dt}\right\vert_{\mathcal{R}_b}+(^*\boldsymbol\omega^{\mathcal B}_P)\mathbf{v}^{\mathcal B}_P=\mathbf{\dot v}^{\mathcal B}_P+(^*\boldsymbol\omega^{\mathcal B}_P)\mathbf{v}^{\mathcal B}_P$,</li>
+	 	<li> $\mathbf v_P^{\mathcal B}={\left.\frac{d \overrightarrow{IP}}{dt}\right\vert}_{\mathcal R_i}={\left.\frac{d \overrightarrow{IP}}{dt}\right\vert}_{\mathcal R_b}-(^*\overrightarrow{IP})\boldsymbol{\omega}^{\mathcal B}_P=\dot{\overrightarrow{IP}}-(^*\overrightarrow{IP})\boldsymbol{\omega}^{\mathcal B}_P$,</li>
+	 	<li> $\boldsymbol{\dot\Theta}^{\mathcal B}_P=\boldsymbol{\Gamma}(\boldsymbol{\Theta}^{\mathcal B}_P) \left[ \boldsymbol{\omega}^{\mathcal B}_P\right]_{\mathcal{R}_b}$.</li>
+	 	 </ul>	
+	 	 </p>
+	 	 <p>Thus:</p>
+	 	 <p> $$	\boldsymbol{\dot{\mathbf x}'}^\mathcal{B}_P=\mathbf { x''}^{\mathcal B}_P-
+	 	\left[\begin{array}{cc} (^ *\boldsymbol{\omega}^{\mathcal B}_P)& 	\mathbf{0}_{3\times 3}  \\
+	 	\mathbf{0}_{3\times 3} & 	\mathbf{0}_{3\times 3} 
+	 	\end{array}\right]\mathbf {x'}^{\mathcal B}_P\;,
+	 	$$</p>
+	 	<p>$$
+	 	\mathbf {\dot x}^{\mathcal B}_P=
+	 	\left[\begin{array}{cc}\mathbf{1}_3 & (^*\overrightarrow{IP}) \\
+	 	\mathbf{0}_{3\times 3} & \boldsymbol\Gamma(\boldsymbol{\Theta}^{\mathcal B}_P)
+	 	\end{array}\right]\mathbf {x'}^{\mathcal B}_P\;.
+	 	$$</p>
+	 	<p>The equations are valid in any frame. In the block-diagram models built with the <b> SDTlib</b>, the motion vector is projected in the body frame $\mathcal R_b$:
+	 		 	
+	 		  $$ \left[\boldsymbol{\dot{\mathbf x}'}^\mathcal{B}_P\right]_{\mathcal R_b}= \frac{d\left[\boldsymbol{\mathbf x}'^\mathcal{B}_P\right]_{\mathcal R_b}}{dt}=\left[\mathbf { x''}^{\mathcal B}_P\right]_{\mathcal R_b}-
+	 		  \left[\begin{array}{cc} (^ *\boldsymbol{\omega}^{\mathcal B}_P)_{\mathcal R_b}& 	\mathbf{0}_{3\times 3}  \\
+	 		  \mathbf{0}_{3\times 3} & 	\mathbf{0}_{3\times 3} 
+	 		  \end{array}\right]\left[\mathbf {x'}^{\mathcal B}_P\right]_{\mathcal R_b}
+	 	$$</p>
+	 	
+	 	<p>$$
+	 	\left[\mathbf {\dot x}^{\mathcal B}_P\right]_{\mathcal R_b}=
+	 	\frac{d\left[\mathbf x^{\mathcal B}_P\right]_{\mathcal R_b}}{dt}=\left[\begin{array}{cc}\mathbf{1}_3 & (^*\overrightarrow{IP})_{\mathcal R_b} \\
+	 	\mathbf{0}_{3\times 3} & \boldsymbol\Gamma(\boldsymbol{\Theta}^{\mathcal B}_P)
+	 	\end{array}\right]\left[\mathbf {x'}^{\mathcal B}_P\right]_{\mathcal R_b}\;.
+	 	$$
+	 	and can be represented by the block-diagram depicted in the following Figure where are also represented un blue the initial conditions on the twist dual vector  and the pose dual vector.</p>
+	 	<p>
+	 		<img vspace="5" hspace="5" width="70%" src="integration_NL_motion.png" alt="">
+	 		</p>
+	 		<p>
+	 			<b>Linearized motion vector:</b> The linear models built with the <b> SDTlib</b> assume that the angular rates $\boldsymbol{\omega}^{\mathcal B}_P$ and the attitude angles $\boldsymbol{\Theta}^{\mathcal B}_P$ of the main body $\mathcal B$ (or the <b> hub </b> of the multi-body system)  at the point $P$ are small around null equilibrium conditions ($\overline{\boldsymbol\omega^{\mathcal B}_P}=\mathbf 0$ and $\overline{\boldsymbol\Theta^{\mathcal B}_P}=\mathbf 0$). Thus the direct integration (twice) of the acceleration dual vector in the body frame $\mathcal R_b$ provides the variations of the twist dual vector and the pose dual vector  w.r.t. an inertial frame whose origin is in translation (at a constant linear velocity $\overline{[{\mathbf{v}}^{\mathcal B}_P]}_{\mathcal R_i}$) and coincident with $P$ and whose axes are aligned with $\mathcal R_b$   at the initial time  $t=0$. In this linear case the motion vector variation $\delta\mathbf m^{\mathcal B}_P$ can be represented by the block-diagram depicted in the following Figure:</p>
+	 			<p>
+	 			<img vspace="5" hspace="5" width="70%" src="integration_L_motion.png" alt="">
+	 			</p>
+	 		<p> Thus in this linear case: $\delta\boldsymbol{\mathbf x'}^\mathcal{B}_P=\delta\dot{\mathbf x}^{\mathcal B}_P$ and $\boldsymbol{\mathbf x''}^\mathcal{B}_P=\delta\ddot{\mathbf x}^{\mathcal B}_P$. The various inline help in the <b>SDTlib</b> make reference to the motion vector $\delta\mathbf m$ although it should be understood as motion vector variations.</p>
+</div>
+<div>
+<h2 id="3">Kinematic model on the motion vector</h2>
+<h3  id="31" >Rigid body case</h3>
+<p>The objective of this section is to compute the motion vector $\delta \mathbf m^{\mathcal B}_C$ of  the rigid body $\mathcal B$ at the point $C$ from the motion vector  $\delta \mathbf m^{\mathcal B}_P$  at the point $P$.</p>
+	
+<p>	Applying the transport theorem and considering that the body is rigid: 
+	
+	$$\mathbf v^{\mathcal B}_C=\mathbf v^{\mathcal B}_P+\boldsymbol\omega^{\mathcal B}\times \overrightarrow{PC}=\mathbf v^{\mathcal B}_P+\overrightarrow{CP}\times \boldsymbol\omega^{\mathcal B}=\mathbf v^{\mathcal B}_P+(^*\overrightarrow{CP})\boldsymbol\omega^{\mathcal B}\,.$$
+	
+	Thus : $\left[\begin{array}{c}\mathbf{v}^\mathcal{B}_C \\ \boldsymbol{\omega}^\mathcal{B}\end{array}\right]=\left[\begin{array}{cc}
+	\mathbf{1}_3  & (^*\overrightarrow{CP})\\
+	\mathbf{0}_{3\times 3} & \mathbf{1}_3  \\
+	\end{array}\right]\left[\begin{array}{c}\mathbf{v}^\mathcal{B}_P \\ \boldsymbol{\omega}^\mathcal{B}\end{array}\right]$ or <span style="border: 1px solid black; padding: 5px; ">$\mathbf{ x'}^\mathcal{B}_C=\boldsymbol\tau_{CP}\mathbf{ x'}^\mathcal{B}_P$</span></span> (according to the <a href="#1">general notations</a>)
+	</p>
+	<p>This last equation is valid in any frame and works even for large magnitude dual vectors. For small variations and in projection in the body frame, one can write: $\left[\delta\mathbf{ x'}^\mathcal{B}_C\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{CP}\right]_{\mathcal R_b}\left[\delta\mathbf{ x'}^\mathcal{B}_P\right]_{\mathcal R_b}$.
+</p>
+<p> Since $\boldsymbol\tau_{CP}$ is constant in $\mathcal R_b$  (rigid body), the direct integration in the body frame allows to write: <span style="border: 1px solid black; padding: 5px; ">$\left[\delta\mathbf{ x}^\mathcal{B}_C\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{CP}\right]_{\mathcal R_b}\left[\delta\mathbf{ x}^\mathcal{B}_P\right]_{\mathcal R_b}$</span></span>.<p>
+		
+<p>For the accelerations, the time-domain derivation in the inertial frame of $\mathbf v^{\mathcal B}_C=\mathbf v^{\mathcal B}_P+\overrightarrow{CP}\times \boldsymbol\omega^{\mathcal B}$ leads to:</p>
+  <p>	$$ \mathbf{a}^{\mathcal B}_C = \mathbf{a}^{\mathcal B}_P + \overrightarrow{CP} \times \dot{\boldsymbol{\omega}}^{\mathcal B} +
+	\underbrace{\frac{\displaystyle d \overrightarrow{CP}}{\displaystyle dt}|_{\mathcal{R_b}}}_{=0\,\mbox{(rigid)}}
+	\times \boldsymbol{\omega} ^{\mathcal B}+ \underbrace{\boldsymbol{\omega}^{\mathcal B} \times (\overrightarrow{CP} \times \boldsymbol{\omega}^{\mathcal B})}_{\approx 0\, \mbox{(2-nd order term})} $$
+</p>
+<p>Under the same assumption ($\boldsymbol\omega^{\mathcal B}$ is small),  one can write: $\left[\begin{array}{c}\mathbf{a}^\mathcal{B}_C \\ \boldsymbol{\dot\omega}^\mathcal{B}\end{array}\right]=\left[\begin{array}{cc}
+	\mathbf{1}_3  & (^*\overrightarrow{CP})\\
+	\mathbf{0}_{3\times 3} & \mathbf{1}_3  \\
+	\end{array}\right]\left[\begin{array}{c}\mathbf{a}^\mathcal{B}_P \\ \boldsymbol{\dot\omega}^\mathcal{B}\end{array}\right]$ or <span style="border: 1px solid black; padding: 5px; ">$\mathbf{ x''}^\mathcal{B}_C=\boldsymbol\tau_{CP}\mathbf{ x''}^\mathcal{B}_P$</span></span>
+</p>
+<p>This last equation is a first order approximation and is valid in any frame, $\mathcal R_b$ for instance. Finally, for the whole motion vector one can write :</p>
+<p><center> <span style="border: 1px solid black; padding: 5px; ">$\left[ \delta \mathbf m^{\mathcal B}_C\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{CP}^{\times 3}\right]_{\mathcal R_b}\left[ \delta \mathbf m^{\mathcal B}_P\right]_{\mathcal R_b}$</span></span>.</center></p>
+</div>
+<div>
+<h3 id="32" >Flexible body case</h3>
+<p>For flexible bodies, the previous relationships are still valid but we have to consider the contribution of the internal  deflections:</p>
+<p>Between the point $O$ (reference point) and the point $P$, one can write:</p>
+<p>$\left[\delta\mathbf{ x}^\mathcal{B}_P\right]_{\mathcal R_b}=\left[\delta\mathbf{ x}^\mathcal{B}_{\overline P}\right]_{\mathcal R_b}+\left[\delta\mathbf x^{\mathcal B}_{\overline P P}\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{PO}\right]_{\mathcal R_b}\left[\delta\mathbf{ x}^\mathcal{B}_O\right]_{\mathcal R_b}+\boldsymbol\Phi^\mathcal B_P\boldsymbol \eta^\mathcal B$ </p>	
+<p> By derivation and neglecting the second order terms in $(^*\boldsymbol \omega^{\mathcal B}_P)\boldsymbol\eta^\mathcal B$, ($^*\boldsymbol {\dot\omega}^{\mathcal B}_P)\boldsymbol\eta^\mathcal B$ and $(^*\boldsymbol \omega^{\mathcal B}_P)\boldsymbol{\dot\eta}^\mathcal B$:<p>
+<p>$\left[\delta\mathbf{ x'}^\mathcal{B}_P\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{PO}\right]_{\mathcal R_b}\left[\delta\mathbf{ x'}^\mathcal{B}_O\right]_{\mathcal R_b}+\boldsymbol\Phi^\mathcal B_P\boldsymbol {\dot\eta}^\mathcal B$</p>
+<p>$\left[\delta\mathbf{ x''}^\mathcal{B}_P\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{PO}\right]_{\mathcal R_b}\left[\delta\mathbf{ x''}^\mathcal{B}_O\right]_{\mathcal R_b}+\boldsymbol\Phi^\mathcal B_P\boldsymbol {\ddot\eta}^\mathcal B$</p>
+<p><center> Thus: <span style="border: 1px solid black; padding: 30px; ">$\left[ \delta \mathbf m^{\mathcal B}_P\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{PO}^{\times 3}\right]_{\mathcal R_b}\left[ \delta \mathbf m^{\mathcal B}_O\right]_{\mathcal R_b}+\left[\begin{array}{c}\boldsymbol\Phi^\mathcal B_P\boldsymbol {\ddot\eta}^\mathcal B\\ \boldsymbol\Phi^\mathcal B_P\boldsymbol {\dot\eta}^\mathcal B\\ \boldsymbol\Phi^\mathcal B_P\boldsymbol {\eta}^\mathcal B\end{array}\right]$</span></span>.</center> </p>
+
+<p> Considering another point $C$, one can write:<p>
+<p>$\left[\delta\mathbf{ x}^\mathcal{B}_C\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{CO}\right]_{\mathcal R_b}\left[\delta\mathbf{ x}^\mathcal{B}_O\right]_{\mathcal R_b}+\boldsymbol\Phi^\mathcal B_C\boldsymbol \eta^\mathcal B=\left[\boldsymbol\tau_{CO}\right]_{\mathcal R_b}\left(\left[\boldsymbol\tau_{PO}\right]^{-1}_{\mathcal R_b}\left(\left[\delta\mathbf{ x}^\mathcal{B}_P\right]_{\mathcal R_b}-\boldsymbol\Phi^\mathcal B_P\boldsymbol \eta^\mathcal B\right)\right)+\boldsymbol\Phi^\mathcal B_C\boldsymbol \eta^\mathcal B$<p>
+		<p><center> Thus: $\left[\delta\mathbf{ x}^\mathcal{B}_C\right]_{\mathcal R_b}=\left[\boldsymbol\tau_{CP}\right]_{\mathcal R_b}\left[\delta\mathbf{ x}^\mathcal{B}_P\right]_{\mathcal R_b}+\left(\boldsymbol\Phi^\mathcal B_C-\left[\boldsymbol\tau_{CP}\right]_{\mathcal R_b}\boldsymbol\Phi^\mathcal B_P\right)\boldsymbol \eta^\mathcal B$.</center> </p>
+</div>
+
+<div>
+	 <h2 id="4">Change of frames for motion vectors</h2>
+	 <p>
+	<img vspace="5" hspace="5" width="30%" src="bodyBrbodyAr2.png" alt="">			
+	</p>
+	 <p>The DCM (Direction Cosine Matrix) $\mathbf{P}_{a/b}$ from the frame $\mathcal R_a$ (attached to the body $\mathcal A$) to the frame $\mathcal R_b$ (attached to the body $\mathcal B$) can be applied to the $6$ ($3\times 1$) vectors of the motion vector $\delta\mathbf m^{\mathcal B}_P$.  It is obvious for the first 5 vectors: </p>
+	 <p>$$\left[\mathbf a^{\mathcal B}_P\right]_{\mathcal R_b}=\mathbf{P}_{a/b}\left[\mathbf a^{\mathcal B}_P\right]_{\mathcal R_a}\,,\quad\left[\boldsymbol{\dot\omega} ^{\mathcal B}_P\right]_{\mathcal R_b}=\mathbf{P}_{a/b}\left[\boldsymbol{\dot\omega} ^{\mathcal B}_P\right]_{\mathcal R_a}\,,\cdots, \left[\delta\overrightarrow{IP}\right]_{\mathcal R_b}=\mathbf{P}_{a/b}\left[\delta\overrightarrow{IP}\right]_{\mathcal R_a}.$$</p>
+	 <p>It works also for the small Euler angle variations: $\boldsymbol\Theta^{\mathcal B}_P=\mathbf{P}_{a/b}\boldsymbol\Theta^{\mathcal A}_P$. </p>
+	 Indeed the norminal values (at equilibrium) of the DCM of bodies $\mathcal A $ and $\mathcal B$ w.r.t to $\mathcal R_i$ at the point $P$ (i.e. when the Euler angle variations are null) are: $\overline{\mathbf P_{b/i}}=\mathbf I_3$ and $\overline{\mathbf P_{a/i}}=\mathbf P_{a/b}$.
+	 <p>Considering the first order approximation of the DCMs due to the Euler angle variations $\mathbf \Theta^{\mathcal B}_P$ on  body $\mathcal B$ or variations $\mathbf \Theta^{\mathcal A}_P$ on  body $\mathcal A$, one can write:</p>
+	 <p>$\mathbf{P}_{a/i}\approx\overline{\mathbf P_{a/i}}\left(\mathbf 1_3+(^*\boldsymbol\Theta^{\mathcal A}_P)\right)=\mathbf{P}_{a/b}\left(\mathbf 1_3+(^*\boldsymbol\Theta^{\mathcal A}_P)\right)$</p>
+	 <p>$\mathbf{P}_{b/i}\approx\mathbf 1_3+(^*\boldsymbol\Theta^{\mathcal B}_P)=\mathbf{P}_{a/i}\mathbf{P}_{a/b}^T=\mathbf 1_3+ \mathbf{P}_{a/b}(^*\boldsymbol\Theta^{\mathcal A}_P)\mathbf{P}_{a/b}^T=\mathbf 1_3+\left(^*(\mathbf{P}_{a/b}\boldsymbol\Theta^{\mathcal A}_P)\right)$</p>
+	 <p>Thus: $\boldsymbol\Theta^{\mathcal B}_P=\mathbf{P}_{a/b}\boldsymbol\Theta^{\mathcal A}_P.$</p>
+	 <p>Under the small motion assumption, one can then use the following notations: $\boldsymbol\Theta^\mathcal B_P=\left[\boldsymbol\Theta_P\right]_{\mathcal R_b}$, $\boldsymbol\Theta^\mathcal A_P=\left[\boldsymbol\Theta_P\right]_{\mathcal R_a} $ and <span style="border: 1px solid black; padding: 5px; ">$\left[\delta\mathbf m^{\mathcal B}_P\right]_{\mathcal R_b}=\mathbf{P}^{\times 6}_{a/b}\,\left[\delta\mathbf m^{\mathcal B}_P\right]_{\mathcal R_a}$</span></span></p>
+</div>
+
+<div>
+<h2 id="5">Propagation of motion vectors</h2>
+<p>
+When the rigid body $\mathcal A$ is clamped  to the rigid body $\mathcal B$ at the point $P$ (i.e. connected by a welded joint) then $\mathbf m^\mathcal B_P=\mathbf m^\mathcal A_P=\mathbf m_P$ (one can forget the body exponant in the notation of the motion vector). But when when the bodies are connected through a primatic joint or a revolute joint: $\mathbf m^\mathcal A_P=\mathbf m^\mathcal B_P+ \mathbf m^{\mathcal{A/B}}_P$.
+	</p>	 
+</div>
+
+<div>
+	 <h2 id="Ref">References</h2>
+	 <ul>
+	 <li>[1]: 	H. Schaub and J. L. Lunkins: <i>Analytical Mechanics of Space Systems</i> - AIAA Education serie, 2018.</li>
+	 </ul>
+</div>
+	
+
+      <p>See also: <a href="Docmultiportrigidbody.html">Multi port rigid body</a>, <a href="Docmultiportrigidbase.html">Multi port rigid free body</a>.
+
+			</p><p class="footer"><br></p>
+			</body></html>

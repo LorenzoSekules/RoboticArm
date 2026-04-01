@@ -1,0 +1,201 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>Reaction wheel non-linear model (7x19) </title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+  <h1><b>Reaction wheel non-linear model </b></h1>
+  <hr>
+<h1>Pseudo non-linear model  (7x19) of an actuated reaction wheel </h1><!--introduction-->
+<p>This block computes the $(7 \times  19)$ linear dynamic model of a wheel $\mathcal{A}$ spining around a given axis $\mathbf z_w$, at a given angular rate $\Omega$ and actuated by a torque $-u\,(Nm)$ ($u$ is the torque applied on the parent body): i.e. the transfer from
+	<ul> 
+		<li> the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> $\delta\mathbf{m}^{\mathcal A}_P $ at the connection point $P$ of the wheel $\mathcal{A}$ with the parent body,</li>
+		<li> the control signal $u$
+		</ul>
+		to
+		<ul>
+			<li>the wrench $\mathbf{W}_{\mathcal{A/.},P}$ applied by $\mathcal{A}$ to the parent body,</li>
+			<li> the relative angular rate  $\Omega$ of the wheel w.r.t. the parent body.</li>
+		</ul>
+	</p>
+	<p><div>This model is expressed:<ul>
+				<li>in the axes of its body frame $\mathcal{R}_a$,</li>
+				<li>at the point $P$ : the connection point with another (parent) body</li></ul>
+			This block is the direct extension of the block <b> 1 port (6x18) angular momentum linear model</b> to take into accound the dynamic of the spining rate $\Omega$. $\dot\Omega$ is assumed to be small so that $\Omega \approx cte$.</div></p>
+  <p>	
+  	<p>See also: <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>, <a href="../doc_momentum/DocMomentum.html">1 port spinning wheel</a>,
+    <a href="DocRW.html">Reaction wheel linear model</a>,
+    <a href="DocRWdist.html">Reaction wheel linear model with disturbances</a>,
+    <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a></p>
+  	
+  	<!--/introduction-->
+  	<h2>Contents</h2><div><ul><li><a href="#1">Description</a></li><li><a href="#2">Ports</a></li><li><a href="#3">Parameters</a></li><li><a href="#4">Simulink diagram under the mask</a></li></ul></div><h2 id="1">Description</h2>
+  <p>Let us consider the spinning wheel depicted in the following Figure and characterized by the wheel mass $m$, the wheel axial and radial inertia $I_w$ and $I_r$, the spinning rate $\Omega$ around the wheel axis $\mathbf{z}_w$ and the geometry of the wheel center of mass $G$ and the connection point $P$ in the frame $\mathcal{R}_a = (O,\mathbf{x}_a,\mathbf{y}_a,\mathbf{z}_a)$.  $-u$ is the torque applied along the wheel axis by a driving mechanism.
+  </p>
+  <p><img vspace="5" hspace="5" width="33%" src="RW.png" alt=""> </p>
+<p> Assumptions:
+	<ul>
+	<li><b>[H1]</b> $\mathbf{z}_w$ (the spin axis of the wheel) is constant in frame $\mathcal{R}_a$,</li>
+	<li><b>[H2]</b> the spinning wheel is balanced: i.e. $\left[\mathbf{I}^{\mathcal{A}}_G\right]_{\mathcal{R}_w}=\left[\begin{array}{ccc} I_r & 0 & 0 \\ 0 & I_r & 0\\ 0 & 0 & I_w\end{array}\right]$</li>
+	</ul>
+	</p>		
+ <p>Note that the wheel frame $\mathcal R_w$ is attached to the wheel axis but does not spin: $\mathcal R_w$ is motionless in  $\mathcal R_a$.</p>
+ <p>At the point $G$ the Newton-Euler equations  applied to $\mathcal A$ reads:
+ 	\begin{equation}
+ 	\mathbf{F}_{\mathcal{./A}}=m\mathbf{a}^{\mathcal A}_G
+ 	\end{equation}
+ 	
+ 	\begin{equation}
+ 	\mathbf{T}_{\mathcal{./A},G}=\frac{d\mathbf{H}^{\mathcal{A}}}{dt}|_{\mathcal{R}_w}+\boldsymbol{\omega}^{\mathcal A}\wedge\mathbf{H}^{\mathcal{A}}
+ 	\end{equation}
+ </p>
+ 
+ <p>where $\mathbf{H}^{\mathcal{A}}=\mathbf{I}^{\mathcal{A}}_G\boldsymbol{\omega}^{\mathcal A}+I_w\Omega\mathbf{z}_w$ is the total angular momentum of the body $\mathcal{A}$ and $\boldsymbol{\omega}^{\mathcal A}$ is the angular rate vector of the parent body w.r.t. inertial frame. Thus:
+ 	\begin{equation}
+ 	\mathbf{T}_{\mathcal{./A},G}=\mathbf{I}^{\mathcal{A}}_G\dot{\boldsymbol{\omega}}^{\mathcal A}+I_w\dot\Omega\mathbf{z}_w+ I_w\Omega\underbrace{\frac{d(\mathbf{z}_w)}{dt}|_{\mathcal{R}_w}}_{=0\;\mbox{([H1])}}+\underbrace{\boldsymbol{\omega}^{\mathcal A}\wedge\mathbf{I}^{\mathcal{A}}_G\boldsymbol{\omega}^{\mathcal A}}_{\approx 0\;\mbox{(2-nd order term)}}+\boldsymbol{\omega}^{\mathcal A}\wedge I_w\Omega\mathbf{z}_w\;.
+ 	\end{equation}
+ 	\begin{equation}
+ 	\mathbf{T}_{\mathcal{./A},G}=\mathbf{I}^{\mathcal{A}}_G\dot{\boldsymbol{\omega}}^{\mathcal A}+I_w\dot\Omega\mathbf{z}_w-I_w\Omega(^*\mathbf{z}_w)\boldsymbol{\omega}^{\mathcal A}\;.
+ 	\end{equation}
+ 	with: $\left[(^*\mathbf{z}_w)\right]_{\mathcal{R}_w}=\left[\begin{array}{ccc} 0 & -1 & 0 \\ 1 & 0 & 0\\ 0 & 0 & 0\end{array}\right]=\left[\begin{array}{cc} 0 & -1  \\ 1 & 0 \\ 0 & 0 \end{array}\right]\left[\begin{array}{ccc} 1 & 0 & 0 \\ 0 & 1 & 0\end{array}\right]$ (a rank $2$ matrix).</p>
+ 
+ <p>Along the  wheel revolute joint axis $\mathbf z_w$: 
+ 	<ul>
+ 		<li>$\mathbf z_w^T \mathbf{T}_{\mathcal{./A},G}=-u$,</li>
+ 		<li>$-u=I_w(\dot\Omega+\mathbf z_w^T \dot{\boldsymbol\omega}^{\mathcal A})$.</li>
+ 	</ul>
+ 	
+ 	Thus the dynamic model, projected in the $\mathcal R_w$ frame, is governed by:
+ 	<ul>
+ 		<li>$\left[\mathbf{F}_{\mathcal{A/.}}\right]_{\mathcal R_w}=-m\left[\mathbf{a}^{\mathcal A}_G\right]_{\mathcal R_w}$,</li>
+ 		<li>$\left[\mathbf{T}_{\mathcal{A/.},G}\right]_{\mathcal R_w}(1:2) = -I_r\left[\dot{\boldsymbol{\omega}}^{\mathcal A}\right]_{\mathcal R_w}(1:2)+I_w\Omega\left[\begin{array}{cc}0 & -1 \\ 1 & 0\end{array}\right]\left[{\boldsymbol{\omega}}^{\mathcal A}\right]_{\mathcal R_w}(1:2)$,</li>
+ 		<li> $\left[\mathbf{T}_{\mathcal{A/.},G}\right]_{\mathcal R_w}(3)=u$,</li>
+ 		<li>$\dot\Omega=-\frac{1}{I_w}u-\left[\dot{\boldsymbol{\omega}}^{\mathcal A}\right]_{\mathcal R_w}(3)$.</li>
+ 	</ul>
+ </p>
+ 
+ <p>Taking into account:
+ 	<ul> <li> the DCM between frames $\mathcal{R}_w$ and $\mathcal{R}_a$:	$\mathbf{P}_{w/a}=\mathbf{P_z}_w\left[\begin{array}{ccc} \mbox{det}(\mathbf{P_{z}}_w) & 0 & 0\\ 0 & 1 & 0 \\ 0 & 0 & 1\end{array}\right]$ with: $\mathbf{P_z}_w=\left[\mbox{null}([\mathbf{\tilde{z}}_w]^T_{\mathcal{R}_a})\quad [\mathbf{\tilde{z}}_w]_{\mathcal{R}_a}\right]$ and $\mathbf{\tilde{z}}_w=\mathbf{z}_w/\|\mathbf{z}_w\|$,</li>
+ 		<li>the <a href="DocGeneralNotations.html/#3" target='_blank'>kinematic model</a>  $\boldsymbol\tau_{GP}$ between the points $G$ and $P$,</li>
+ 	</ul>
+ </p>
+ 
+ <p>The block diagram of the $7\times19$ model, projected in the body frame $\mathcal R_a$, from:
+ 	<ul>
+ 		<li>the motion vector $\delta\mathbf m^\mathcal{A}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{A}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{A}_P}^T\;\;{\delta\mathbf{x}^\mathcal{A}_P}^T\right]^T$ at the point $P$</li>
+ 		<li> $u$, the control signal</li></ul>
+ 	to
+ 	<ul><li>  the wrench $\mathbf{W}_{\mathcal{A/.},P}=\left[ \mathbf{F}_{\mathcal{A/.}}^T \;\; \mathbf{T}_{\mathcal{A/.},P}^T \right]^T$ applied by $\mathcal{A}$ to the parent body</li>
+ 		<li> $\Omega$, the angular rate of the wheel</li></ul>
+ 	can be represented by the following block diagram: </p>
+ 
+  <p>The block diagram of the $7\times7$ model is: </p><p><img vspace="5" hspace="5" width="100%" src="Sch_RW_new.png" alt=""> </p>
+
+<p><b>Remarks :</b> this block is non-linear due to the gain (in red in the previous system) which depends on the state variable $\Omega$.  If a linear model must be computed to perform robustness analysis or robust control design, the intregrator on $\dot\Omega$ can create some stability problem if $\Omega$ is not controlled. For linear analysis and control purpose, it is recommanded to use the block <a href="DocRW.html">Reaction wheel linear model</a>.
+</p>
+
+  	
+  	<h2 id="2">Ports</h2>
+  	<p><b>Input:</b>
+  		<li> <b>m</b>: the motion vector $\left[\delta\mathbf{m}^{\mathcal A}_P \right]_{\mathcal{R}_a}$ (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) at point $P$ in the inherit body frame $\mathcal{R}_a$.</li>
+<li><b>u (Nm)</b>: the control signal $u\,(Nm)$.</li>
+  	</p>
+  	<p><b>Output:</b> 
+  		<li><b>Wbody/.</b>: the wrench $\left[ \mathbf{W}_{\mathcal{A/.},P} \right]_{\mathcal{R}_a}$ (units: $N$ and $N.m$) applied by the body $\mathcal{A}$ at point $P$ to the parent body.</li>
+   		<li><b>$\Omega$ (rad/s)</b>: the spining rate $\Omega\,(rad/s)$</li>
+  	</p>
+  	
+  	<h2 id="3">Parameters</h2>
+  	<p>All parameters are expressed in the inherit body frame $\mathcal{R}_a$.</p>
+  	<p>The main parameters are:</p>
+  	<div><ul>
+  			<li>the wheel axis: $[\mathbf{z}_w]_{\mathcal{R}_a}$,</li>
+  			<li>the wheel mass (Kg): $m$,</li>
+  			<li>the wheel axial inertia ($kg.m^2$): $I_w$,</li>
+  			<li>the wheel radial inertia ($kg.m^2$): $I_r$,</li>
+  			<li>the $3\times 1$ vector position of $G$ ($m$): $[\overrightarrow{OG}]_{\mathcal{R}_a}$,</li>
+  			<li>the $3\times 1$ vector position of $P$ ($m$): $[\overrightarrow{OP}]_{\mathcal{R}_a}$,</li>
+  			<li>the initial spinning rate (rd/s): $\Omega(0)$.</li>
+  			</ul></div>
+  	
+  	<h2 id="4">Simulink diagram under the mask</h2><p><img vspace="5" hspace="5" width="100%" src="RW_mask.png" alt=""> </p><p>with: $\mathrm{pass}=\mathbf{P}_{w/a}$.</p>
+  		<p class="footer"><br><br></p></div>
+  			</body></html>

@@ -1,0 +1,157 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { fonts: ["TeX"] }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+  
+  
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <title>PMA</title>
+                   <style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content">
+      <h1><b>Proof Mass Actuator (PMA)</b></h1>
+      <hr>
+<h1> Model of a  PMA</h1><!--introduction-->
+<p>This block implements the $7\times 19$ linear dynamic model of a Proof Mass Actuator $\mathcal{A}$ mounted on a parent body $\mathcal P$. The inputs and the outputs of this model are:
+  <div><ul>
+  		<li>the $6\times 18$ transfer from the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#2" target='_blank'>motion vector</a> imposed by the parent body $\mathcal P$ at the connection point $P$ to the wrench applied by $\mathcal{A}$ to the parent body  $\mathcal P$ at the point $P$, projected in the parent body frame $\mathcal R_p$,</il>
+  		<li>and SISO channel from the input signal (a force in $N$ applied to the proof mass) to the relative position of the proof mass wr.t. the caging.</li></ul></div>
+</p>  
+ 
+<p>See also: <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html">General notations</a>, <a href="../doc_sloshing/Docsloshing.html">Sloshing</a> ,  <a href="../doc_RW/DocRW.html">Reaction wheel linear model</a>, <a href="../../doc_BODIES/doc_hub/Docmultiportrigidbody.html">Multi-Port_rigid_body</a>, 
+  <a href="../../doc_BODIES/doc_NPortNastran/DocNPortNastranBody.html">N-port NASTRAN body</a>
+</p>
+  
+  <h2>Contents</h2><div><ul>
+  		<li><a href="#1">Description</a></li>
+  		<li><a href="#2">Ports</a></li>
+  		<li><a href="#3">Parameters</a></li>
+  		<li><a href="#4">Simulink diagram under the mask</a></li>
+  		</ul></div>
+  
+  <h2 id="1">Description</h2>
+  Let us consider the PMA $\mathcal A$ described in the following Figure:
+  <p><img vspace="5" hspace="5" width="40%" src="PMA.png" alt=""></p>
+<p> and let us define:</p>
+<div><ul>		
+		<li>$\mathcal R_a$ the local frame attached to the PMA at the reference point $O$,</li>	
+		<li>$G$ and $P$ the CoM of the PMA (at rest) and the connection point to the parent body $\mathcal P$, respectively,
+	   <li> $M$ and $\mathbf I^{\mathcal A}_G$ the total mass and the inertial at $G$ of the PMA,
+	   	<li> $m$, $k$, $d$ the mass stifness and damper of the proof mass, working along the axis $\mathbf v$,
+	   	<li> $u$ and $\delta x$ the force appled on the proof mass ant its relatrive displacement,
+<li>$\delta\mathbf m^{\mathcal P}_{P}$: the motion vector ($18\times 1$) of the parent body $\mathcal P$ at the point $P$. $\delta\mathbf m^\mathcal{P}_P=\left[{\boldsymbol{\mathbf{x}''}^\mathcal{P}_P}^T\;\;{\delta\boldsymbol{\mathbf x'}^\mathcal{P}_P}^T\;\;{\delta\mathbf{x}^\mathcal{P}_P}^T\right]^T$ with $\boldsymbol{\mathbf{x}''}^\mathcal{P}_P= \left[ {\mathbf{a}^{\mathcal P}_P}^T \;\; {\boldsymbol{\dot\omega}^{\mathcal P}}^T \right]^T$,</li>
+		<li> $\mathbf{W}_{\mathcal{A/P},P}=\left[ \mathbf{F}_{\mathcal{A/P}}^T \;\; \mathbf{T}_{\mathcal{A/P},P}^T \right]^T$: the wrench applied by $\mathcal{A}$ to the parent body $\mathcal P$ at the point $P$,</li>
+	</ul></div>
+  	<p>
+  		The dynamic model of the PMA is governed by the following equations:
+  		$$
+  		m([\mathbf{v}^T\;\;\mathbf{0}]\boldsymbol{\mathbf{x}''}^\mathcal{P}_{G}+\ddot{\delta x})=-k\,\delta x -d \,\dot{\delta x}+u,
+  		$$
+  		$
+  		\boldsymbol{\mathbf{x}''}^\mathcal{P}_{G}=\boldsymbol{\tau}_{GP}\boldsymbol{\mathbf{x}''}^\mathcal{P}_{P}
+  		$ where $\boldsymbol\tau_{GP}$  is the <a href="../../doc_BODIES/doc_hub/DocGeneralNotations.html/#3" target='_blank'>kinematic model</a> between points $G$ and $P$.
+  		$$
+  		\mathbf{W}_{\mathcal{A}/\mathcal P,P}=- \boldsymbol{\tau}_{GP}^T\left(\left[\begin{array}{cc}M\mathbf{1}_3 & \mathbf{0}_3 \\ \mathbf{0}_3 &  \mathbf I^{\mathcal A}_G\end{array}\right]\boldsymbol{\tau}_{GP}\boldsymbol{\mathbf{x}''}^\mathcal{P}_{P} + m\left[\begin{array}{c} \mathbf v \\ \mathbf{0} \end{array}\right]\ddot{\delta x}\right)\;.
+  		$$
+   	</p>
+<h2 id="2">Ports</h2>
+<p><b>Inputs:</b></p>
+<div><ul>
+ 		<li> <b>m</b>: the motion vector $\left[\delta\mathbf{m}^{\mathcal P}_P \right]_{\mathcal{R}_p}$ (units: $m/s^2$, $rd/s^2$, $m/s$, $rd/s$, $m$, $rd$) at point $P$ in the parent body frame $\mathcal{R}_p$.</li>
+		<li><b>u_PMA</b>: the control signal   $u$ ($N$).
+	</ul></div>
+<p><b>Outputs:</b></p>
+<div><ul>
+ 		<li><b>Wbody/.</b>: the wrench $\left[ \mathbf{W}_{\mathcal{A/P},P} \right]_{\mathcal{R}_p}$ (units: $N$ and $N.m$) applied by the body $\mathcal{A}$ at point $P$ to the parent body $\mathcal P$, projected in $\mathcal R_p$.</li>
+ 				<li><b> x_PMA</b>: the relative displacement $\delta x$ of the proof mass ($m$).</li>
+	</ul></div>
+
+  	<h2 id="3">Parameters</h2>
+  	<div><ul>
+  			<li>the total mass: $\mathbf M$ ($Kg$),</li>
+  			<li>the tolal inertai at $G$: $\mathbf I^{\mathcal A}_G$ ($Kg\,m^2$),</li>
+  			<li>the geometry defined by $3\times 1$ vectors $\overrightarrow{OG}$, $\overrightarrow{OP}$ ($m$),</li>
+  			<li>the $3\times 1$ vector defining the working  axis: $\mathbf v$, </li>
+    	    <li>the stiffness: $k$ ($N/m$),</li>
+   	        <li>the proof mass: $m$ ($Kg$),</li>
+    	    <li>the damping: $d$ ($Ns/m$).</li>
+ 			</ul></div>
+ <h2 id="4">Simulink diagram under the mask</h2>
+<p>		<img vspace="5" hspace="5" width="50%" src="PMAmask.png" alt=""></p>
+The mask of the <b>1-d spring-mass damper model</b> is:
+<p>     <img vspace="5" hspace="5" width="70%" src="ProofMassMask.png" alt=""></p>
+  		
+<p class="footer"><br></p></div></body></html>

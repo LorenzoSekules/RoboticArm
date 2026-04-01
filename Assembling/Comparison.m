@@ -1,0 +1,19 @@
+Satellite_Data
+open('Robot2_SDT');
+Gu=ulinearize('Robot2_SDT');
+Gum=minreal(Gu);
+%% Simulink Simscape
+Name_SIM = 'Robot2_SIMSCAPE';
+open(Name_SIM)
+G_SIMSCAPE_nominal=linearize(Name_SIM);
+
+M0=inv(dcgain(Gu(1:6,1:6)));
+M0_SIMSCAPE=inv(dcgain(G_SIMSCAPE_nominal(1:6,1:6)));
+IatB=M0(4:6,4:6);
+
+ComparisonDCgain=M0_SIMSCAPE-M0;
+disp(ComparisonDCgain)
+
+figure()
+sigma(Gum.NominalValue(1:6,1:6)-G_SIMSCAPE_nominal(1:6,1:6))
+norm(sigma(Gum.NominalValue(1:6,1:6)-G_SIMSCAPE_nominal(1:6,1:6)),'inf')
