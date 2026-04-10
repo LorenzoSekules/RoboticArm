@@ -1,9 +1,9 @@
 Satellite_Data
-open('Robot3_SDT');
-Gu=ulinearize('Robot3_SDT');
+open('Robot2_SDT');
+Gu=ulinearize('Robot2_SDT');
 Gum=minreal(Gu);
 %% Simulink Simscape
-Name_SIM = 'Robot3_SIMSCAPE';
+Name_SIM = 'Robot2_SIMSCAPE';
 open(Name_SIM)
 G_SIMSCAPE_nominal=linearize(Name_SIM);
 

@@ -88,10 +88,39 @@ J_P_P_SIM =   usubs(J_P_P,'J_P_Pxx',J_P_Pxx.NominalValue,'J_P_Pyy',J_P_Pyy.Nomin
 
 %% Flexible Beam
 
-length_beam = 4.7;
-width_beam = 0.2;
-height_beam = 0.2;
+% length_beam = 4.7;
+% width_beam = 0.2;
+% height_beam = 0.2;
+% 
+% Cross_section_beam = width_beam*height_beam;
+% Iy_beam = (height_beam*width_beam.^3)/12;
+% Iz_beam = (width_beam*height_beam.^3)/12;
 
-Cross_section_beam = width_beam*height_beam;
-Iy_beam = (height_beam*width_beam.^3)/12;
-Iz_beam = (width_beam*height_beam.^3)/12;
+length_beam = 4.7;
+radius_beam = 0.1;
+Cross_section_beam = pi*radius_beam.^2;
+Iy_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the y-axis
+Iz_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the z-axis
+
+%% Flex beam Nastran
+
+% FEM model name
+f06_boom='boom';
+bdf_boom='boom';
+
+% Interface points
+boom.pointP  =       1;          % Attachment node of boom (grid point ID on bdf file)
+boom.pointC =   [];         % Not used since we use a 1-port approach for the boom (6488 corresponds to grid point ID on bdf file of the tip node of the boom)
+boom.damping_ratio =  0.003;  % Common damping ratio
+boom.n_modes =    10;         % Number of modes for each boom
+unc_freq_boom =   10;         % common uncertain (percentage) on natural frequency
+boom.n_unc = 6;               % Number of modes considered uncertain
+
+% boom.MPCunc = 20;              % Uncertaintiy on the modal participation factor of the solar arrays
+% boom.n_MPCunc = 3;              % Number of uncertaintiy on the modal participation factor of the solar arrays
+
+boom.MPCunc = 0;              % Uncertaintiy on the modal participation factor of the solar arrays
+boom.n_MPCunc = 0;              % Number of uncertaintiy on the modal participation factor of the solar arrays
+
+% Extraction of ROM matrix for Simscape Multibody Flex. Reduced order model
+[coord_boom,Mrofs_boom,Krofs_boom,Drofs_boom,flagFatal]=Nastran2ROFS(strcat(f06_boom,'.f06'),strcat(bdf_boom,'.bdf'),boom.damping_ratio,boom.pointP,boom.pointC,boom.n_modes); 
