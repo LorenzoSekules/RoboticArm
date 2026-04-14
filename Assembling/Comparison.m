@@ -1,4 +1,5 @@
 Satellite_Data
+load('best_trajectory2.mat')
 open('Robot3_SDT');
 Gu=ulinearize('Robot3_SDT');
 Gum=minreal(Gu);
