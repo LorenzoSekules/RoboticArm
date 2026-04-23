@@ -86,21 +86,21 @@ J_P_P_SIM =   usubs(J_P_P,'J_P_Pxx',J_P_Pxx.NominalValue,'J_P_Pyy',J_P_Pyy.Nomin
 
 
 
-%% Flexible Beam
-
-% length_beam = 4.7;
-% width_beam = 0.2;
-% height_beam = 0.2;
+% %% Flexible Beam
 % 
-% Cross_section_beam = width_beam*height_beam;
-% Iy_beam = (height_beam*width_beam.^3)/12;
-% Iz_beam = (width_beam*height_beam.^3)/12;
-
-length_beam = 4.7;
-radius_beam = 0.1;
-Cross_section_beam = pi*radius_beam.^2;
-Iy_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the y-axis
-Iz_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the z-axis
+% % length_beam = 4.7;
+% % width_beam = 0.2;
+% % height_beam = 0.2;
+% % 
+% % Cross_section_beam = width_beam*height_beam;
+% % Iy_beam = (height_beam*width_beam.^3)/12;
+% % Iz_beam = (width_beam*height_beam.^3)/12;
+% 
+% length_beam = 4.7;
+% radius_beam = 0.1;
+% Cross_section_beam = pi*radius_beam.^2;
+% Iy_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the y-axis
+% Iz_beam = (pi * radius_beam^4) / 4; % Moment of inertia about the z-axis
 
 %% Flex beam Nastran
 
@@ -138,10 +138,10 @@ robot = struct();
 robot.nJoints = 7;
 robot.alpha = [-pi/2, pi/2, -pi/2, pi/2, -pi/2, pi/2, 0];
 robot.a = zeros(1, 7);
-robot.d = [2, 0, 2, 0, 2, 0, 1];
+robot.d = [2, 0, 2, 0, 2, 0, 1.15];
 robot.baseT = [0 0 1 0; 0 1 0 0; -1 0 0 0; 0 0 0 1];
 robot.jointLimits = repmat([-pi, pi], 7, 1);
-robot.radius = 0.2;
+robot.radius = 0.15;
 
 % Effective orbital-arm density: lightweight CFRP structure plus metallic joints.
 % This is used as an equivalent density for each cylindrical segment.
@@ -189,3 +189,51 @@ for i = 1:numel(activeLinks)
                            J_xy.NominalValue J_yy.NominalValue J_yz.NominalValue;...
                            J_xz.NominalValue J_yz.NominalValue J_zz.NominalValue];
 end
+
+
+%% Tile
+
+% --- GEOMETRY AND MATERIAL PROPERTIES ---
+rho = 81.2;          % [kg/m^3] Volumetric density of the reflectarray panel
+Tile_s = 1;        % [m] Side length of the regular hexagon (Adjust this to match your footprint)
+Tile_z = 0.05;     % [m] Thickness/Height of the panel (Using the ~30.5mm calculated earlier)
+
+% Calculate Volume of a regular hexagonal prism: V = (3*sqrt(3)/2) * s^2 * h
+Volume = (3 * sqrt(3) / 2) * (Tile_s^2) * Tile_z;
+
+% Calculate Nominal Mass
+m_nominal = rho * Volume; 
+
+% --- UNCERTAIN MASS ---
+m_T =       ureal('m_T', m_nominal, 'percent', 2);     % [kg] Mass central body
+m_T_SIM =   usubs(m_T,'m_T',m_T.NominalValue);         % [kg] Mass central body (used in simscape)
+
+% --- UNCERTAIN MOMENTS OF INERTIA ---
+% For a regular hexagonal prism with flat face in XY plane, extruded along Z
+J_T_Txx = ureal('J_T_Txx', m_T_SIM * ( (5/24)*(Tile_s^2) + (1/12)*(Tile_z^2) ), 'percent', 2); % [kg*m^2] Moment of inertia (xx)
+J_T_Tyy = ureal('J_T_Tyy', m_T_SIM * ( (5/24)*(Tile_s^2) + (1/12)*(Tile_z^2) ), 'percent', 2); % [kg*m^2] Moment of inertia (yy)
+J_T_Tzz = ureal('J_T_Tzz', m_T_SIM * (5/12)*(Tile_s^2), 'percent', 2);                         % [kg*m^2] Moment of inertia (zz)
+
+% --- UNCERTAIN CROSS MOMENTS OF INERTIA ---
+% Symmetrical regular hexagons have nominal cross inertias of 0
+J_T_Txy =       ureal('J_T_Txy',0,'PlusMinus',[-1 1]*0.1);  % [kg*m^2] Cross moment of inertia (xy)
+J_T_Tyz =       ureal('J_T_Tyz',0,'PlusMinus',[-1 1]*0.1);  % [kg*m^2] Cross moment of inertia (yz)
+J_T_Txz =       ureal('J_T_Txz',0,'PlusMinus',[-1 1]*0.1);  % [kg*m^2] Cross moment of inertia (xz)
+
+% --- INERTIA TENSOR MATRIX ---
+J_T_T = [J_T_Txx J_T_Txy J_T_Txz;...
+         J_T_Txy J_T_Tyy J_T_Tyz;...
+         J_T_Txz J_T_Tyz J_T_Tzz];  % Moment of inertia of the central body B in R_b wrt point B [kg*m^2] 
+                                    % Note the order in Simscape for product of inertia is given as
+                                    % J_T_T(2,3) J_T_T(1,3) J_T_T(1,2)
+
+% --- SIMSCAPE INERTIA EVALUATION ---
+J_T_T_SIM =   usubs(J_T_T,'J_T_Txx',J_T_Txx.NominalValue,'J_T_Tyy',J_T_Tyy.NominalValue,'J_T_Tzz',J_T_Tzz.NominalValue,...
+                    'J_T_Txy',J_T_Txy.NominalValue,'J_T_Tyz',J_T_Tyz.NominalValue,'J_T_Txz',J_T_Txz.NominalValue);
+
+%%
+K_tile_force = 2000/0.015;
+C_tile_force = 2*5*sqrt(K_tile_force*2.598*0.2*100);
+
+K_tile_torque = 250/deg2rad(10);
+C_tile_torque = 2*1*sqrt(K_tile_torque*0.541266*100)*0.7;

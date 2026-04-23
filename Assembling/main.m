@@ -19,7 +19,7 @@ robot = struct();
 robot.nJoints = 7;
 robot.alpha = [-pi/2, pi/2, -pi/2, pi/2, -pi/2, pi/2, 0];
 robot.a = zeros(1, 7);
-robot.d = [2, 0, 2, 0, 2, 0, 1];
+robot.d = [2, 0, 2, 0, 2, 0, 1.15];
 robot.baseT = [0 0 1 0; 0 1 0 0; -1 0 0 0; 0 0 0 1];
 robot.jointLimits = repmat([-pi, pi], 7, 1);
 
