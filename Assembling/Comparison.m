@@ -5,7 +5,7 @@ Tile3_Placement = 3;
 Tile4_Placement = 3;
 Tile5_Placement = 3;
 Tile6_Placement = 3;
-Tile7_Placement = 3;
+Tile7_Placement = 2;
 load('best_trajectory2.mat')
 open('Robot3_SDT');
 Gu=ulinearize('Robot3_SDT');
