@@ -1,14 +1,16 @@
+load('best_trajectory2.mat')
 Satellite_Data
+
 Tile1_Placement = 3;
 Tile2_Placement = 3;
 Tile3_Placement = 3;
 Tile4_Placement = 3;
 Tile5_Placement = 3;
 Tile6_Placement = 3;
-Tile7_Placement = 2;
-load('best_trajectory2.mat')
-open('Robot3_SDT');
-Gu=ulinearize('Robot3_SDT');
+Tile7_Placement = 3;
+
+open('Robot4_SDT');
+Gu=ulinearize('Robot4_SDT');
 Gum=minreal(Gu);
 
 %% Simulink Simscape
