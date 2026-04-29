@@ -1,13 +1,13 @@
 load('best_trajectory2.mat')
 Satellite_Data
 
-Tile1_Placement = 3;
-Tile2_Placement = 3;
-Tile3_Placement = 3;
-Tile4_Placement = 3;
-Tile5_Placement = 3;
-Tile6_Placement = 3;
-Tile7_Placement = 3;
+Tile1_Placement = 1;
+Tile2_Placement = 1;
+Tile3_Placement = 1;
+Tile4_Placement = 1;
+Tile5_Placement = 1;
+Tile6_Placement = 1;
+Tile7_Placement = 1;
 
 open('Robot4_SDT');
 Gu=ulinearize('Robot4_SDT');
