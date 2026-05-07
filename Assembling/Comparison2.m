@@ -118,8 +118,10 @@ figure('Color', 'w', 'Name', 'Peak Error per Sample', 'NumberTitle', 'off');
 bar(peak_max_sv_db, 'FaceColor', [0.35 0.55 0.85]);
 grid on;
 title('Peak Max Singular Value per Sample');
-xlabel('Sample index');
-ylabel('Peak |G_{SDT} - G_{SIM}| [dB]');
+
+% Removed xlabel('Sample index'); to avoid redundancy with the tick labels
+ylabel('||G_{SDT} - G_{SIM}||_{\infty} [dB]', 'Interpreter', 'tex');
+
 set(gca, 'XTick', 1:n_samples, 'XTickLabel', state_names, 'XTickLabelRotation', 30);
 
 
@@ -141,7 +143,6 @@ end
 warning('Simscape Multibody Explorer function not found. Skipping explorer open.');
 end
 
-
 function tile_states = buildTileStates(n_tiles)
 % buildTileStates returns a sequential placement schedule with a single tile on the arm.
 % State 1 = start, State 2 = on end-effector, State 3 = placed on antenna.
@@ -149,7 +150,7 @@ function tile_states = buildTileStates(n_tiles)
 states = struct('name', {}, 'placements', {});
 idx = 1;
 
-states(idx).name = 'start';
+states(idx).name = 'Start';
 states(idx).placements = ones(1, n_tiles);
 idx = idx + 1;
 
@@ -158,16 +159,46 @@ for k = 1:n_tiles
     if k > 1
         placements(1:k-1) = 3;
     end
+    
     placements(k) = 2;
-    states(idx).name = sprintf('tile%d_grab', k);
+    states(idx).name = sprintf('Tile %d Grab', k);
     states(idx).placements = placements;
     idx = idx + 1;
-
+    
     placements(k) = 3;
-    states(idx).name = sprintf('tile%d_placed', k);
+    states(idx).name = sprintf('Tile %d Placed', k);
     states(idx).placements = placements;
     idx = idx + 1;
 end
-
 tile_states = states;
 end
+
+% function tile_states = buildTileStates(n_tiles)
+% % buildTileStates returns a sequential placement schedule with a single tile on the arm.
+% % State 1 = start, State 2 = on end-effector, State 3 = placed on antenna.
+% 
+% states = struct('name', {}, 'placements', {});
+% idx = 1;
+% 
+% states(idx).name = 'start';
+% states(idx).placements = ones(1, n_tiles);
+% idx = idx + 1;
+% 
+% for k = 1:n_tiles
+%     placements = ones(1, n_tiles);
+%     if k > 1
+%         placements(1:k-1) = 3;
+%     end
+%     placements(k) = 2;
+%     states(idx).name = sprintf('tile%d_grab', k);
+%     states(idx).placements = placements;
+%     idx = idx + 1;
+% 
+%     placements(k) = 3;
+%     states(idx).name = sprintf('tile%d_placed', k);
+%     states(idx).placements = placements;
+%     idx = idx + 1;
+% end
+% 
+% tile_states = states;
+% end

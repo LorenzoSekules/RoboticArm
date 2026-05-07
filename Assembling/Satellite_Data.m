@@ -6,7 +6,7 @@ main_body_x = 2.2;   % length along x-axis
 main_body_y = 3;   % length along y-axis
 main_body_z = 5;   % length along z-axis
 
-m_B =       ureal('m_B',1000,'percent',10);     % [kg] Mass central body
+m_B =       ureal('m_B',4000,'percent',10);     % [kg] Mass central body
 m_B_SIM =   usubs(m_B,'m_B',m_B.NominalValue);  % [kg] Mass central body (used in simscape)
 
 J_B_Bxx = ureal('J_B_Bxx',m_B_SIM/12*(main_body_y^2+main_body_z^2),'percent',10); % [kg*m^2] Moment of inertia (xx) of the central body B
@@ -38,7 +38,7 @@ Container_x = 1.5;
 Container_z = sqrt(3)+0.5;
 
 
-m_C =       ureal('m_C',500,'percent',10);     % [kg] Mass central body
+m_C =       ureal('m_C',100,'percent',10);     % [kg] Mass central body
 m_C_SIM =   usubs(m_C,'m_C',m_C.NominalValue);  % [kg] Mass central body (used in simscape)
 
 J_C_Cxx = ureal('J_C_Cxx',m_C_SIM/12*(Container_y^2+Container_z^2),'percent',10); % [kg*m^2] Moment of inertia (xx) of the central body B
