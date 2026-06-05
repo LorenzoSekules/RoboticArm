@@ -33,21 +33,20 @@ robot.jointLimits = repmat([-pi, pi], 7, 1);
 % joint-space continuity internally across all A->B->C->... transitions.
 R_up = [0 0 1; 0 1 0; -1 0 0]';
 R_down = [-1 0 0; 0 1 0; 0 0 -1]';
-
-p1  = [-0.0;               0.0;  2.25 + sqrt(3)/2];
-p2  = [ 3.8;               0.0; -2.8];
-p3  = [-0.2;               0.0;  2.25 + sqrt(3)/2];
-p4  = [ 3.8 + sqrt(3);     0.0; -2.8];
-p5  = [-0.4;               0.0;  2.25 + sqrt(3)/2];
-p6  = [ 3.8 + sqrt(3)/2;  -1.5; -2.8];
-p7  = [-0.6;               0.0;  2.25 + sqrt(3)/2];
-p8  = [ 3.8 - sqrt(3)/2;  -1.5; -2.8];
-p9  = [-0.8;               0.0;  2.25 + sqrt(3)/2];
-p10 = [ 3.8 - sqrt(3);     0.0; -2.8];
-p11 = [-1.0;               0.0;  2.25 + sqrt(3)/2];
-p12 = [ 3.8 - sqrt(3)/2;   1.5; -2.8];
-p13 = [-1.2;               0.0;  2.25 + sqrt(3)/2];
-p14 = [ 3.8 + sqrt(3)/2;   1.5; -2.8];
+p1  = [-0.15;               0.0;  2.25 + sqrt(3)/2];
+p2  = [ 3.8;               0.0; -2.95];
+p3  = [-0.35;               0.0;  2.25 + sqrt(3)/2];
+p4  = [ 3.8 + sqrt(3);     0.0; -2.95];
+p5  = [-0.55;               0.0;  2.25 + sqrt(3)/2];
+p6  = [ 3.8 + sqrt(3)/2;  -1.5; -2.95];
+p7  = [-0.75;               0.0;  2.25 + sqrt(3)/2];
+p8  = [ 3.8 - sqrt(3)/2;  -1.5; -2.95];
+p9  = [-0.95;               0.0;  2.25 + sqrt(3)/2];
+p10 = [ 3.8 - sqrt(3);     0.0; -2.95];
+p11 = [-1.15;               0.0;  2.25 + sqrt(3)/2];
+p12 = [ 3.8 - sqrt(3)/2;   1.5; -2.95];
+p13 = [-1.35;               0.0;  2.25 + sqrt(3)/2];
+p14 = [ 3.8 + sqrt(3)/2;   1.5; -2.95];
 
 % Waypoint order: p1 -> p2 -> ... -> p14
 p_waypoints = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
@@ -72,8 +71,11 @@ end
 
 %load('best_trajectory2.mat')
 [t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(p_waypoints, R_waypoints);
+%[t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj_No_Collisions(p_waypoints, R_waypoints);
 
-%save('best_trajectory3.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
+save('best_trajectory_def.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
+
+
 %% Trajectory Analysis and Continuity Check
 % In this context, discontinuity means an unexpected sample-to-sample spike
 % in joint position/velocity/acceleration. For redundant robots, moderate
@@ -195,6 +197,7 @@ end
 %     drawnow;
 %     pause(0.015);
 % end
+
 
 %% Functions
 
