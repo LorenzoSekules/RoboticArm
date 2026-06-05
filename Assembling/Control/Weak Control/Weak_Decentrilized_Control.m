@@ -97,16 +97,70 @@ K_Arm_Matrix.OutputName = u_arm;
 CL_Arm = lft(G_arm_isolated, K_Arm_Matrix);
 
 % Define systune options
-opt = systuneOptions('MaxIter', 500, 'RandomStart', 2,'Display','iter');
+opt = systuneOptions('MaxIter', 500, 'RandomStart', 2, 'Display', 'iter');
 
-% --- ARM TUNING GOALS ---
+% ---------------------------------------------------------
+% 1. TRACKING GOAL (Bandwidth of 1 rad/s)
 wm = 1;
-Req_Arm_Track  = TuningGoal.Tracking(ref_arm, q_arm, wm);
-%Req_Arm_Sens   = TuningGoal.Sensitivity(ref_arm, err_arm, 2); % EXPLICIT SENSITIVITY S(s)
-Req_Arm_Effort = TuningGoal.Gain(ref_arm, torque_arm, 10); 
-Req_Arm_Dist   = TuningGoal.Gain(disturb_arm, q_arm, 0.1);  
+Req_Arm_Track = TuningGoal.Tracking(ref_arm, q_arm, wm);
 
-[CL_Arm_tuned, fSoft, gHard] = systune(CL_Arm, [Req_Arm_Effort, Req_Arm_Dist], Req_Arm_Track,opt)
+% ---------------------------------------------------------
+% 2. SENSITIVITY GOAL S(s) (Robust Stability)
+% Limit transfer function from Ref to Error to a peak of 2.0
+Req_Arm_Sens = TuningGoal.Gain(ref_arm, err_arm, 2.0);
+
+% ---------------------------------------------------------
+% 3. DISTURBANCE REJECTION S_d(s)
+% Coherent with bandwidth: tight at low freq (0.01), loose at high freq (10)
+W_dist = makeweight(0.01, wm, 10);
+Req_Arm_Dist = TuningGoal.Gain(disturb_arm, q_arm, W_dist);
+
+% ---------------------------------------------------------
+% 4. CLASSIC CONTROLLER ROLL-OFF K(s)S(s)
+% Replaces MaxLoopGain. Forces the controller to act as a low-pass filter.
+W_ControlEffort = makeweight(10, 5, 0.01);
+Req_Classic_RollOff = TuningGoal.Gain(ref_arm, u_arm, W_ControlEffort);
+
+figure(2)
+bodemag(W_dist)
+hold on
+bodemag(W_ControlEffort)
+legend('disturbances', 'commande','Fontsize', 20)
+grid on
+axis on
+
+% =========================================================
+% RUN SYSTUNE
+% =========================================================
+
+% Soft Goals: Try to track references and reject disturbances
+Soft_Goals = [Req_Classic_RollOff, Req_Arm_Dist];
+
+% Hard Goals: NEVER exceed Sensitivity of 2.0, NEVER excite fast dynamics
+Hard_Goals = [Req_Arm_Sens, Req_Arm_Track];
+
+[CL_Arm_tuned, fSoft, gHard] = systune(CL_Arm, Soft_Goals, Hard_Goals, opt); 
+
+% =========================================================
+% EXTRACT TUNED CONTROLLER GAINS
+% =========================================================
+fprintf('\nExtracting Tuned PID Gains...\n');
+
+% 1. Extract the numerical matrices from the tuned closed-loop model
+Kp_opt = getBlockValue(CL_Arm_tuned, 'Kp_Arm');
+Ki_opt = getBlockValue(CL_Arm_tuned, 'Ki_Arm');
+Kd_opt = getBlockValue(CL_Arm_tuned, 'Kd_Arm');
+
+% 2. Unify them into a single matrix. 
+% We use the exact same [-Kp, Ki, -Kd] structure you used to build it earlier.
+K_arm_tuned = [-Kp_opt, Ki_opt, -Kd_opt];
+
+% 3. Display the final unified 7x21 matrix in the command window
+disp('Final Tuned Controller Matrix [ -Kp | Ki | -Kd ]:');
+disp(K_arm_tuned);
+
+% Save K to the current folder
+save('K_arm_tuned1.mat', 'K_arm_tuned');
 
 %% PART 3: Tune the Decentralized ADCS Controller (3-Axis)
 fprintf('\n--- PHASE 2: Tuning the 3-Axis ADCS Controller ---\n');
