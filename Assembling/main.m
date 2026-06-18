@@ -205,8 +205,8 @@ function [p_wp_out, R_wp_out] = appendCollisionAvoidanceWaypoints(p_wp_in, R_wp_
 % APPENDCOLLISIONAVOIDANCEWAYPOINTS Inserts pre/post waypoints around each target.
 %
 % For each original waypoint k:
-%   - if k is odd  (pick phase), offset point is p_k + [1; 0; 0]
-%   - if k is even (drop phase), offset point is p_k + [0; 0; 1]
+%   - if k is odd  (pick phase), offset point is p_k + [2; 0; 0]
+%   - if k is even (drop phase), offset point is p_k + [0; 0; 0.8]
 % The output sequence is [pre_k, target_k, post_k] for every k.
 
 n_wp = size(p_wp_in, 2);

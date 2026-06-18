@@ -4,10 +4,11 @@ G_SDT_reduced  = cell(n_samples, 1);
 
 % Define your target order for the physical plant
 % (You can adjust this based on what the view(Rspec) showed you earlier)
-reduced_order = 18; 
+reduced_order = [24 31 29 35 29 34 31 36 32 38 32 37 32 34 28]; 
 
 fprintf('Extracting and Reducing %d Physical Models...\n', n_samples);
 open('SDT_Dynamics.slx')
+tile_states  = buildTileStates(7);
 
 for i = 1:n_samples
     % 1. Set your operating points for the current tile/sample
@@ -38,7 +39,7 @@ for i = 1:n_samples
     Rspec = reducespec(M, "balanced");
     figure('Name', 'Hankel Singular Values');
     view(Rspec);
-    M_red = getrom(Rspec, Order=reduced_order, Method="matchDC");
+    M_red = getrom(Rspec, Order=reduced_order(i), Method="matchDC");
     
     % Re-attach uncertainty to create the reduced 'uss' model
     sys_dyn_red = lft(Delta, M_red);
