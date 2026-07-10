@@ -18,19 +18,25 @@ CL0.y={'y','err','u'};
 
 wm = 1;
 W_Sens = makeweight(0.01,wm,2);
+%W_Sens = 2*(s+0.05)^6/(s+0.5)^6;
+% figure(1)
+% hold on
+% grid on
+% bodemag(W_Sens)
 
 Req_Sens = TuningGoal.Gain('ref','err',W_Sens);
 Req_u    = TuningGoal.Gain('ref','u',100);
 Req_con = TuningGoal.Gain('e','t',10);
 Req_poles = TuningGoal.Poles(10^-3,0.7,inf);
-
+Req_OS = TuningGoal.Overshoot('ref','y',0);
+Req_step = TuningGoal.StepTracking('ref','y',1);
 %% Tune
 opt = systuneOptions( ...
     'Display','iter', ...
     'RandomStart',0, ...
     'MaxIter',200);
 
-CL = systune(blkdiag(CL0,C),[],[Req_Sens,Req_poles,Req_u],opt);
+CL = systune(blkdiag(CL0,C),[],[Req_Sens,Req_poles,Req_u,Req_step],opt);
 
 Kp = ss(CL.blocks.kp).D;
 Kd = ss(CL.blocks.kd).D;
@@ -52,6 +58,13 @@ viewGoal(Req_con,CL)
 figure();
 viewGoal(Req_poles,CL)
 
+
+figure();
+viewGoal(Req_OS,CL)
+
+
+figure();
+viewGoal(Req_step,CL)
 
 %%
 

@@ -253,9 +253,9 @@ J_T_T_SIM =   usubs(J_T_T,'J_T_Txx',J_T_Txx.NominalValue,'J_T_Tyy',J_T_Tyy.Nomin
                     'J_T_Txy',J_T_Txy.NominalValue,'J_T_Tyz',J_T_Tyz.NominalValue,'J_T_Txz',J_T_Txz.NominalValue);
 
 %% Tiles
-K_tile_force = 2000/0.015;
-C_tile_force = 2*5*sqrt(K_tile_force*2.598*0.2*100);
+K_tile_force = 2000/0.015/5000;
+C_tile_force = 2*5*sqrt(K_tile_force/2500*2.598*0.2*100);
 
-K_tile_torque = 250/deg2rad(10);
-C_tile_torque = 2*1*sqrt(K_tile_torque*0.541266*100)*0.7;
+K_tile_torque = 250/deg2rad(10)/1000;
+C_tile_torque = 2*1*sqrt(K_tile_torque/1000*0.541266*100)*0.7/50;
 

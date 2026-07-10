@@ -1,0 +1,97 @@
+%% ========================================================================
+%  MINIMAL, HAND-VERIFIABLE DEMO:
+%  Does systune actually tune the surface AT the plant's SamplingGrid points?
+% ========================================================================
+clear; clc; 
+
+%% 1. Three stages, each plant sample has a DIFFERENT, hand-picked DC gain
+S_grid = [1 2 3 4 5 6 7 8 9 10 11];         % Configuration index
+a_S    = [1 3 6 8 10 12 14 16 18 20 22];         % Plant gain at each stage
+sys_cell = cell(numel(S_grid), 1);
+
+for i = 1:numel(S_grid)
+    sys_cell{i} = tf(a_S(i), [1 0]);  % G_S(s) = a_S / s
+end
+
+% [FIX 1]: Stack along dimension 3 to create a 1x1x3 parameter-varying array
+G_array = stack(2, sys_cell{:});
+G_array.SamplingGrid = struct('S', S_grid);
+G_array.InputName  = 'u';
+G_array.OutputName = 'y';
+
+disp('--- Plant gain a_S at each grid point ---');
+for i = 1:numel(S_grid)
+    fprintf('S = %d -> a_S = %d\n', S_grid(i), a_S(i));
+end
+
+%% 2. Tunable surface for K(S), domain EXACTLY matching the plant's grid
+domain   = struct('S', S_grid);
+%shapeFcn = @(x) [x, x^2];    % Use x.S to properly access the normalized struct field
+
+shapeFcn = polyBasis('chebyshev',2);
+
+K_surf = tunableSurface('K_surf', 1, domain, shapeFcn);
+%K_inf = tunableGain('K',1,1);
+
+%% 3. Close the loop: r -> e=(r-y) -> K(S) -> u -> G_S -> y
+CL0   = feedback(G_array * K_surf, 1);
+CL0.u = 'r';
+CL0.y = 'y';
+
+%% 4. Tuning goal: force 1st-order step response with tau_target at ALL stages
+tau_target = 1.0;                % Desired closed-loop time constant [s]
+Req = TuningGoal.StepTracking('r', 'y', tau_target);
+
+opt = systuneOptions('RandomStart', 3, 'Display', 'off');
+[CL_tuned, fSoft, gHard, info] = systune(CL0, [], Req, opt);
+fprintf('\nsystune hard-goal value (should be near/under 1): %.4f\n', gHard);
+
+%% 5. THE ACTUAL CHECK: evalSurf at each plant grid point vs hand-computed K_S
+K_tuned = getBlockValue(CL_tuned, 'K_surf');
+
+Ktuned = setData(K_surf,K_tuned);
+viewSurf(Ktuned)
+
+
+fprintf('\n%-6s %-12s %-14s %-16s %-10s\n', 'Stage', 'K_systune', 'K_hand=1/(t*a)', 'Hinf Error', 'Match?');
+fprintf('%s\n', repmat('-', 1, 62));
+
+for i = 1:numel(S_grid)
+    % [FIX 2]: Evaluate K_tuned at numeric stage coordinate S_grid(i)
+    K_num(i) = K_tuned(1)+K_tuned(2)*(2*(i-1)/(numel(S_grid)-1)-1)+K_tuned(3)*(2*(i-1)/(numel(S_grid)-1)-1)^2;
+    K_num2(i) = evalSurf(Ktuned,i);
+    
+    % Build theoretical hand-tuned closed loop for slice i
+    CL_hand(:,:,1,i) = feedback(G_array(:,:,:,i) * K_num2(i), 1);
+    
+    % Extract slice i directly from systune output array (3D indexing)
+    CL_systune_i = CL_tuned(:,:,:,i);
+    
+    % Measure difference between systune closed loop and manual closed loop
+    diff_norm = hinfnorm(CL_systune_i - CL_hand(:,:,1,i))
+    
+end
+
+%% 6. Bonus: Sanity check the closed-loop pole directly
+disp(' ');
+disp('--- Direct closed-loop pole check at each stage ---');
+
+%K_num = ss(CL_tuned.Blocks.K).D;
+for i = 1:numel(S_grid)
+    CL_pole_actual   = -K_num(i) * a_S(i);
+    CL_pole_expected = -1 / tau_target;
+    fprintf('S = %d -> Pole = %6.4f  (Target = %6.4f)\n', S_grid(i), CL_pole_actual, CL_pole_expected);
+end
+
+%%
+figure;
+hold on
+viewGoal(Req, CL_tuned(:,:,1,8))
+
+figure();
+step(CL_hand(:,:,1,8))
+xlim([0,6])
+
+figure;
+step(feedback(G_array(:,:,:,8) * K_num2(2), 1))
+xlim([0,6])

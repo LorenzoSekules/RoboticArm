@@ -83,25 +83,25 @@ load("K_arm_tuned2.mat");
 % logical(eye(7)) forces strictly decentralized control (only 7 tunable parameters each)
 Kp_Arm = tunableGain('Kp_Arm', eye(7)); 
 Kp_Arm.Gain.Free = logical(eye(7));
-Kp_Arm.Gain.Value = K_arm_tuned(1:7,1:7); %eye(7);
+Kp_Arm.Gain.Value = K_arm_tuned.D(1:7,1:7); %eye(7);
 
 Ki_Arm = tunableGain('Ki_Arm', eye(7)); 
 Ki_Arm.Gain.Free = logical(eye(7));
-Ki_Arm.Gain.Value = K_arm_tuned(1:7,8:14); %eye(7);
+Ki_Arm.Gain.Value = K_arm_tuned.D(1:7,8:14); %eye(7);
 
 Kd_Arm = tunableGain('Kd_Arm', eye(7)); 
 Kd_Arm.Gain.Free = logical(eye(7));
-Kd_Arm.Gain.Value = K_arm_tuned(1:7,15:21); %eye(7);
+Kd_Arm.Gain.Value = K_arm_tuned.D(1:7,15:21); %eye(7);
 
-s=tf('s');
-
-% Placing a pole up high to meka a proper controller
-for i =1:7
-tau = Kd_Arm(i,i)/10/Kp_Arm(i,i); % Polo a 20 rad/s (modifica in base al rumore dei tuoi encoder)
-Fd(i,i)  = 1 / (tau * s + 1);
-end
-
-Kd_Arm = Kd_Arm * Fd;
+% s=tf('s');
+% 
+% % Placing a pole up high to meka a proper controller
+% for i =1:7
+% tau = Kd_Arm(i,i)/10/Kp_Arm(i,i); % Polo a 20 rad/s (modifica in base al rumore dei tuoi encoder)
+% Fd_arm(i,i)  = 1 / (tau * s + 1);
+% end
+% 
+% Kd_Arm = Kd_Arm * Fd_arm;
 
 % 2. Concatenate into a single 7x21 matrix [Kp, Ki, Kd]
 K_Arm_Matrix = [Kp_Arm, Ki_Arm, Kd_Arm];
@@ -112,11 +112,11 @@ K_Arm_Matrix.OutputName = u_arm;
 CL_Arm = lft(G_arm_isolated, K_Arm_Matrix);
 
 % Define systune options
-opt = systuneOptions('MaxIter', 300, 'RandomStart', 5, 'Display', 'iter','UseParallel',true);
+opt = systuneOptions('MaxIter', 300, 'RandomStart', 2, 'Display', 'iter','UseParallel',true);
 
 % ---------------------------------------------------------
 % 1. TRACKING GOAL (Bandwidth of 1 rad/s)
-wm = 0.1;
+wm = 5;
 Req_Arm_Track = TuningGoal.Tracking(ref_arm, q_arm, wm);
 
 % ---------------------------------------------------------
@@ -128,14 +128,14 @@ Req_Arm_Sens = TuningGoal.Gain(ref_arm, err_arm, W_Sens);
 % ---------------------------------------------------------
 % 3. DISTURBANCE REJECTION S_d(s)
 % Coherent with bandwidth: tight at low freq (0.01), loose at high freq (10)
-W_dist = makeweight(0.01, wm, 10);
+W_dist = makeweight(0.015/(5.15*13.5), 0.1*5e2, 10);
 Req_Arm_Dist = TuningGoal.Gain(disturb_arm, q_arm, W_dist);
 
 % ---------------------------------------------------------
 % 4. CLASSIC CONTROLLER ROLL-OFF K(s)S(s)
 % Replaces MaxLoopGain. Forces the controller to act as a low-pass filter.
 %W_ControlEffort = makeweight(10, 5, 0.1);
-Req_Control = TuningGoal.Gain(ref_arm, torque_arm, 1000);
+Req_Control = TuningGoal.Gain(ref_arm, torque_arm, 1500/3.11);
 
 %Req_poles = TuningGoal.Poles(10^-3,0.6,inf);
 
@@ -201,7 +201,8 @@ title('F(s)')
 fprintf('\n--- PHASE 2: Tuning the 3-Axis ADCS Controller ---\n');
 
 % 1. Lock the tuned arm controller back into the full plant using LFT
-G_array_with_arm = lft(G_array, K_arm_tuned); 
+G_array_with_arm = lft(G_array, K_arm_tuned); %if I have just computed K_arm_tuned
+%G_array_with_arm = lft(G_array, K_Arm_Matrix); % if computing just AOCS control
 
 % 2. Create Tunable Diagonal Gains for the base
 Kp_AOCS = tunableGain('Kp_AOCS', eye(3));
@@ -216,7 +217,18 @@ Kd_AOCS = tunableGain('Kd_AOCS', eye(3));
 Kd_AOCS.Gain.Free = logical(eye(3));
 Kd_AOCS.Gain.Value = eye(3);
 
-% 3. Concatenate into a 3x9 matrix [Kp, Ki, -Kd]
+% s=tf('s');
+% 
+% % Placing a pole up high to meka a proper controller
+% for i =1:3
+% %tau = Kd_AOCS(i,i)/10/Kp_AOCS(i,i); % Polo a 2 rad/s
+% tau = 0.5;
+% Fd_aocs(i,i)  = 1 / (tau * s + 1);
+% end
+% 
+% Kd_AOCS = Kd_AOCS * Fd_aocs;
+
+% 3. Concatenate into a 3x9 matrix [Kp, Ki, Kd]
 K_AOCS_Matrix = [Kp_AOCS, Ki_AOCS, Kd_AOCS];
 K_AOCS_Matrix.InputName  = pid_aocs_inputs;
 K_AOCS_Matrix.OutputName = u_aocs;
@@ -226,15 +238,17 @@ CL_Full = lft(G_array_with_arm, K_AOCS_Matrix);
 
 % --- ADCS TUNING GOALS ---
 wt = 0.01;
-Req_AOCS_Track  = TuningGoal.Tracking(ref_aocs, q_aocs, wt);
+%Req_AOCS_Track  = TuningGoal.Tracking(ref_aocs, q_aocs, wt);
 
 W_Sens = makeweight(0.01, wt, 2);
 Req_AOCS_Sens   = TuningGoal.Gain(ref_aocs, err_aocs, W_Sens);
 
-Req_AOCS_Effort = TuningGoal.Gain(ref_aocs, torque_aocs, 1000); 
+Req_AOCS_Effort = TuningGoal.Gain(ref_aocs, torque_aocs, 0.82/deg2rad(3)); 
 
-W_dist = makeweight(0.01, wt, 10);
-Req_AOCS_Dist   = TuningGoal.Gain(disturb_aocs, q_aocs, W_dist);  
+W_dist = makeweight(0.0047, [wm, deg2rad(3)/11], 1);
+Req_AOCS_Dist   = TuningGoal.Gain(disturb_aocs, q_aocs, W_dist);
+
+%ReqPointing = TuningGoal.Gain(disturb_aocs, err_aocs, deg2rad(3)/11);
 
 % Soft Goals: Try to track references and reject disturbances
 Soft_Goals = [];
@@ -242,7 +256,7 @@ Soft_Goals = [];
 % Hard Goals: NEVER exceed Sensitivity of 2.0, NEVER excite fast dynamics
 Hard_Goals = [Req_AOCS_Sens,Req_AOCS_Effort,Req_AOCS_Dist];
 
-opt = systuneOptions('MaxIter', 300, 'RandomStart', 2, 'Display', 'iter','UseParallel',true);
+opt = systuneOptions('MaxIter', 300, 'RandomStart', 1, 'Display', 'iter','UseParallel',true);
 
 [CL_Full_tuned, fSoft, gHard] = systune(CL_Full, Soft_Goals, Hard_Goals, opt);
 
@@ -252,20 +266,20 @@ opt = systuneOptions('MaxIter', 300, 'RandomStart', 2, 'Display', 'iter','UsePar
 fprintf('\nExtracting Tuned PID Gains...\n');
 
 % 1. Extract the numerical matrices from the tuned closed-loop model
-Kp_opt = getBlockValue(CL_Full_tuned, 'Kp_AOCS');
-Ki_opt = getBlockValue(CL_Full_tuned, 'Ki_AOCS');
-Kd_opt = getBlockValue(CL_Full_tuned, 'Kd_AOCS');
+Kp_opt_aocs = getBlockValue(CL_Full_tuned, 'Kp_AOCS');
+Ki_opt_aocs = getBlockValue(CL_Full_tuned, 'Ki_AOCS');
+Kd_opt_aocs = getBlockValue(CL_Full_tuned, 'Kd_AOCS');
 
 % 2. Unify them into a single matrix. 
 % We use the exact same [Kp, Ki, Kd] structure you used to build it earlier.
-K_aocs_tuned = [Kp_opt, Ki_opt, Kd_opt];
+K_aocs_tuned = [Kp_opt_aocs, Ki_opt_aocs, Kd_opt_aocs];
 
 % 3. Display the final unified 7x21 matrix in the command window
 disp('Final Tuned Controller Matrix [ Kp | Ki | Kd ]:');
 disp(K_aocs_tuned);
 
 % Save K to the current folder
-save('K_aocs_tuned.mat', 'K_aocs_tuned');
+save('K_aocs_tuned3.mat', 'K_aocs_tuned');
 
 %% VIEWGOALS
 
@@ -282,8 +296,8 @@ viewGoal(Req_AOCS_Sens,CL_Full_tuned)
 title('S(s)')
 
 figure()
-viewGoal(Req_AOCS_Track,CL_Full_tuned)
-title('F(s)')
+viewGoal(Req_AOCS_Effort_on_Dist,CL_Full_tuned)
+
 
 %% PART 4: View Final Gains
 fprintf('\n===================================================\n');

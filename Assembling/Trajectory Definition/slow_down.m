@@ -1,5 +1,7 @@
-T_new = 12*5;
+T_new = 12*10;
 numSamples = 241;
+
+t_stasi = 50;
 
 traj_options_slow = struct();
 traj_options_slow.totalTime = T_new;
@@ -16,6 +18,11 @@ segment_length = numSamples - 1;   % 240
 
 for i_seg = 1:41
 
+    % ---> Starting from zeros: Do that for as the control is built by multiplying Kp to the measure and not the erro, so I have to avoid big initial steps <---
+    if i_seg == 1, [t_vec_slow, q_traj_slow, qd_traj_slow, qdd_traj_slow, t_offset] = Start_from_Zero(q_traj(:,1), traj_options_slow); end
+    % ---> Iniezione 50s di stasi alla fine dei segmenti 2, 5, 8... <---
+    if mod(i_seg - 2, 3) == 0, [t_vec_slow, q_traj_slow, qd_traj_slow, qdd_traj_slow, t_offset] = Genera_Stasi(t_vec_slow, q_traj_slow, qd_traj_slow, qdd_traj_slow, t_stasi); end
+    
     idx_start = (i_seg-1)*segment_length + 1;
     idx_end   = idx_start + segment_length;
 
@@ -39,6 +46,11 @@ for i_seg = 1:41
 
     t_offset = t_vec_slow(end);
 end
+
+
+Arm_angles.time = t_vec_slow;
+Arm_angles.signals.values = q_traj_slow';
+Arm_angles.signals.dimensions = 7;
 
 
 %% PLOT
@@ -86,6 +98,19 @@ xlabel('Time [s]');
 ylabel('qddot [rad/s^2]');
 title('Joint Accelerations qddot(t)');
 legend('Location', 'eastoutside');
+xlim([t_vec_slow(1), t_vec_slow(end)]);
+
+
+% Figure 4: Norm of Joint Velocities ||qdot(t)||
+% Calcola la norma L2 colonna per colonna (su tutti e 7 i giunti contemporaneamente)
+norm_qd = sqrt(sum(qd_traj_slow.^2, 1)); 
+
+figure('Color', 'w', 'Name', 'Joint Velocity Norm', 'NumberTitle', 'off');
+plot(t_vec_slow, norm_qd, 'LineWidth', 1.5, 'Color', [0.07, 0.62, 0.45]); % Color Ottanio/Smeraldo
+grid on;
+xlabel('Time [s]');
+ylabel('||qdot|| [rad/s]');
+title('Norm of Joint Velocities ||qdot(t)||');
 xlim([t_vec_slow(1), t_vec_slow(end)]);
 
 % Discontinuity metrics at sample level.
@@ -142,4 +167,38 @@ q = q_start + delta_q * s;
 qd = delta_q * s_dot;
 qdd = delta_q * s_ddot;
 
+end
+
+function [t_acc, q_acc, qd_acc, qdd_acc, t_off] = Start_from_Zero(q_target, options)
+    % 1. Genera la traiettoria da zero al primo target
+    q_zero = zeros(size(q_target));
+    [t, q, qd, qdd] = trajectoryGeneration(q_zero, q_target, options);
+    
+    % 2. Restituisce i vettori "pre-seminati" scartando l'ultimo campione, 
+    %    così il normale i_seg=1 si aggancerà in modo perfettamente continuo.
+    t_acc   = t(1:end-1);
+    q_acc   = q(:, 1:end-1);
+    qd_acc  = qd(:, 1:end-1);
+    qdd_acc = qdd(:, 1:end-1);
+    
+    % 3. Imposta l'offset temporale per far partire il segmento 1 al momento giusto
+    t_off   = t(end);
+end
+
+function [t_out, q_out, qd_out, qdd_out, t_off] = Genera_Stasi(t_in, q_in, qd_in, qdd_in, durata_s)
+    % 1. Calcola il dt leggendo gli ultimi due campioni passati
+    dt = t_in(end) - t_in(end-1);
+    n_steps = round(durata_s / dt);
+
+    % 2. Crea i vettori di stasi
+    t_pausa = t_in(end) + (1 : n_steps) * dt;
+    zeros_mat = zeros(size(q_in, 1), n_steps);
+
+    % 3. Concatena e restituisce
+    t_out   = [t_in, t_pausa];
+    q_out   = [q_in, repmat(q_in(:, end), 1, n_steps)]; % Posizione d'angolo bloccata
+    qd_out  = [qd_in, zeros_mat];                       % Velocità 0
+    qdd_out = [qdd_in, zeros_mat];                      % Accelerazione 0
+    
+    t_off   = t_out(end);
 end
