@@ -267,7 +267,7 @@ J_T_T_SIM =   usubs(J_T_T,'J_T_Txx',J_T_Txx.NominalValue,'J_T_Tyy',J_T_Tyy.Nomin
 
 K_tile_force = 2000/0.015/5000;
 C_tile_force = 2*5*sqrt(K_tile_force/1*2.598*0.2*100);
-
+C_tile_force_depose = 10*sqrt(K_tile_force)*0.7;
 
 K_tile_torque = 250/deg2rad(10)/1000;
 C_tile_torque = 2*sqrt(K_tile_torque)*0.7;

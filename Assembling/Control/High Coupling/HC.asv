@@ -39,7 +39,7 @@ all_outputs = [q_aocs, q_arm, err_aocs, err_arm, torque_aocs, torque_arm, ...
 % sdtModel = 'SDT_Dynamics';
 open('SDT_Control_Tuning_HC.slx');
 tile_states  = buildTileStates(7);
-n_samples    = 3; %numel(tile_states);
+n_samples    = numel(tile_states);
 traj_indices = round(linspace(1, size(q_traj, 2), n_samples));
 q_samples    = q_traj(:, traj_indices);
 
