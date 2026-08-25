@@ -173,3 +173,141 @@ figure()
 viewGoal(Req_AOCS_Effort_on_Dist,CL_Full)
 title('U(s)/D(s)')
 
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% High Coupling
+
+% load('K_10DOF_HighlyCoupled.mat')
+% % Proportional Gain: Full 10x10 matrix (allows immediate dynamic decoupling)
+% Kp_Full = tunableGain('Kp_Full', eye(n_dof)); 
+% Kp_Full.Gain.Free = true(n_dof, n_dof);  
+% Kp_Full.Gain.Value = K_10DOF_Tuned.D(1:n_dof,1:n_dof);
+% 
+% % Integral Gain: Block-Diagonal (7x7 Arm, 3x3 Base) to prevent Cross-Windup
+% Ki_Full = tunableGain('Ki_Full', eye(n_dof)); 
+% Ki_Full.Gain.Free = blkdiag(true(3,3), true(7,7));
+% Ki_Full.Gain.Value = K_10DOF_Tuned.D(1:n_dof,n_dof+1:2*n_dof);
+% 
+% 
+% % Derivative Gain: Full 10x10 matrix (compensates Coriolis & inertia cross-terms)
+% Kd_Full = tunableGain('Kd_Full', eye(n_dof)); 
+% Kd_Full.Gain.Free = true(n_dof, n_dof);
+% Kd_Full.Gain.Value = K_10DOF_Tuned.D(1:n_dof,2*n_dof+1:3*n_dof);
+
+load("K_arm_tuned2.mat")
+load("K_aocs_tuned2.mat")
+
+% Proportional Gain: Full 10x10 matrix (allows immediate dynamic decoupling)
+Kp_Full = tunableGain('Kp_Full', eye(n_dof)); 
+Kp_Full.Gain.Free = true(n_dof, n_dof);  
+Kp_Full.Gain.Value = blkdiag(K_aocs_tuned.D(1:3,1:3), K_arm_tuned.D(1:7,1:7));
+
+% Integral Gain: Block-Diagonal (7x7 Arm, 3x3 Base) to prevent Cross-Windup
+Ki_Full = tunableGain('Ki_Full', eye(n_dof)); 
+Ki_Full.Gain.Free = blkdiag(true(3,3), true(7,7));
+Ki_Full.Gain.Value = blkdiag(K_aocs_tuned.D(1:3,4:6), K_arm_tuned.D(1:7,8:14));
+
+
+% Derivative Gain: Full 10x10 matrix (compensates Coriolis & inertia cross-terms)
+Kd_Full = tunableGain('Kd_Full', eye(n_dof)); 
+Kd_Full.Gain.Free = true(n_dof, n_dof);
+Kd_Full.Gain.Value = blkdiag(K_aocs_tuned.D(1:3,7:9), K_arm_tuned.D(1:7,15:21));
+
+
+
+
+% Concatenate into a unified monolithic PID [10 outputs x 30 inputs]
+% Structure: [ Kp | Ki | Kd ] (Match your specific feedback sign convention)
+K_Full_Matrix = [Kp_Full, Ki_Full, Kd_Full];
+K_Full_Matrix.InputName  = pid_inputs; 
+K_Full_Matrix.OutputName = u;
+
+% Close the MIMO feedback loop
+CL_Full_Coupled = lft(G_full, K_Full_Matrix);
+
+%% 4. MIMO TUNING GOALS FORMULATION
+
+% --- GOAL 1: MIMO Sensitivity S(s) & Asymmetric Decoupling ---
+% Diagonal tracking profiles
+W_Sens_arm  = makeweight(0.01, wm_arm,  2.0);
+Req_Sens_arm = TuningGoal.Gain(ref_arm, err_arm, W_Sens_arm);
+W_Sens_aocs = makeweight(0.01, wt_aocs, 2.0);
+Req_Sens_aocs = TuningGoal.Gain(ref_aocs, err_aocs, W_Sens_aocs);
+
+% Off-Diagonal A (Arm Motion -> Base Disturbance)
+gain_dc_arm2base   = tol_base_fine   / step_max_arm; % 0.5 deg norm
+gain_peak_arm2base = tol_base_wobble / step_max_arm; % 3.0 deg norm
+W_Sens_arm2base = makeweight(gain_dc_arm2base, [wm_arm*0.1, (gain_dc_arm2base+gain_peak_arm2base)/2] , gain_peak_arm2base);
+
+% Off-Diagonal B (Wide Base Slew -> Arm Disturbance)
+gain_dc_base2arm   = tol_arm_deflect / step_max_aocs;
+gain_peak_base2arm = (tol_arm_deflect*10) / step_max_aocs;
+W_Sens_base2arm = makeweight(gain_dc_base2arm, [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2], gain_peak_base2arm);       %da aggiustare
+
+%Req_Sens_MIMO = TuningGoal.Gain(ref_all, err_all, W_Sens_MIMO);
+Req_Sens_base2arm = TuningGoal.Gain(ref_aocs, q_arm, W_Sens_base2arm);
+Req_Sens_arm2base = TuningGoal.Gain(ref_arm, q_aocs, W_Sens_arm2base);
+
+
+
+% --- GOAL 2: Actuator Effort & RW Cross-Saturation Protection ---
+%Gain_Limit = zeros(n_dof, n_dof);
+Gain_Limit_aocs   = max_torque_aocs  / step_max_aocs;
+Gain_Limit_arm = max_torque_arm / step_max_arm;
+
+Req_Effort_aocs = TuningGoal.Gain(ref_aocs, torque_aocs, Gain_Limit_aocs);
+Req_Effort_arm = TuningGoal.Gain(ref_arm, torque_arm, Gain_Limit_arm);
+
+
+% Cross-Limits: Arm motion must NEVER request > 0.82 Nm from Reaction Wheels
+Gain_Limit_aocs_cross  = max_torque_aocs / step_max_arm;
+Gain_Limit_arm_cross  = max_torque_arm  / step_max_aocs;
+
+Req_Effort_arm2base = TuningGoal.Gain(ref_arm, torque_aocs, Gain_Limit_aocs_cross);
+Req_Effort_base2arm = TuningGoal.Gain(ref_aocs, torque_arm, Gain_Limit_arm_cross);
+
+
+% --- GOAL 3: External & Environmental Disturbance Rejection ---
+
+% Satellite LEO environmental disturbance rejection
+compliance_env = tol_base_fine / tau_env_max;
+Req_Dist_AOCS  = TuningGoal.Gain(disturb_aocs, q_aocs, makeweight(compliance_env, [wt_aocs/3, compliance_env*5],  compliance_env*10));
+
+% Joints Friction
+M_f = @(v) Fc + (Fs-Fc)*1./(1+(v./v_s).^2);
+W_dist_arm_friction = makeweight(tol_arm_deflect/M_f(0),[wm_arm/2, tol_arm_deflect/M_f(0.05)], tol_arm_deflect/M_f(0.1));
+Req_Dist_Arm_Friction = TuningGoal.Gain(disturb_arm, q_arm, W_dist_arm_friction);
+
+figure()
+viewGoal(Req_Sens_arm,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Sens_aocs,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Sens_arm2base,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Sens_base2arm,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Effort_aocs,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Effort_arm,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Effort_arm2base,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Effort_base2arm,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Dist_AOCS,CL_Full_Coupled)
+
+figure()
+viewGoal(Req_Dist_Arm_Friction, CL_Full_Coupled)

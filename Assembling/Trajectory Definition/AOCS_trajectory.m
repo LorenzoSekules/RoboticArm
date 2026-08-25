@@ -1,4 +1,4 @@
-A = 3;          % [deg]
+A = 3*pi/180;          % [deg]
 f = 0.01;       % [Hz]
 
 T = 1/f;        % periodo = 100 s

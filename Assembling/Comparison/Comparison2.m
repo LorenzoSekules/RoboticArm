@@ -3,11 +3,12 @@
 % consistent tile-placement sequence, and compares linearized models using
 % singular-value error metrics in dB.
 
-%clear; clc;
+clear; clc;
 
 % Load nominal trajectory and parameter definitions.
 load('best_trajectory_def.mat')
 Satellite_Data
+%Data_sat_Nominal
 
 sdtModel = 'Robot4_SDT';
 simModel = 'Robot3_SIMSCAPE';
@@ -60,13 +61,13 @@ for i = 1:n_samples
         'tan_Q_5_div4', tan(q_i(5) / 4), ...
         'tan_Q_6_div4', tan(q_i(6) / 4), ...
         'tan_Q_7_div4', tan(q_i(7) / 4));
-    G_SDT_samples{i} = G_sdt_unc.NominalValue;
+    G_SDT_samples{i} = (G_sdt_unc.NominalValue);
 
     % Simscape: set joint configuration directly in the workspace.
     robot.config_SIM = q_i.';
     set_param(Name_SIM, 'SimulationCommand', 'update');
     drawnow;
-    G_SIMSCAPE_samples{i} = linearize(Name_SIM); % Simscape Linearization
+    G_SIMSCAPE_samples{i} = (linearize(Name_SIM)); % Simscape Linearization
     
 end
 

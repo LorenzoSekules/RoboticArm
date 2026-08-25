@@ -73,6 +73,7 @@ end
 [t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj(p_waypoints, R_waypoints);
 %[t_vec, q_traj, qd_traj, qdd_traj] = Robotic_Arm_traj_No_Collisions(p_waypoints, R_waypoints);
 
+
 save('best_trajectory_def.mat', 't_vec', 'q_traj', 'qd_traj', 'qdd_traj');
 
 

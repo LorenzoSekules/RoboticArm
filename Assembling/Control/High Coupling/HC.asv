@@ -149,7 +149,7 @@ W_Sens_arm2base = makeweight(gain_dc_arm2base, [wm_arm*0.1, (gain_dc_arm2base+ga
 % Off-Diagonal B (Wide Base Slew -> Arm Disturbance)
 gain_dc_base2arm   = tol_arm_deflect / step_max_aocs;
 gain_peak_base2arm = (tol_arm_deflect*10) / step_max_aocs;
-W_Sens_base2arm = makeweight(gain_dc_base2arm, [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2], gain_peak_base2arm); %da aggiustare
+W_Sens_base2arm = makeweight(gain_dc_base2arm, [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2], gain_peak_base2arm);       %da aggiustare
 
 %Req_Sens_MIMO = TuningGoal.Gain(ref_all, err_all, W_Sens_MIMO);
 Req_Sens_base2arm = TuningGoal.Gain(ref_aocs, q_arm, W_Sens_base2arm);
@@ -189,17 +189,17 @@ Req_Dist_Arm_Friction = TuningGoal.Gain(disturb_arm, q_arm, W_dist_arm_friction)
 %% 5. SYSTUNE OPTIMIZATION
 % -------------------------------------------------------------------------
 % Hard Goals: Strict stability, cross-decoupling, and actuator limits
-Hard_Goals = [Req_Sens_arm, Req_Sens_aocs, Req_Sens_arm2base, Req_Sens_base2arm, ...
-    Req_Effort_aocs, Req_Effort_arm, Req_Effort_arm2base, Req_Effort_base2arm, ...
+Hard_Goals = [Req_Sens_arm, Req_Sens_aocs, Req_Sens_base2arm, ...
+    Req_Effort_aocs, Req_Effort_arm, Req_Effort_base2arm, ...
     Req_Dist_Arm_Friction, Req_Dist_AOCS];
 
  %Hard_Goals = [Req_Sens_arm, Req_Sens_aocs, Req_Sens_arm2base, Req_Sens_base2arm];
 
 % Soft Goals: Minimize disturbance response as much as physically possible
-Soft_Goals = [];
+Soft_Goals = [Req_Sens_arm2base,Req_Effort_arm2base];
 
 % Solver setup: Increased MaxIter due to high parameter dimensionality (258 free vars)
-opt = systuneOptions('MaxIter', 500, ...
+opt = systuneOptions('MaxIter', 50, ...
                      'RandomStart', 0, ...
                      'UseParallel', false, ...
                      'Display', 'iter');
@@ -221,7 +221,7 @@ Kd_opt = getBlockValue(CL_MIMO_Tuned, 'Kd_Full');
 % Unified 10x30 Controller Matrix
 K_10DOF_Tuned = [Kp_opt, Ki_opt, Kd_opt];
 
-save('K_10DOF_HighlyCoupled.mat', 'K_10DOF_Tuned', 'CL_MIMO_Tuned');
+save('K_10DOF_HighlyCoupled2.mat', 'K_10DOF_Tuned');
 fprintf('Successfully saved controller to "K_10DOF_HighlyCoupled.mat".\n');
 
 % --- Visual Verification ---

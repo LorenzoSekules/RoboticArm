@@ -1,3 +1,5 @@
+load("best_trajectory_def.mat")
+
 T_new = 12*10;
 numSamples = 241;
 
@@ -16,7 +18,7 @@ t_offset = 0;
 
 segment_length = numSamples - 1;   % 240
 
-for i_seg = 1:41
+for i_seg = 1:(length(q_traj)-1)/segment_length
 
     % ---> Starting from zeros: Do that for as the control is built by multiplying Kp to the measure and not the erro, so I have to avoid big initial steps <---
     if i_seg == 1, [t_vec_slow, q_traj_slow, qd_traj_slow, qdd_traj_slow, t_offset] = Start_from_Zero(q_traj(:,1), traj_options_slow); end
