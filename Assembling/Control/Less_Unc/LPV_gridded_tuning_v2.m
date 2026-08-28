@@ -1,0 +1,566 @@
+%% ========================================================================
+% GRID-BASED LPV TUNING - V2
+%
+% 7-DOF arm + 3-DOF AOCS
+%
+% Scheduling variable:
+%     alpha(t) = global continuous normalized time, [0,1]
+%
+% Physical configurations:
+%     m = 1,...,15
+%     m is NOT a scheduling variable and never enters the controller.
+%
+% For every physical configuration we select a configured number of points:
+%     first point + equally spaced points,
+%     excluding the final endpoint.
+%
+% The final point of configuration m is the first point of configuration
+% m+1, therefore it is deliberately not selected twice.
+%
+% IMPORTANT:
+% The trajectory is taken DIRECTLY from slow_down.m. No interp1() is used.
+%
+% Controller surface:
+%     K(alpha) = K0 + K1*alpha + ... + KP*alpha^P
+%
+% SHAPE_ORDER = 1 gives the affine case.
+%
+% ========================================================================
+
+%clear; clc; close all;
+
+%% ------------------------------------------------------------------------
+% USER SETTINGS
+% -------------------------------------------------------------------------
+pointsPerConfig = 12*ones(1,15);
+pointsPerConfig(1) = 8;
+pointsPerConfig(end) = 4;
+SHAPE_ORDER   = 1;                 % 1,2,3,...
+
+SLOW_DOWN_SCRIPT = 'slow_down.m';  % must be in the current MATLAB folder/path
+MODEL_NAME = 'SDT_Control_Tuning_HC';
+MODEL_FILE = 'SDT_Control_Tuning_HC.slx';
+
+%% PHASE 0: Define Signal Names matching Simulink Root Ports
+gen_names = @(prefix, n) arrayfun(@(x) sprintf('%s(%d)', prefix, x), 1:n, 'UniformOutput', false);
+
+% --- EXOGENOUS INPUTS (w) ---
+ref_aocs     = gen_names('Ref_AOCS', 3);
+ref_arm      = gen_names('Ref_Arm', 7);
+disturb_aocs = gen_names('Disturb_AOCS', 3);
+disturb_arm  = gen_names('Disturb_Arm', 7);
+
+% --- CONTROL INPUTS (u) - Must be last for LFT ---
+u  = gen_names('u', 10);
+
+all_inputs = [ref_aocs, ref_arm, disturb_aocs, disturb_arm, u];
+
+% --- EXOGENOUS OUTPUTS (z) - Exposed for Performance Evaluation ---
+q_aocs           = gen_names('q_AOCS', 3);
+q_arm            = gen_names('q_Arm', 7);
+err_aocs         = gen_names('Err_AOCS', 3);  
+err_arm          = gen_names('Err_Arm', 7);
+torque_aocs      = gen_names('Torque_AOCS', 3);
+torque_arm       = gen_names('Torque_Arm', 7);
+
+% --- MEASUREMENT OUTPUTS (v) - Consumed by LFT ---
+pid_inputs = gen_names('pid_inputs', 30);   % 30x1 vector (q, int_e, v)
+
+all_outputs = [q_aocs, q_arm, err_aocs, err_arm, torque_aocs, torque_arm, ...
+               pid_inputs];
+
+%% ------------------------------------------------------------------------
+% LOAD THE EXACT TRAJECTORY FROM slow_down.m
+% -------------------------------------------------------------------------
+% 1. Carica i dati della traiettoria originale
+load('best_trajectory_def.mat');
+
+slow_down;
+
+%% ------------------------------------------------------------------------
+% 15 CONFIGURATIONS
+% -------------------------------------------------------------------------
+tile_states = buildTileStates(7);
+nModes = numel(tile_states);
+
+%% ------------------------------------------------------------------------
+% GLOBAL CONTINUOUS SCHEDULING VARIABLE alpha
+% -------------------------------------------------------------------------
+t0_global = t_vec_slow(1);
+tf_global = t_vec_slow(end);
+T_global  = tf_global - t0_global;
+alpha_all = (t_vec_slow-t0_global)/T_global; %parametro che determina/dipende (legame biunivoco) con la configurazione
+
+%% ------------------------------------------------------------------------
+% DETERMINE THE 15 CONFIGURATION INTERVALS
+%
+% The mapping is the same as the local windows used in High_Control.m:
+%
+%   mode 1 : segment boundary 0 -> 2
+%   mode 2 : 2 -> 5
+%   mode 3 : 5 -> 8
+%   ...
+%   mode 14: 38 -> 41
+%   mode 15: 41 -> final segment
+%
+% In slow_down.m the trajectory contains the corresponding pauses between
+% assembly processes. We locate the boundaries in the ACTUAL generated
+% time vector, so no interpolation of q is needed.
+% -------------------------------------------------------------------------
+
+numSamples = 241; %from main
+segment_length = numSamples-1;
+nOriginalSegments = (size(q_traj,2)-1)/segment_length+1;
+nOriginalSegments = round(nOriginalSegments);
+
+% Actual duration of one slow segment from the trajectory itself.
+% slow_down.m uses 120 s, but we determine it from t_vec_slow robustly.
+T_slow_segment = 120*1; %#ok<NASGU>
+
+% The slow_down.m construction is known: initial zero-to-first-target,
+% then original segments, with a 50 s pause before segments 2,5,8,...
+% We reconstruct these absolute time boundaries exactly.
+T_segment = 1200/10;       % 120 s, from slow_down.m
+T_pause   = 50.0;
+
+
+% Actual original-segment start/end times in the slow-down trajectory.
+actualSegStart = zeros(nOriginalSegments,1);
+actualSegEnd   = zeros(nOriginalSegments,1);
+
+currentTime = T_segment;    % initial Start_from_Zero() motion
+
+for seg = 1:nOriginalSegments
+
+    if mod(seg-2,3)==0
+        currentTime = currentTime + T_pause;
+    end
+
+    actualSegStart(seg) = currentTime;
+    actualSegEnd(seg)   = currentTime + T_segment;
+
+    currentTime = actualSegEnd(seg);
+end
+
+% Mode windows, matching High_Control.m.
+segStart = zeros(nModes,1);
+segEnd   = zeros(nModes,1);
+
+segStart(1) = 0;
+segEnd(1)   = 1;
+
+for m = 2:nModes-1
+    segStart(m) = 3*m-4;
+    segEnd(m)   = min(3*m-2,nOriginalSegments);
+end
+
+segStart(nModes) = 3*nModes-4;
+segEnd(nModes)   = nOriginalSegments;
+
+modeT0 = zeros(nModes,1);
+modeTf = zeros(nModes,1);
+
+for m = 1:nModes
+
+    if segStart(m)==0
+        modeT0(m) = t0_global;
+    else
+        modeT0(m) = actualSegStart(segStart(m));
+    end
+
+    modeTf(m) = actualSegEnd(segEnd(m));
+end
+
+% Verify against the actual slow_down trajectory.
+if abs(modeT0(1)-t0_global)>1e-6
+    error('First mode start does not match slow-down trajectory.');
+end
+
+if modeTf(end)>tf_global+1e-6
+    error(['Computed final mode boundary exceeds t_vec_slow. ', ...
+           'Check slow_down.m timing assumptions.']);
+end
+
+%% ------------------------------------------------------------------------
+% SELECT THE CONFIGURED NUMBER OF EXACT TRAJECTORY SAMPLES PER CONFIGURATION
+% -------------------------------------------------------------------------
+% No interpolation is used.
+%
+% [first ... last]
+%     -> choose the configured number of equally spaced indices
+% -------------------------------------------------------------------------
+
+sampleInfo = repmat(struct( ...
+    'mode',[],...
+    'sampleNumber',[],...
+    'globalIndex',[],...
+    'time',[],...
+    'alpha',[],...
+    'q',[],...
+    'qd',[],...
+    'qdd',[]),1,sum(pointsPerConfig));
+
+counter = 0;
+
+for m = 1:nModes
+
+    idx_interval = find( ...
+        t_vec_slow >= modeT0(m)-1e-9 & ...
+        t_vec_slow <= modeTf(m)+1e-9);
+
+    if numel(idx_interval)<pointsPerConfig(m)
+        error('Configuration %d does not contain enough trajectory samples.',m);
+    end
+
+    pick = round(linspace(1,numel(idx_interval),pointsPerConfig(m)));
+    idx_selected = idx_interval(pick);
+
+    if numel(unique(idx_selected))~=pointsPerConfig(m)
+        error('Duplicate selected points detected in configuration %d.',m);
+    end
+
+    for k = 1:pointsPerConfig(m)
+
+        counter = counter+1;
+        idx = idx_selected(k);
+
+        sampleInfo(counter).mode = m;
+        sampleInfo(counter).sampleNumber = k;
+        sampleInfo(counter).globalIndex = idx;
+        sampleInfo(counter).time = t_vec_slow(idx);
+        sampleInfo(counter).alpha = alpha_all(idx);
+        sampleInfo(counter).q = q_traj_slow(:,idx);
+        sampleInfo(counter).qd = qd_traj_slow(:,idx);
+        sampleInfo(counter).qdd = qdd_traj_slow(:,idx);
+    end
+end
+
+%% ------------------------------------------------------------------------
+% PRINT SAMPLING TABLE
+% -------------------------------------------------------------------------
+fprintf('\n============================================================\n');
+fprintf('GRID DEFINITION\n');
+fprintf('============================================================\n');
+fprintf('Configurations       : %d\n',nModes);
+fprintf('Points/configuration : [%s]\n',num2str(pointsPerConfig));
+fprintf('Total frozen models  : %d\n',numel(sampleInfo));
+fprintf('Total time           : %.6f s\n',T_global);
+fprintf('\n');
+fprintf('%6s %6s %14s %14s\n','Mode','Point','Time [s]','alpha');
+fprintf('%s\n',repmat('-',1,50));
+
+for i = 1:numel(sampleInfo)
+    fprintf('%6d %6d %14.6f %14.8f\n',...
+        sampleInfo(i).mode,...
+        sampleInfo(i).sampleNumber,...
+        sampleInfo(i).time,...
+        sampleInfo(i).alpha);
+end
+
+%% ------------------------------------------------------------------------
+% OPEN MODEL
+% -------------------------------------------------------------------------
+open_system(MODEL_FILE);
+
+%% ------------------------------------------------------------------------
+% LINEARIZE THE 15 x 10 OPERATING POINTS
+% -------------------------------------------------------------------------
+G_cell = cell(numel(sampleInfo),1);
+
+fprintf('\n============================================================\n');
+fprintf('LOCAL LINEARIZATION\n');
+fprintf('============================================================\n');
+
+for i = 1:numel(sampleInfo)
+
+    m = sampleInfo(i).mode;
+
+    % These are the EXACT samples coming from slow_down.m.
+    q_i   = sampleInfo(i).q;
+    qd_i  = sampleInfo(i).qd;
+    qdd_i = sampleInfo(i).qdd;
+
+    fprintf('Model %3d/%3d | mode=%2d | point=%2d | t=%9.3f | alpha=%8.5f\n',...
+        i,numel(sampleInfo),m,sampleInfo(i).sampleNumber,...
+        sampleInfo(i).time,sampleInfo(i).alpha);
+
+    % Physical payload configuration.
+    placements = tile_states(m).placements;
+    Tile1_Placement = placements(1); %#ok<NASGU>
+    Tile2_Placement = placements(2); %#ok<NASGU>
+    Tile3_Placement = placements(3); %#ok<NASGU>
+    Tile4_Placement = placements(4); %#ok<NASGU>
+    Tile5_Placement = placements(5); %#ok<NASGU>
+    Tile6_Placement = placements(6); %#ok<NASGU>
+    Tile7_Placement = placements(7); %#ok<NASGU>
+
+    % Same initialization as High_Control.m.
+    Data_sat_Nominal;
+
+    % q_i / qd_i / qdd_i are deliberately workspace variables, exactly as
+    % in the existing tuning script. ulinearize must therefore see them
+    % through the same Simulink setup used by High_Control.m.
+    sys = ulinearize(MODEL_NAME);
+    sys = minreal(sys);
+
+    %% Make local uncertain Q-block names unique
+    if isa(sys,'uss')
+
+        unc_names = fieldnames(sys.Uncertainty);
+
+        for v = 1:numel(unc_names)
+
+            old_name = unc_names{v};
+
+            if contains(old_name,'Q_')
+
+                old_u = sys.Uncertainty.(old_name);
+
+                new_name = sprintf('%s_mode%02d_p%02d',...
+                    old_name,m,sampleInfo(i).sampleNumber);
+
+                new_u = ureal(...
+                    new_name,...
+                    old_u.NominalValue,...
+                    'Range',old_u.Range);
+
+                sys = usubs(sys,old_name,new_u);
+            end
+        end
+    end
+
+    sys.u = all_inputs;
+    sys.y = all_outputs;
+
+    G_cell{i} = sys;
+end
+
+%% ------------------------------------------------------------------------
+% STACK THE FROZEN MODELS
+% -------------------------------------------------------------------------
+G_grid = stack(1,G_cell{:});
+
+alphaGrid = [sampleInfo.alpha].';
+modeGrid  = [sampleInfo.mode].';
+timeGrid  = [sampleInfo.time].';
+
+% alpha is the ONLY continuous scheduling variable of the controller.
+% mode/time are metadata for analysis and post-processing.
+G_grid.SamplingGrid = struct(...
+    'alpha',alphaGrid,...
+    'mode',modeGrid,...
+    'time',timeGrid);
+
+G_full = G_grid(all_outputs,all_inputs);
+
+save('LPV_gridded_grid.mat',...
+    'G_grid','G_full','sampleInfo',...
+    'alphaGrid','modeGrid','timeGrid',...
+    'modeT0','modeTf',...
+    't_vec_slow','q_traj_slow','qd_traj_slow','qdd_traj_slow');
+
+%% ------------------------------------------------------------------------
+% PERFORMANCE SPECIFICATIONS - identical to High_Control.m
+% -------------------------------------------------------------------------
+wm_arm  = 0.1;
+wt_aocs = 0.01;
+
+step_max_arm  = 3.11;
+step_max_aocs = deg2rad(3.0);
+
+tol_base_wobble = deg2rad(3.0);
+tol_base_fine   = deg2rad(0.5);
+tol_arm_deflect = 0.015/5.15;
+
+max_torque_arm  = 1500.0;
+max_torque_aocs = 0.82;
+
+tau_env_max = 1e-3;
+Fc = 0.28;
+Fs = 0.34;
+v_s = 0.1;
+
+%% ------------------------------------------------------------------------
+% NOMINAL INITIAL CONTROLLER
+% -------------------------------------------------------------------------
+load('K_arm_tuned2.mat');
+load('K_aocs_tuned2.mat');
+
+Kp0 = blkdiag(...
+    K_aocs_tuned.D(1:3,1:3),...
+    K_arm_tuned.D(1:7,1:7));
+
+Ki0 = blkdiag(...
+    K_aocs_tuned.D(1:3,4:6),...
+    K_arm_tuned.D(1:7,8:14));
+
+Kd0 = blkdiag(...
+    K_aocs_tuned.D(1:3,7:9),...
+    K_arm_tuned.D(1:7,15:21));
+
+%% ------------------------------------------------------------------------
+% GAIN SURFACES
+% -------------------------------------------------------------------------
+% tunableSurface normalizes scheduling variables by default to [-1,1].
+% That is intentional and numerically preferable.
+%
+% SHAPE_ORDER=1:
+%   K(alpha)=K0+K1*alpha_normalized
+%
+% SHAPE_ORDER=2:
+%   K(alpha)=K0+K1*alpha_normalized+K2*alpha_normalized^2
+% etc.
+% -------------------------------------------------------------------------
+
+alphaDesign = unique(alphaGrid).';
+domain = struct('alpha',alphaDesign);
+
+shapefcn = polyBasis('canonical',SHAPE_ORDER);
+
+Kp_Full = tunableSurface('Kp_LPV',Kp0,domain,shapefcn);
+Ki_Full = tunableSurface('Ki_LPV',Ki0,domain,shapefcn);
+Kd_Full = tunableSurface('Kd_LPV',Kd0,domain,shapefcn);
+
+K_LPV = [Kp_Full,Ki_Full,Kd_Full];
+K_LPV.InputName  = pid_inputs;
+K_LPV.OutputName = u;
+
+%% ------------------------------------------------------------------------
+% CLOSED LOOP
+% -------------------------------------------------------------------------
+CL_LPV = lft(G_full,K_LPV);
+
+%% ------------------------------------------------------------------------
+% SAME TUNING GOALS AS HIGH_CONTROL.M
+% -------------------------------------------------------------------------
+W_Sens_arm = makeweight(0.01,wm_arm,2.0);
+Req_Sens_arm = TuningGoal.Gain(ref_arm,err_arm,W_Sens_arm);
+
+W_Sens_aocs = makeweight(0.01,wt_aocs,2.0);
+Req_Sens_aocs = TuningGoal.Gain(ref_aocs,err_aocs,W_Sens_aocs);
+
+gain_dc_arm2base = tol_base_fine/step_max_arm;
+gain_peak_arm2base = tol_base_wobble/step_max_arm;
+W_Sens_arm2base = makeweight(...
+    gain_dc_arm2base,...
+    [wm_arm*0.1,(gain_dc_arm2base+gain_peak_arm2base)/2],...
+    gain_peak_arm2base);
+
+Req_Sens_arm2base = TuningGoal.Gain(ref_arm,q_aocs,W_Sens_arm2base);
+
+gain_dc_base2arm = tol_arm_deflect/step_max_aocs;
+gain_peak_base2arm = (tol_arm_deflect*10)/step_max_aocs;
+W_Sens_base2arm = makeweight(...
+    gain_dc_base2arm,...
+    [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2],...
+    gain_peak_base2arm);
+
+Req_Sens_base2arm = TuningGoal.Gain(ref_aocs,q_arm,W_Sens_base2arm);
+
+Gain_Limit_aocs = max_torque_aocs/step_max_aocs;
+Gain_Limit_arm  = max_torque_arm/step_max_arm;
+Req_Effort_aocs = TuningGoal.Gain(ref_aocs,torque_aocs,Gain_Limit_aocs);
+Req_Effort_arm  = TuningGoal.Gain(ref_arm,torque_arm,Gain_Limit_arm);
+
+Gain_Limit_aocs_cross = max_torque_aocs/step_max_arm;
+Gain_Limit_arm_cross  = max_torque_arm/step_max_aocs;
+Req_Effort_arm2base = TuningGoal.Gain(ref_arm,torque_aocs,Gain_Limit_aocs_cross);
+Req_Effort_base2arm = TuningGoal.Gain(ref_aocs,torque_arm,Gain_Limit_arm_cross);
+
+compliance_env = tol_base_fine/tau_env_max;
+Req_Dist_AOCS = TuningGoal.Gain(...
+    disturb_aocs,q_aocs,...
+    makeweight(compliance_env,...
+    [wt_aocs/3,compliance_env*5],...
+    compliance_env*10));
+
+M_f = @(v) Fc+(Fs-Fc)./(1+(v./v_s).^2);
+W_dist_arm_friction = makeweight(...
+    tol_arm_deflect/M_f(0),...
+    [wm_arm/2,tol_arm_deflect/M_f(0.05)],...
+    tol_arm_deflect/M_f(0.1));
+Req_Dist_Arm_Friction = TuningGoal.Gain(...
+    disturb_arm,q_arm,W_dist_arm_friction);
+
+Hard_Goals = [...
+    Req_Sens_arm,...
+    Req_Sens_aocs,...
+    Req_Sens_base2arm,...
+    Req_Sens_arm2base,...
+    Req_Effort_aocs,...
+    Req_Effort_arm,...
+    Req_Effort_base2arm,...
+    Req_Dist_Arm_Friction,...
+    Req_Dist_AOCS];
+
+Soft_Goals = Req_Effort_arm2base;
+
+%% ------------------------------------------------------------------------
+% SYSTUNE
+% -------------------------------------------------------------------------
+opt = systuneOptions(...
+    'MaxIter',500,...
+    'RandomStart',1,...
+    'UseParallel',true,...
+    'SoftTarget',1200,...
+    'SoftScale',1700,...
+    'SoftTol',0.07,...
+    'Display','iter');
+
+fprintf('\n============================================================\n');
+fprintf('LPV SYSTUNE\n');
+fprintf('============================================================\n');
+fprintf('Points/configuration = [%s]\n',num2str(pointsPerConfig));
+fprintf('Shape order          = %d\n',SHAPE_ORDER);
+fprintf('Design points        = %d\n',numel(alphaDesign));
+
+[CL_LPV_Tuned,fSoft,gHard,Info] = ...
+    systune(CL_LPV,Soft_Goals,Hard_Goals,opt);
+
+fprintf('\nHard goal = %.8f\n',gHard);
+fprintf('Soft goal = %.8f\n',fSoft);
+
+%% ------------------------------------------------------------------------
+% SAVE
+% -------------------------------------------------------------------------
+save('K_10DOF_LPV_gridded_v2.mat',...
+    'CL_LPV_Tuned','fSoft','gHard','Info',...
+    'pointsPerConfig','SHAPE_ORDER',...
+    'sampleInfo','alphaGrid','modeGrid','timeGrid',...
+    'modeT0','modeTf');
+
+fprintf('\nSaved:\n');
+fprintf('  LPV_gridded_grid.mat\n');
+fprintf('  K_10DOF_LPV_gridded_v2.mat\n');
+
+%% ========================================================================
+% LOCAL FUNCTIONS
+% ========================================================================
+
+function tile_states = buildTileStates(n_tiles)
+    states = struct('name',{},'placements',{});
+    idx = 1;
+
+    states(idx).name = 'Start';
+    states(idx).placements = ones(1,n_tiles);
+    idx = idx+1;
+
+    for k = 1:n_tiles
+        placements = ones(1,n_tiles);
+        if k>1
+            placements(1:k-1)=3;
+        end
+        placements(k)=2;
+
+        states(idx).name = sprintf('Tile %d Grab',k);
+        states(idx).placements = placements;
+        idx = idx+1;
+
+        placements(k)=3;
+        states(idx).name = sprintf('Tile %d Placed',k);
+        states(idx).placements = placements;
+        idx = idx+1;
+    end
+
+    tile_states = states;
+end

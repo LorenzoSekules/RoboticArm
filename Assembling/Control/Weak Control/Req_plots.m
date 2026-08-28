@@ -198,8 +198,8 @@ title('U(s)/D(s)')
 % Kd_Full.Gain.Free = true(n_dof, n_dof);
 % Kd_Full.Gain.Value = K_10DOF_Tuned.D(1:n_dof,2*n_dof+1:3*n_dof);
 
-load("K_arm_tuned2.mat")
-load("K_aocs_tuned2.mat")
+% load("K_arm_tuned2.mat")
+% load("K_aocs_tuned2.mat")
 
 % Proportional Gain: Full 10x10 matrix (allows immediate dynamic decoupling)
 Kp_Full = tunableGain('Kp_Full', eye(n_dof)); 
@@ -225,6 +225,8 @@ Kd_Full.Gain.Value = blkdiag(K_aocs_tuned.D(1:3,7:9), K_arm_tuned.D(1:7,15:21));
 K_Full_Matrix = [Kp_Full, Ki_Full, Kd_Full];
 K_Full_Matrix.InputName  = pid_inputs; 
 K_Full_Matrix.OutputName = u;
+
+%K_Full_Matrix = K_10DOF_Tuned.D;
 
 % Close the MIMO feedback loop
 CL_Full_Coupled = lft(G_full, K_Full_Matrix);
@@ -284,30 +286,60 @@ Req_Dist_Arm_Friction = TuningGoal.Gain(disturb_arm, q_arm, W_dist_arm_friction)
 
 figure()
 viewGoal(Req_Sens_arm,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Sens_aocs,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Sens_arm2base,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Sens_base2arm,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Effort_aocs,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('K(s)*S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Effort_arm,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('K(s)*S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Effort_arm2base,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('K(s)*S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Effort_base2arm,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('K(s)*S(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Dist_AOCS,CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('Y(s)/D(s)','FontSize',20,'FontWeight','bold')
 
 figure()
 viewGoal(Req_Dist_Arm_Friction, CL_Full_Coupled)
+xlabel('Frequency','FontSize',18,'FontWeight','bold')
+ylabel('Singular Values','FontSize',18,'FontWeight','bold')
+title('Y(s)/D(s)','FontSize',20,'FontWeight','bold')
