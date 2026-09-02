@@ -115,7 +115,7 @@ nOriginalSegments = round(nOriginalSegments);
 
 % Actual duration of one slow segment from the trajectory itself.
 % slow_down.m uses 120 s, but we determine it from t_vec_slow robustly.
-T_slow_segment = 120*1; %#ok<NASGU>
+T_slow_segment = 120*1; 
 
 % The slow_down.m construction is known: initial zero-to-first-target,
 % then original segments, with a 50 s pause before segments 2,5,8,...
@@ -155,7 +155,7 @@ for m = 2:nModes-1
 end
 
 segStart(nModes) = 3*nModes-4;
-segEnd(nModes)   = nOriginalSegments;
+segEnd(nModes)   = nOriginalSegments-1;
 
 modeT0 = zeros(nModes,1);
 modeTf = zeros(nModes,1);
@@ -286,16 +286,16 @@ for i = 1:numel(sampleInfo)
 
     % Physical payload configuration.
     placements = tile_states(m).placements;
-    Tile1_Placement = placements(1); %#ok<NASGU>
-    Tile2_Placement = placements(2); %#ok<NASGU>
-    Tile3_Placement = placements(3); %#ok<NASGU>
-    Tile4_Placement = placements(4); %#ok<NASGU>
-    Tile5_Placement = placements(5); %#ok<NASGU>
-    Tile6_Placement = placements(6); %#ok<NASGU>
-    Tile7_Placement = placements(7); %#ok<NASGU>
+    Tile1_Placement = placements(1); 
+    Tile2_Placement = placements(2); 
+    Tile3_Placement = placements(3); 
+    Tile4_Placement = placements(4); 
+    Tile5_Placement = placements(5); 
+    Tile6_Placement = placements(6); 
+    Tile7_Placement = placements(7); 
 
     % Same initialization as High_Control.m.
-    Data_sat_Nominal;
+    Data_sat_LPV;
 
     % q_i / qd_i / qdd_i are deliberately workspace variables, exactly as
     % in the existing tuning script. ulinearize must therefore see them
@@ -303,31 +303,31 @@ for i = 1:numel(sampleInfo)
     sys = ulinearize(MODEL_NAME);
     sys = minreal(sys);
 
-    %% Make local uncertain Q-block names unique
-    if isa(sys,'uss')
-
-        unc_names = fieldnames(sys.Uncertainty);
-
-        for v = 1:numel(unc_names)
-
-            old_name = unc_names{v};
-
-            if contains(old_name,'Q_')
-
-                old_u = sys.Uncertainty.(old_name);
-
-                new_name = sprintf('%s_mode%02d_p%02d',...
-                    old_name,m,sampleInfo(i).sampleNumber);
-
-                new_u = ureal(...
-                    new_name,...
-                    old_u.NominalValue,...
-                    'Range',old_u.Range);
-
-                sys = usubs(sys,old_name,new_u);
-            end
-        end
-    end
+    % %% Make local uncertain Q-block names unique
+    % if isa(sys,'uss')
+    % 
+    %     unc_names = fieldnames(sys.Uncertainty);
+    % 
+    %     for v = 1:numel(unc_names)
+    % 
+    %         old_name = unc_names{v};
+    % 
+    %         if contains(old_name,'Q_')
+    % 
+    %             old_u = sys.Uncertainty.(old_name);
+    % 
+    %             new_name = sprintf('%s_mode%02d_p%02d',...
+    %                 old_name,m,sampleInfo(i).sampleNumber);
+    % 
+    %             new_u = ureal(...
+    %                 new_name,...
+    %                 old_u.NominalValue,...
+    %                 'Range',old_u.Range);
+    % 
+    %             sys = usubs(sys,old_name,new_u);
+    %         end
+    %     end
+    % end
 
     sys.u = all_inputs;
     sys.y = all_outputs;
@@ -360,45 +360,39 @@ save('LPV_gridded_grid.mat',...
     't_vec_slow','q_traj_slow','qd_traj_slow','qdd_traj_slow');
 
 %% ------------------------------------------------------------------------
-% PERFORMANCE SPECIFICATIONS - identical to High_Control.m
 % -------------------------------------------------------------------------
-wm_arm  = 0.1;
-wt_aocs = 0.01;
+% Target Bandwidths (Coupled system allows tighter frequency spacing)
+wm_arm  = 0.1;          % [rad/s] Manipulator joint bandwidth
+wt_aocs = 0.01;          % [rad/s] Satellite base attitude slew bandwidth
 
-step_max_arm  = 3.11;
-step_max_aocs = deg2rad(3.0);
+% Maximum Operational Reference Steps
+step_max_arm  = 3.11;           % [rad] Full extension reach maneuver
+step_max_aocs = deg2rad(3.0);  % [rad] Max wide slew for Earth Observation / IoT
 
-tol_base_wobble = deg2rad(3.0);
-tol_base_fine   = deg2rad(0.5);
-tol_arm_deflect = 0.015/5.15;
+% Pointing Tolerances & Cross-Coupling Limits
+tol_base_wobble    = deg2rad(3.0); % [rad] Max transient base tilt during arm slew
+tol_base_fine      = deg2rad(0.5); % [rad] Max steady-state base tilt when arm stops
+tol_arm_deflect    = 0.015/5.15;% [rad] Max arm joint movement during satellite slew
 
-max_torque_arm  = 1500.0;
-max_torque_aocs = 0.82;
+% Actuator Saturation Limits
+max_torque_arm  = 1500.0; % [Nm] Joint drive maximum capability
+max_torque_aocs = 0.82;   % [Nm] Reaction Wheel (RW) maximum torque
 
-tau_env_max = 1e-3;
-Fc = 0.28;
-Fs = 0.34;
-v_s = 0.1;
+% Environmental & Mechanical Disturbance Estimates
+tau_env_max     = 1e-3;   % [Nm] LEO Orbital disturbances (Drag, SRP, Gravity Gradient)
+arm_length      = 5.15;   % [m] Total manipulator span
+tip_disp_max    = 0.015;  % [m] Maximum structural tip compliance threshold
+Fc = 0.28; %Coulomb friction
+Fs = 0.34; %static friction
+v_s = 0.1; %[rad/s] Stribeck velocity
 
 %% ------------------------------------------------------------------------
-% NOMINAL INITIAL CONTROLLER
+%  CONTROLLER
 % -------------------------------------------------------------------------
-load('K_arm_tuned2.mat');
-load('K_aocs_tuned2.mat');
+load("K_10DOF_HighlyCoupled3.mat")
 
-Kp0 = blkdiag(...
-    K_aocs_tuned.D(1:3,1:3),...
-    K_arm_tuned.D(1:7,1:7));
+K_Full_Matrix0 = K_10DOF_Tuned.D; 
 
-Ki0 = blkdiag(...
-    K_aocs_tuned.D(1:3,4:6),...
-    K_arm_tuned.D(1:7,8:14));
-
-Kd0 = blkdiag(...
-    K_aocs_tuned.D(1:3,7:9),...
-    K_arm_tuned.D(1:7,15:21));
-
-%% ------------------------------------------------------------------------
 % GAIN SURFACES
 % -------------------------------------------------------------------------
 % tunableSurface normalizes scheduling variables by default to [-1,1].
@@ -417,11 +411,8 @@ domain = struct('alpha',alphaDesign);
 
 shapefcn = polyBasis('canonical',SHAPE_ORDER);
 
-Kp_Full = tunableSurface('Kp_LPV',Kp0,domain,shapefcn);
-Ki_Full = tunableSurface('Ki_LPV',Ki0,domain,shapefcn);
-Kd_Full = tunableSurface('Kd_LPV',Kd0,domain,shapefcn);
+K_LPV = tunableSurface('K_LPV',K_Full_Matrix0,domain,shapefcn);
 
-K_LPV = [Kp_Full,Ki_Full,Kd_Full];
 K_LPV.InputName  = pid_inputs;
 K_LPV.OutputName = u;
 
@@ -431,68 +422,65 @@ K_LPV.OutputName = u;
 CL_LPV = lft(G_full,K_LPV);
 
 %% ------------------------------------------------------------------------
-% SAME TUNING GOALS AS HIGH_CONTROL.M
-% -------------------------------------------------------------------------
-W_Sens_arm = makeweight(0.01,wm_arm,2.0);
-Req_Sens_arm = TuningGoal.Gain(ref_arm,err_arm,W_Sens_arm);
 
-W_Sens_aocs = makeweight(0.01,wt_aocs,2.0);
-Req_Sens_aocs = TuningGoal.Gain(ref_aocs,err_aocs,W_Sens_aocs);
+% --- GOAL 1: MIMO Sensitivity S(s) & Asymmetric Decoupling ---
+% Diagonal tracking profiles
+W_Sens_arm  = makeweight(0.01, wm_arm,  2.0);
+Req_Sens_arm = TuningGoal.Gain(ref_arm, err_arm, W_Sens_arm);
+W_Sens_aocs = makeweight(0.01, wt_aocs, 2.0);
+Req_Sens_aocs = TuningGoal.Gain(ref_aocs, err_aocs, W_Sens_aocs);
 
-gain_dc_arm2base = tol_base_fine/step_max_arm;
-gain_peak_arm2base = tol_base_wobble/step_max_arm;
-W_Sens_arm2base = makeweight(...
-    gain_dc_arm2base,...
-    [wm_arm*0.1,(gain_dc_arm2base+gain_peak_arm2base)/2],...
-    gain_peak_arm2base);
+% Off-Diagonal A (Arm Motion -> Base Disturbance)
+gain_dc_arm2base   = tol_base_fine   / step_max_arm; % 0.5 deg norm
+gain_peak_arm2base = tol_base_wobble / step_max_arm; % 3.0 deg norm
+W_Sens_arm2base = makeweight(gain_dc_arm2base, [wm_arm*0.1, (gain_dc_arm2base+gain_peak_arm2base)/2] , gain_peak_arm2base);
 
-Req_Sens_arm2base = TuningGoal.Gain(ref_arm,q_aocs,W_Sens_arm2base);
+% Off-Diagonal B (Wide Base Slew -> Arm Disturbance)
+gain_dc_base2arm   = tol_arm_deflect / step_max_aocs;
+gain_peak_base2arm = (tol_arm_deflect*10) / step_max_aocs;
+W_Sens_base2arm = makeweight(gain_dc_base2arm, [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2], gain_peak_base2arm);       %da aggiustare
 
-gain_dc_base2arm = tol_arm_deflect/step_max_aocs;
-gain_peak_base2arm = (tol_arm_deflect*10)/step_max_aocs;
-W_Sens_base2arm = makeweight(...
-    gain_dc_base2arm,...
-    [wt_aocs*3,(gain_dc_base2arm+gain_peak_base2arm)/2],...
-    gain_peak_base2arm);
+%Req_Sens_MIMO = TuningGoal.Gain(ref_all, err_all, W_Sens_MIMO);
+Req_Sens_base2arm = TuningGoal.Gain(ref_aocs, q_arm, W_Sens_base2arm);
+Req_Sens_arm2base = TuningGoal.Gain(ref_arm, q_aocs, W_Sens_arm2base);
 
-Req_Sens_base2arm = TuningGoal.Gain(ref_aocs,q_arm,W_Sens_base2arm);
 
-Gain_Limit_aocs = max_torque_aocs/step_max_aocs;
-Gain_Limit_arm  = max_torque_arm/step_max_arm;
-Req_Effort_aocs = TuningGoal.Gain(ref_aocs,torque_aocs,Gain_Limit_aocs);
-Req_Effort_arm  = TuningGoal.Gain(ref_arm,torque_arm,Gain_Limit_arm);
 
-Gain_Limit_aocs_cross = max_torque_aocs/step_max_arm;
-Gain_Limit_arm_cross  = max_torque_arm/step_max_aocs;
-Req_Effort_arm2base = TuningGoal.Gain(ref_arm,torque_aocs,Gain_Limit_aocs_cross);
-Req_Effort_base2arm = TuningGoal.Gain(ref_aocs,torque_arm,Gain_Limit_arm_cross);
+% --- GOAL 2: Actuator Effort & RW Cross-Saturation Protection ---
+%Gain_Limit = zeros(n_dof, n_dof);
+Gain_Limit_aocs   = max_torque_aocs  / step_max_aocs;
+Gain_Limit_arm = max_torque_arm / step_max_arm;
 
-compliance_env = tol_base_fine/tau_env_max;
-Req_Dist_AOCS = TuningGoal.Gain(...
-    disturb_aocs,q_aocs,...
-    makeweight(compliance_env,...
-    [wt_aocs/3,compliance_env*5],...
-    compliance_env*10));
+Req_Effort_aocs = TuningGoal.Gain(ref_aocs, torque_aocs, Gain_Limit_aocs);
+Req_Effort_arm = TuningGoal.Gain(ref_arm, torque_arm, Gain_Limit_arm);
 
-M_f = @(v) Fc+(Fs-Fc)./(1+(v./v_s).^2);
-W_dist_arm_friction = makeweight(...
-    tol_arm_deflect/M_f(0),...
-    [wm_arm/2,tol_arm_deflect/M_f(0.05)],...
-    tol_arm_deflect/M_f(0.1));
-Req_Dist_Arm_Friction = TuningGoal.Gain(...
-    disturb_arm,q_arm,W_dist_arm_friction);
 
-Hard_Goals = [...
-    Req_Sens_arm,...
-    Req_Sens_aocs,...
-    Req_Sens_base2arm,...
-    Req_Sens_arm2base,...
-    Req_Effort_aocs,...
-    Req_Effort_arm,...
-    Req_Effort_base2arm,...
-    Req_Dist_Arm_Friction,...
-    Req_Dist_AOCS];
+% Cross-Limits: Arm motion must NEVER request > 0.82 Nm from Reaction Wheels
+Gain_Limit_aocs_cross  = max_torque_aocs / step_max_arm;
+Gain_Limit_arm_cross  = max_torque_arm  / step_max_aocs;
 
+Req_Effort_arm2base = TuningGoal.Gain(ref_arm, torque_aocs, Gain_Limit_aocs_cross);
+Req_Effort_base2arm = TuningGoal.Gain(ref_aocs, torque_arm, Gain_Limit_arm_cross);
+
+
+% --- GOAL 3: External & Environmental Disturbance Rejection ---
+
+% Satellite LEO environmental disturbance rejection
+compliance_env = tol_base_fine / tau_env_max;
+Req_Dist_AOCS  = TuningGoal.Gain(disturb_aocs, q_aocs, makeweight(compliance_env, [wt_aocs/3, compliance_env*5],  compliance_env*10));
+
+% Joints Friction
+M_f = @(v) Fc + (Fs-Fc)*1./(1+(v./v_s).^2);
+W_dist_arm_friction = makeweight(tol_arm_deflect/M_f(0),[wm_arm/2, tol_arm_deflect/M_f(0.05)], tol_arm_deflect/M_f(0.1));
+Req_Dist_Arm_Friction = TuningGoal.Gain(disturb_arm, q_arm, W_dist_arm_friction);
+
+
+% Hard Goals: Strict stability, cross-decoupling, and actuator limits
+Hard_Goals = [Req_Sens_arm, Req_Sens_aocs, Req_Sens_base2arm, Req_Sens_arm2base ...
+    Req_Effort_aocs, Req_Effort_arm, Req_Effort_base2arm, ...
+    Req_Dist_Arm_Friction, Req_Dist_AOCS];
+
+% Soft Goals: Minimize disturbance response as much as physically possible
 Soft_Goals = Req_Effort_arm2base;
 
 %% ------------------------------------------------------------------------
@@ -502,9 +490,9 @@ opt = systuneOptions(...
     'MaxIter',500,...
     'RandomStart',1,...
     'UseParallel',true,...
-    'SoftTarget',1200,...
-    'SoftScale',1700,...
-    'SoftTol',0.07,...
+    'SoftTarget',500,...
+    'SoftScale',1000,...
+    'SoftTol',0.04,...
     'Display','iter');
 
 fprintf('\n============================================================\n');
@@ -523,6 +511,9 @@ fprintf('Soft goal = %.8f\n',fSoft);
 %% ------------------------------------------------------------------------
 % SAVE
 % -------------------------------------------------------------------------
+
+Kp_opt = getBlockValue(CL_MIMO_Tuned, 'Kp_Full');
+
 save('K_10DOF_LPV_gridded_v2.mat',...
     'CL_LPV_Tuned','fSoft','gHard','Info',...
     'pointsPerConfig','SHAPE_ORDER',...

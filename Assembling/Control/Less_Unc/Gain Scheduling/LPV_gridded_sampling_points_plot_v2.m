@@ -26,20 +26,13 @@ pointsPerConfig(end) = 4;
 %% Exact trajectory from slow_down.m
 slow_down;
 
-requiredVars = {'t_vec_slow','q_traj_slow','qd_traj_slow','qdd_traj_slow'};
-for k = 1:numel(requiredVars)
-    if ~exist(requiredVars{k},'var')
-        error('slow_down.m did not create variable %s.',requiredVars{k});
-    end
-end
-
 %% Global alpha
 alpha_all = (t_vec_slow-t_vec_slow(1))/...
             (t_vec_slow(end)-t_vec_slow(1));
 
 %% Configuration boundaries: same convention as High_Control.m
-nSamplesPerOriginalSegment = 241;
-segment_length = nSamplesPerOriginalSegment-1;
+numSamples = 241;
+segment_length = numSamples-1;
 nOriginalSegments = (size(q_traj,2)-1)/segment_length+1; %starting from 0
 nOriginalSegments = round(nOriginalSegments);
 
@@ -71,7 +64,7 @@ for m=2:nModes-1
 end
 
 segStart(nModes)=3*nModes-4;
-segEnd(nModes)=nOriginalSegments;
+segEnd(nModes)=nOriginalSegments-1;
 
 modeT0=zeros(nModes,1);
 modeTf=zeros(nModes,1);
@@ -251,8 +244,3 @@ for i=1:numel(sampleInfo)
         sampleInfo(i).alpha);
 end
 
-save('LPV_sampling_points_v2.mat',...
-    'sampleInfo','t_vec_slow','q_traj_slow','qd_traj_slow',...
-    'qdd_traj_slow','alpha_all','modeT0','modeTf','pointsPerConfig');
-
-fprintf('\nSaved LPV_sampling_points_v2.mat\n');
