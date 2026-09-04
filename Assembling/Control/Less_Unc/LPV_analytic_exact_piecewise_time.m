@@ -47,7 +47,7 @@ MODEL_FILE = 'SDT_Control_Tuning_HC.slx';
 T_segment = 120.0;   % duration of one quintic joint segment [s]  (slow_down.m)
 T_pause   = 50.0;    % duration of one holding pause [s]          (slow_down.m)
 
-SAVE_FILE = 'K_10DOF_LPV_analytic.mat';
+SAVE_FILE = 'K_10DOF_LPV_analytic2.mat';
 
 %% =========================================================================
 % I/O DEFINITIONS - SAME AS High_Control.m / LPV_gridded_tuning_v2.m
@@ -324,7 +324,18 @@ Req_Effort_arm  = TuningGoal.Gain(ref_arm, torque_arm, Gain_Limit_arm);
 Gain_Limit_aocs_cross = max_torque_aocs / step_max_arm;
 Gain_Limit_arm_cross  = max_torque_arm  / step_max_aocs;
 
-Req_Effort_arm2base  = TuningGoal.Gain(ref_arm, torque_aocs, Gain_Limit_aocs_cross);
+% ref_arm is a smooth quintic profile, not a step: it has no real energy
+% above the fundamental frequency of a T_segment maneuver, so the
+% coupling-torque bound is relaxed there. TuningGoal.Gain has no
+% InputWeight property (confirmed: only InputScaling/OutputScaling, and
+% Input/Output are plain signal-name lists), and repmat() on a dynamic
+% system does not accept two size arguments, so the shaping is done the
+% same proven way as W_Sens_arm/W_Sens_arm2base above: MaxGain itself is
+% a frequency-dependent (but proper, bounded) weight.
+w_corner = 2*pi/T_segment;               % fundamental frequency of a T_segment maneuver
+W_Effort_arm2base = makeweight(Gain_Limit_aocs_cross, w_corner, 1e3*Gain_Limit_aocs_cross, 0, 3);
+
+Req_Effort_arm2base  = TuningGoal.Gain(ref_arm, torque_aocs, W_Effort_arm2base);
 Req_Effort_base2arm  = TuningGoal.Gain(ref_aocs, torque_arm, Gain_Limit_arm_cross);
 
 % --- GOAL 3: External & Environmental Disturbance Rejection ---
@@ -346,11 +357,11 @@ Soft_Goals = Req_Effort_arm2base;
 % -------------------------------------------------------------------------
 opt = systuneOptions(...
     'MaxIter',500,...
-    'RandomStart',0,...
-    'UseParallel',false,...
+    'RandomStart',1,...
+    'UseParallel',true,...
     'SoftTarget',500,...
     'SoftScale',1000,...
-    'SoftTol',0.04,...
+    'SoftTol',0.025,...
     'Display','iter');
 
 fprintf('\n============================================================\n');
@@ -362,6 +373,30 @@ fprintf('Branches (moving + pause) : %d\n',numel(CL_cell));
 
 fprintf('\nHard goal = %.8f\n',gHard);
 fprintf('Soft goal = %.8f\n',fSoft);
+
+%% ------------------------------------------------------------------------
+% REQUIREMENT VIEWS
+% -------------------------------------------------------------------------
+
+goalNames = { ...
+    'Arm tracking',...
+    'AOCS tracking',...
+    'AOCS-to-arm coupling',...
+    'Arm-to-AOCS coupling',...
+    'AOCS actuator effort',...
+    'Arm actuator effort',...
+    'AOCS-to-arm torque',...
+    'Arm friction rejection',...
+    'AOCS disturbance rejection',...
+    'Arm-to-AOCS torque (soft)'};
+
+allGoals = [Hard_Goals,Soft_Goals];
+
+for goalIdx = 1:numel(allGoals)
+    figure('Name',['LPV requirement: ',goalNames{goalIdx}],...
+        'NumberTitle','off');
+    viewGoal(allGoals(goalIdx),CL_LPV_Tuned);
+end
 
 %% ------------------------------------------------------------------------
 % SAVE
